@@ -581,8 +581,8 @@ function data = process_file(full_name, output_folder_name, log, events2, vars2)
             full_data_mat = edf2matlab2(full_name, output_folder_name, log, events2, vars2);
         elseif strcmp(ext, '.txt')
             full_data_mat  = etTxt2matlab(full_name, output_folder_name, log, events2, vars2);
-        elseif strcmp(ext, '.als')
-            full_data_mat  = als2matlab(full_name, output_folder_name, log, events2, vars2);
+        elseif strcmp(ext, '.asl')
+            full_data_mat  = asl2matlab(full_name, output_folder_name, log, events2, vars2);
         elseif strcmp(ext, '.tbi')
             full_data_mat  = tobii2matlab(full_name, output_folder_name, log, events2, vars2);
 
