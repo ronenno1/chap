@@ -93,14 +93,18 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     
     
     
-    data.trial_data = struct2table(trial_data);
+    var_ids = find(~cellfun(@isempty, strfind(event_msgs,'!V TRIAL_VAR')));
 
-    
+    if ~isempty(var_ids)
+        total_var_data = parse_data.parse_vars(event_msgs, event_timestamps, timestamps, var_ids, trial_data.Trial_Onset_num);
+        data.total_var_data_table = struct2table(total_var_data);
+    end
+
     vars_file = strcat(path, filesep, file_name, '_vars.csv');
     if exist(vars_file, 'file')
         [~, var_data_table] = parse_data.parse_external_vars(vars_file);
-        data.total_var_data_table = var_data_table;
-    end;
+        data.total_var_data_table = [data.total_var_data_table var_data_table] ;
+    end
 
     print_log('Parsing events', log);    
     data.event_data = [];

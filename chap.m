@@ -235,7 +235,7 @@ function [data_mat, blinks_data] = fix_all_blinks(data, z_outliers, zeros_outlie
             continue;
         end
         pupil_data = trial_data.pupil_size(:,eye);
-        [pupil_data, blinks_data_positions]    = fix_blinks2(trial_data.pupil_size(:,eye), z_outliers, zeros_outliers, data.rate, linear_interpolation, gradient, trial2show);
+        [pupil_data, blinks_data_positions]       = fix_blinks2(trial_data.pupil_size(:,eye), z_outliers, zeros_outliers, data.rate, linear_interpolation, gradient, trial2show);
         data_mat.pupil(Trial_Onset:Trial_Offset)  = pupil_data;
         blinks_data{trial} = blinks_data_positions;
     end

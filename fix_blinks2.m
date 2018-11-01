@@ -1,6 +1,9 @@
 function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers, zerosOutliers, rate, linear_interpulation, gradient, debug_mode)
     pupil_data2 = pupil_data; 
     blinks_data_positions = [];
+    gap_interval          = 100;                             % set the interval between two sets that appear consecutively for concatenation.
+    gap_interval_samples  = gap_interval/(1000/rate); 
+
     start_debug = 0;
     if (~exist('debug_mode', 'var'))
         debug_mode = false;
@@ -16,7 +19,7 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
         hold off
         plot(pd, 'black', 'LineWidth',2)
         hold on
-   end ;
+    end
     
     pupil_data(pupil_data==0)=nan;    
     pupil_mean = nanmean(pupil_data);
@@ -99,7 +102,10 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
     
 %     gradient    = diff_mean+gradient_crit*diff_std;
     blinks_data = -1.*(diff_data <=-gradient) + (diff_data >=gradient);
-    
+    if(size(blinks, 1)>0 && blinks(end)<0) && pupil_data(end)==0 
+        blinks = vertcat(blinks, size(pupil_data, 1));
+    end
+
     if gradient_approach>0
         blinks      = vertcat(-1.*find(blinks_data == -1), find(blinks_data == 1));
     end
@@ -111,7 +117,7 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
 
     % the trail starts with blink
     if(size(blinks, 1)>0 && blinks(1)>0) && pupil_data(1)==0 
-        blinks = vertcat(-2, blinks);
+        blinks = vertcat(-1, blinks);
     end
     
     % the trail ends with blink
@@ -128,7 +134,6 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
     blink = 1;
     prev_p2 = -1;
     prev_p3 = -1;
-%     bd = fix_blinks4all(pupil_data, rate)
     while blink < size(blinks, 1)
         while blink  <= size(blinks,1) && blinks(blink)>0  
             blink = blink + 1;
@@ -139,19 +144,19 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
         end
 
         blink_start = blinks(blink);
-
+        
         blink = blink + 1; 
-        while blink  <= size(blinks,1) && blinks(blink)<0  
+        while blink  <= size(blinks, 1) && blinks(blink)<0  
             blink = blink + 1;
         end
-        while blink  < size(blinks,1) && blinks(blink+1)>=0 && blinks(blink+1) == blinks(blink)+1   
+        while blink  < size(blinks, 1) && blinks(blink+1)>=0 && blinks(blink+1) == blinks(blink)+1   
             blink = blink + 1;
         end
         if blink > size(blinks)
             pupil_data(abs(blinks(blink-1)):end) = pupil_data(abs(blinks(blink-1)));
             if(debug_mode && debug_mode>start_debug)
                 p2 = abs(blink_start);
-                plot(p2, pd(p2), 'r*', 'LineWidth',6);
+                plot(p2, pd(p2), 'r*', 'LineWidth', 6);
             end
             break;
         end
@@ -169,26 +174,37 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
         p2      = find(short2>0, 1,'last'); %abs(blink_start);
           
         if isempty(p2)
-            p2 = 0;
+            p2 = 2;
+            blinks_data_positions = [blinks_data_positions, 0];
+        else
+            blinks_data_positions = [blinks_data_positions, -p2];
         end
         
-        if p2==0 || pupil_data(p2+2)>0
-            p2      = p2+2;
+
+        if pupil_data(p2+2)>0
+            p2 = p2+2;
+            blinks_data_positions(end) = -p2;
+
         end
-        blinks_data_positions = [blinks_data_positions, p2];
-        if(prev_p3>0 && p2-5<=prev_p3)
+
+        
+        if(prev_p3>0 && p2-gap_interval_samples<=prev_p3)
             p2 = prev_p2;
+            blinks_data_positions(end) = -prev_p3;
+
         end
+        
         p3      = blink_end+find(short3<0, 1);
         if(isempty(p3))
             pupil_data(p2+1:end) = pupil_data(p2);            
             if(debug_mode && debug_mode>start_debug)
                 plot(p2, pd(p2), 'r*', 'LineWidth',6);
             end
-            break;
+            p3 = size(pupil_data, 1)+1;
         end
+        
         if pupil_data(p3-1)>0
-             p3      = p3-1;
+             p3 = p3-1;
         end
         blinks_data_positions = [blinks_data_positions, p3];
        
@@ -197,7 +213,7 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
                 p2 = abs(blink_start);
             end
             p3 = blink_end+1;
-            [p2,p3];
+            [p2, p3];
         end
 %         blinks_data_positions = [blinks_data_positions, [p2, p3]];
 %         if without_noise
@@ -226,7 +242,11 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
         if(p2==p3) 
             continue;
         end
-       
+        if(p2<p3)
+            pupil_data(1:p3) = p3;
+            continue
+        end
+        
         if(linear_interpulation || p2-p1~=p4-p3)
             b = spline([p2 p3],[pupil_data(p2) pupil_data(p3)],p2:p3)';
         else
@@ -262,7 +282,6 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
         set(gca, 'XTick', xt, 'XTickLabel', xt*(1000/rate));
         xlabel({'Time (ms)'})
 
-
         key = 0;
 
         while ~key
@@ -270,11 +289,21 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
         end
         close(10);
         blinks_data_positions = blinks_data_positions*(1000/rate);
-
     end
-    [n, bin] = histc(blinks_data_positions, unique(blinks_data_positions));
-    multiple = find(n > 1);
-    index    = find(ismember(bin, multiple));
-    blinks_data_positions(index) = [];
+    
+    
+    id = 1;
+    while(id<size(blinks_data_positions, 2)-1)
+        if(blinks_data_positions(id)>0 && blinks_data_positions(id)==-blinks_data_positions(id+1))
+            blinks_data_positions(id:id+1) = [];
+        else
+            id = id+1;
+        end
+    end
+    blinks_data_positions = abs(blinks_data_positions);
+%     [n, bin] = histc(blinks_data_positions, unique(blinks_data_positions));
+%     multiple = find(n > 1);
+%     index    = find(ismember(bin, multiple));
+%     blinks_data_positions(index) = [];
 
 end

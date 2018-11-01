@@ -254,9 +254,11 @@ classdef ploter2
                 elseif strcmp(scattering, 'CI')
                     scattering_data = ci;
                 end
-                h = fill([x;flipud(x)],[d-scattering_data;flipud(d+scattering_data)], cmap3(comp,:), 'LineStyle', '--', 'EdgeColor', cmap2(comp,:));
-                set(h,'facealpha',.2)
-
+%                 h = fill([x;flipud(x)],[d-scattering_data;flipud(d+scattering_data)], cmap3(comp,:), 'LineStyle', '--', 'EdgeColor', cmap2(comp,:));
+%                 set(h,'facealpha',.2)
+                h = fill([x;flipud(x)],[d-scattering_data;flipud(d+scattering_data)], cmap3(comp,:), 'LineStyle', '-', 'EdgeColor', cmap2(comp,:));
+                set(h,'facealpha',.5)
+                
             end
             if (~exist('ploted_data', 'var'))
                 ploted_data.(cond_name).pupil      = [];

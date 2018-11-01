@@ -279,9 +279,11 @@ classdef grouper
                     scattering_data = ci;
                 end
 
-                
-                h = fill([x_axis';flipud(x_axis')],[d'-scattering_data';flipud(d'+scattering_data')], cmap3(comp_id,:), 'LineStyle', '--', 'EdgeColor', cmap2(comp_id,:));
-                set(h,'facealpha',.2)
+%                 h = fill([x_axis';flipud(x_axis')],[d'-scattering_data';flipud(d'+scattering_data')], cmap3(comp_id,:), 'LineStyle', '--', 'EdgeColor', cmap2(comp_id,:));
+%                 set(h,'facealpha',.2)
+
+                h = fill([x_axis';flipud(x_axis')],[d'-scattering_data';flipud(d'+scattering_data')], cmap3(comp_id,:), 'LineStyle', '-', 'EdgeColor', cmap2(comp_id,:));
+                set(h,'facealpha',.5)
             end
             
             
