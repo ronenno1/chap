@@ -233,18 +233,15 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
             
         end
 
-        if p2==2
-            pupil_data(1:2) =  pupil_data(p3);
+        if p2==2 || p2>p3
+            pupil_data(1:p3) =  pupil_data(p3);
+            continue;
         end
         if(p3==p4)
             continue;
         end
         if(p2==p3) 
             continue;
-        end
-        if(p2<p3)
-            pupil_data(1:p3) = p3;
-            continue
         end
         
         if(linear_interpulation || p2-p1~=p4-p3)
