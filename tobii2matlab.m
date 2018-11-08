@@ -102,8 +102,13 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
 
     vars_file = strcat(path, filesep, file_name, '_vars.csv');
     if exist(vars_file, 'file')
-        [~, var_data_table] = parse_data.parse_external_vars(vars_file);
-        data.total_var_data_table = [data.total_var_data_table var_data_table] ;
+        try
+            var_data_table = parse_data.parse_external_vars(vars_file);
+            data.total_var_data_table = [data.total_var_data_table, var_data_table];
+        catch err
+            print_log(['Error: ' err.message], log);
+            return;
+        end
     end
 
     print_log('Parsing events', log);    

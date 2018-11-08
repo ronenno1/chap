@@ -1,24 +1,10 @@
 classdef parse_data
     methods(Static)
-        function [var_data, var_data_table] = parse_external_vars(vars_file)
-            var_data_table = readtable(vars_file, 'Delimiter', ',');    
-            var_data = [];
-%             var_names = fieldnames(var_data_table);
-%             ext_vars = var_names(2:end-1);
-%             
-%             trials = var_data_table(:, 1);
-%             var_data = [];
-%             for var = 1:size(ext_vars, 1)
-%                 var_name =  ext_vars{var};
-%                 vals = var_data_table.(char(ext_vars(var)));
-%                 for trial = 1:size(trials, 1)
-%                     temp_var_data(trial, :).trial_id = trial;
-%                     temp_var_data(trial, :).var_name = var_name;
-%                     temp_var_data(trial, :).var_val  = vals{trial};
-%                 end
-%                 var_data = [var_data; temp_var_data];
-%             end       
-            
+        function var_data_table = parse_external_vars(vars_file)
+            var_data_table = readtable(vars_file, 'Delimiter', ',');          
+            if ~ismember('trial_id', var_data_table.Properties.VariableNames)
+                error('Corrupt variable file (trial\_id column does not exist)');
+            end
             var_data_table.trial_id = [];
         end
         

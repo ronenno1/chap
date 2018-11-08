@@ -13,13 +13,13 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     [path, file_name, ext] = fileparts(full_txt_name);
     if ~strcmpi(ext, '.txt')
         return;
-    end;
+    end
       
     event_csv_name = [path filesep file_name '_events.csv'];
     if ~exist(event_csv_name, 'file')
         print_log(strcat('Error (3): events file does not found, please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
         return;
-    end;
+    end
 
     print_log(['Start load and convert TXT file: ' strrep(file_name, '_', '\_') ext], log);
 
@@ -34,11 +34,11 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
                 system(['python ' folder filesep 'json2csv.py ', origin_file_path]);
             else
                 system(['py  ' folder  filesep 'json2csv.py ', origin_file_path]);
-            end;
+            end
             if exist(json_file_name, 'file')
                delete(json_file_name);
             end
-        end;
+        end
         
         print_log(['Start loading and convert csv file: ' strrep(file_name, '_', '\_') '.csv'], log);
 
@@ -58,11 +58,11 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
         data.pupil_y    = (raw_data_table.values_frame_lefteye_avg_y + raw_data_table.values_frame_righteye_avg_y)/2;
         loaded = true;
     catch
-    end;        
+    end        
     if ~loaded
         print_log('Error: incompetible file (2), please check your file', log);    
         return;
-    end;
+    end
     print_log('Start loading pupil data', log);  
     timestamps = 86400*(datenum(data.timestamps(:), 'yyyy-mm-dd HH:MM:SS.FFF')- datenum('01-Jan-1970'))';
     
@@ -71,7 +71,7 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     while data.rate==0
         first_index = first_index+1;
         data.rate   = roundn(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), 1);
-    end;
+    end
 
     data.file_name  = full_txt_name;     
     timestamps = timestamps*data.rate;
@@ -84,7 +84,7 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     catch
         print_log('Error (4): incompetible file, please check your file', log);    
         return;
-    end;
+    end
     print_log('starting loading messages', log);    
 
     event_msgs        = mes_data_table.message;
@@ -102,7 +102,7 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     if(isempty(trial_ids))
         print_log('Error: trials did not found', log);
         return;
-    end;
+    end
     trial_data.trial_names     = cellfun(@(x) str2double(char(regexp(char(x),'\d+','match'))), event_msgs(trial_ids));        
     trial_data.Trial_Onset_num = arrayfun(@(timestamp) get_trial_data_onset(timestamp, timestamps), event_timestamps(trial_ids));
     
@@ -118,13 +118,18 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     if ~isempty(var_ids)
         total_var_data = parse_data.parse_vars(event_msgs, event_timestamps, timestamps, var_ids, trial_data.Trial_Onset_num);
         data.total_var_data_table = struct2table(total_var_data);
-    end;
+    end
 
     vars_file = strcat(path, filesep, file_name, '_vars.csv');
     if exist(vars_file, 'file')
-        [~, var_data_table] = parse_data.parse_external_vars(vars_file);
-        data.total_var_data_table = [data.total_var_data_table, var_data_table];
-    end;
+        try
+            var_data_table = parse_data.parse_external_vars(vars_file);
+            data.total_var_data_table = [data.total_var_data_table, var_data_table];
+        catch err
+            print_log(['Error: ' err.message], log);
+            return;
+        end
+    end
 
     print_log('Parsing events', log);    
     data.event_data = [];
@@ -135,7 +140,7 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     if ~isempty(event_ids)
         event_data_table = parse_data.parse_events(event_full_data, event_full_timestamps, timestamps, data.trial_data.Trial_Onset_num);
         data.total_var_data_table = [data.total_var_data_table, event_data_table];
-    end;
+    end
     mm_file = strcat(path, filesep, file_name, '_mm.csv');
     if exist(mm_file, 'file')
         ap_data   = readtable(mm_file, 'Delimiter', ',');
@@ -146,7 +151,7 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
         pupil_diameter_pixels = 2*sqrt(data.pupil_size/pi);
         pupil_diameter_mm     = pupil_diameter_pixels*ratio;
         data.pupil_size       = pupil_diameter_mm;
-    end;
+    end
     
     data.events2 = events2;
     data.vars2   = vars2;

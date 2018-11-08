@@ -175,8 +175,13 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
 
     vars_file = strcat(file_path, filesep, file_name, '_vars.csv');
     if exist(vars_file, 'file')
-        [var_data, var_data_table] = parse_data.parse_external_vars(vars_file);
+        try
+        var_data_table = parse_data.parse_external_vars(vars_file);
         data.total_var_data_table = [data.total_var_data_table, var_data_table];
+        catch err
+            print_log(['Error: ' err.message], log);
+            return;
+        end
     end
         
     print_log('Parsing events', log);    
@@ -236,6 +241,10 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     data.events2 = events2;
     data.vars2   = vars2;
     trial_data.trial_length = trial_data.Trial_Offset_num-trial_data.Trial_Onset_num;
+    if length(trial_data.trial_length) ~= size(data.total_var_data_table, 1)
+        print_log('Error: Variable does not consistent with trials', log);
+        return;
+    end
     data.total_var_data_table.event_Trial_Offset = trial_data.trial_length;
 
     save([output_folder_name filesep file_name '.chp'], 'data');
