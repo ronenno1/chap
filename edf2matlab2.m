@@ -32,8 +32,8 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
             path = strrep(full_path(1:end-11), ' ', '\ ');
             mat_file_path_fixed = strrep(mat_file_path, ' ', '\ ');
 
-            [status, cmdout] = system(['export LD_LIBRARY_PATH=/usr/local/MATLAB/R' matlab_version '/bin/glnxa64/:/usr/local/MATLAB/' matlab_version '/sys/os/glnxa64/']);
-            [status, cmdout] = system([path 'edf2mat/edfmat_ubuntu64 ' full_edf_name_fixed ' ' mat_file_path_fixed])
+            system(['export LD_LIBRARY_PATH=/usr/local/MATLAB/R' matlab_version '/bin/glnxa64/:/usr/local/MATLAB/' matlab_version '/sys/os/glnxa64/']);
+            system([path 'edf2mat/edfmat_ubuntu64 ' full_edf_name_fixed ' ' mat_file_path_fixed])
             print_log(['Load mat file: ' strrep(file_name, '_', '\_') '.mat'], log);
             clc
         end
@@ -106,7 +106,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     tic;
     
     %% find rate
-    mode_id     = find(~cellfun(@isempty, strfind(event_msgs,'!MODE')),1);
+    mode_id     = find(~cellfun(@isempty, strfind(event_msgs, '!MODE')), 1);
     mode_data   = strsplit(event_msgs{mode_id});
     data.rate   = str2double(char((mode_data(4)))); 
     data.file_name  = full_edf_name; 
@@ -120,7 +120,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     print_log('Parsing trials', log); 
     
 %     trial_ids = find(~cellfun(@isempty, strfind(event_msgs,'Start Recording')));
-        trial_ids = find(~cellfun(@isempty, strfind(event_msgs,'TRIALID')));
+        trial_ids = find(~cellfun(@isempty, strfind(event_msgs, 'TRIALID')));
 
     if(isempty(trial_ids))
         print_log('Error: trials did not found', log);
@@ -246,7 +246,28 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
         return;
     end
     data.total_var_data_table.event_Trial_Offset = trial_data.trial_length;
+    
+    mm_file = strcat(file_path, filesep, file_name, '_mm.csv');
+    if exist(mm_file, 'file')
+        ap_data   = readtable(mm_file, 'Delimiter', ',');
+        ap_mm     = ap_data.mm;
+        ap_pixels = ap_data.pixels;
+        
+        pupil_data_type_id  = find(~cellfun(@isempty, strfind(event_msgs, 'PUPIL_DATA_TYPE')), 1);
+        pupil_data_type_arr = strsplit(event_msgs{pupil_data_type_id});
 
+        if (strcmp(pupil_data_type_arr(2), 'RAW_AUTOSLIP')) % measure by area
+            ratio                 = ap_mm/(2*sqrt(ap_pixels/pi));
+            pupil_diameter_pixels = 2*sqrt(data.pupil_size/pi);
+        else
+            ratio = ap_mm/ap_pixels;
+            pupil_diameter_pixels = data.pupil_size;
+        end
+        
+        pupil_diameter_mm     = pupil_diameter_pixels*ratio;
+        data.pupil_size       = pupil_diameter_mm;
+    end
+    
     save([output_folder_name filesep file_name '.chp'], 'data');
     output = data;
     return;
