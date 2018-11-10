@@ -119,3 +119,20 @@ if err
 else 
     fprintf('Success.\n\n');
 end
+
+if ismac
+    zip_file = [pwd, filesep, 'edf2mat', filesep, 'edf-converter-master.zip'];
+    zip_dest = [pwd, filesep, 'edf2mat'];
+    folder_1 = [pwd, filesep, 'edf2mat', filesep, 'edf-converter-master', filesep, '@Edf2Mat'];
+    folder_2 = [pwd, filesep, 'edf2mat', filesep, 'edf-converter-master', filesep, 'edfmex'];
+    dest_1   = [pwd, filesep, '@Edf2Mat'];
+    dest_2   = [pwd, filesep, 'edfmex'];
+    try
+        unzip(zip_file, zip_dest); 
+        copyfile(folder_1, dest_1);
+        copyfile(folder_2, dest_2);
+    catch
+        fprintf('Something works wrong :(\nPlease unzip: %s\n', zip_file);
+        fprintf('Then copy: %s and %s to %s\n', folder_1, folder_2, pwd);
+    end
+end
