@@ -139,7 +139,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
         Trial_Offset_ids              = vertcat(trial_ids(2:end), -1);
         trial_data.Trial_Offset_num   = arrayfun(@(x) get_Trial_Offset(x, event_timestamps, timestamps), Trial_Offset_ids)-1;
     else
-        trial_data.Trial_Offset_num = arrayfun(@(x) get_Trial_Onset(x, event_timestamps, timestamps), Trial_Offset_ids);
+        trial_data.Trial_Offset_num = arrayfun(@(x) get_Trial_Offset_msg(x, event_timestamps, timestamps), Trial_Offset_ids);
     end
     
     trial_data.trial_length    = trial_data.Trial_Offset_num-trial_data.Trial_Onset_num;
@@ -282,6 +282,16 @@ function Trial_Onset_id = get_Trial_Onset(index, event_timestamps, timestamps)
         Trial_Onset_id = 1;
     end
 end
+
+
+function Trial_offset_id = get_Trial_Offset_msg(index, event_timestamps, timestamps)
+    start_timestamp = event_timestamps(index);
+    Trial_offset_id  = find(timestamps>=start_timestamp, 1, 'first');
+    if(isempty(Trial_offset_id))
+        Trial_offset_id = length(timestamps);
+    end
+end
+
 
 function Trial_Offset_id = get_Trial_Offset(index, event_timestamps, timestamps)
     next_timestamp = double(timestamps(end)+1000);
