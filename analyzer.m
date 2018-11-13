@@ -39,6 +39,8 @@ classdef analyzer
                 comp_name = [];
                 id = [];
                 used = true;
+                if comp == 17
+                end
                 for condition = 1:size(comp_nums, 2)
                     cond_name = char(cond_names(condition));
                     level     = comp_nums(comp, condition);
@@ -83,23 +85,30 @@ classdef analyzer
                         used = false;
                         continue;
                     end
+                    if ~used
+                        continue;
+                    end
 
-                    if(isempty(id))
+                    if(isempty(id)) && used
                         id = new_ids;
                     else
                         id = intersect(id, new_ids);
                     end
+                    if(isempty(id))
+                        used = false;
+                        continue;
+                    end
+
                 end
+                if ~used || isempty(id) 
+                    continue;
+                end
+                
+
                 counter   = counter + 1;
-                if ~used
-                    continue;
-                end
-                if(isempty(id))
-                    continue;
-                end
+                
                 comp_name = ['c_', char(strrep(strrep(char(comp_name), '.', '_'), '-', '_'))];
-                if comp == 17
-                end
+                
 
                 [cond_mat_data, cond_events_data, cond_ids, avg_cond_mat, avg_events, outliers, valid_trials] = analyzer.parse_condition(data_mat, comp_name, events_names, id, counter, size(comp_nums, 1), log);
                 data.cond_blinks.(comp_name)      = data.blinks_data(cond_ids);
