@@ -256,7 +256,7 @@ classdef ploter2
                 end
 %                 h = fill([x;flipud(x)],[d-scattering_data;flipud(d+scattering_data)], cmap3(comp,:), 'LineStyle', '--', 'EdgeColor', cmap2(comp,:));
 %                 set(h,'facealpha',.2)
-                h = fill([x;flipud(x)],[d-scattering_data;flipud(d+scattering_data)], cmap3(comp,:), 'LineStyle', '-', 'EdgeColor', cmap2(comp,:));
+                h = fill([x;flipud(x)],[d-scattering_data;flipud(d+scattering_data)], cmap3(comp,:), 'LineStyle', '-', 'EdgeColor', cmap2(comp,:), 'Parent', fig);
                 set(h,'facealpha',.5)
                 
             end
@@ -273,7 +273,7 @@ classdef ploter2
                 if~isfield(ploted_data, cond_name)
                     continue;
                 end
-                plot(fig, ploted_data.(cond_name).x_axis, ploted_data.(cond_name).pupil, 'LineWidth',3, 'Color', cmap2(comp,:));
+                plot(ploted_data.(cond_name).x_axis, ploted_data.(cond_name).pupil, 'LineWidth',3, 'Color', cmap2(comp,:), 'Parent', fig);
             end            
             set(fig, 'LineWidth', 2);
 
@@ -315,12 +315,11 @@ classdef ploter2
                     if(relative)
                         event_time = event_time-evant_avg(first_event);
                     end
-                    gca = fig;
-                    y = get(gca, 'ylim');
+                    y = get(fig, 'ylim');
                     event_time_ms = ms*event_time;
                     ploted_data.(cond_name).events.(char(event_names(e))) = event_time_ms;
 %                     line([event_time_ms event_time_ms], y, 'Color', cmap2(comp,:), 'LineStyle', '--');
-                    plot(fig, [event_time_ms event_time_ms], y, 'Color', cmap2(comp,:), 'LineStyle', '--');
+                    plot([event_time_ms event_time_ms], y, 'Color', cmap2(comp,:), 'LineStyle', '--', 'Parent', fig);
                 end
                 event_time = evant_avg(end);
                 if(relative)

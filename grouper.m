@@ -282,7 +282,7 @@ classdef grouper
 %                 h = fill([x_axis';flipud(x_axis')],[d'-scattering_data';flipud(d'+scattering_data')], cmap3(comp_id,:), 'LineStyle', '--', 'EdgeColor', cmap2(comp_id,:));
 %                 set(h,'facealpha',.2)
 
-                h = fill([x_axis';flipud(x_axis')],[d'-scattering_data';flipud(d'+scattering_data')], cmap3(comp_id,:), 'LineStyle', '-', 'EdgeColor', cmap2(comp_id,:));
+                h = fill([x_axis';flipud(x_axis')],[d'-scattering_data';flipud(d'+scattering_data')], cmap3(comp_id,:), 'LineStyle', '-', 'EdgeColor', cmap2(comp_id,:), 'Parent', fig);
                 set(h,'facealpha',.5)
             end
             
@@ -309,12 +309,12 @@ classdef grouper
                 x = x_axis';
                 
                 hold on;
-                plot(fig, x_axis, total_data.(char(comp)).avg, 'LineWidth', 3, 'Color', cmap2(i,:));
+                plot(x_axis, total_data.(char(comp)).avg, 'LineWidth', 3, 'Color', cmap2(i,:), 'Parent', fig);
             end
 %             comp1 = char(comp_names(1));
 %             comp2 = char(comp_names(2));
 %             total_data.diff.avg=total_data.(char(comp2)).avg(1:5500)-total_data.(char(comp1)).avg(1:5500);
-%             plot(fig, x_axis(1:5500), total_data.diff.avg, 'LineWidth', 3, 'Color', cmap2(3,:));
+%             plot(x_axis(1:5500), total_data.diff.avg, 'LineWidth', 3, 'Color', cmap2(3,:), 'Parent', fig);
 
             total_data.x_axis = x_axis;
             %% plot events
@@ -332,7 +332,7 @@ classdef grouper
                     x = total_data.(char(comp)).avg_events.(evnt);
                     x = x-Trial_Onset;
                     y = get(gca,'ylim');
-                    plot([x x], y, 'Color', cmap2(i, :), 'LineStyle', '--');
+                    plot([x x], y, 'Color', cmap2(i, :), 'LineStyle', '--', 'Parent', fig);
                 end
             end
 

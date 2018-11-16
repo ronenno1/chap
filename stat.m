@@ -70,28 +70,25 @@ classdef stat
             data2plot_ns(data2plot_ns<=(1/3)) = -max_bf/50;
 
             cla(fig);
-            plot(fig, x_axis, contrast_data(1:size(x_axis, 2)), 'blue', 'LineWidth',2);
-
+            plot(x_axis, contrast_data(1:size(x_axis, 2)), 'blue', 'LineWidth', 2, 'Parent', fig);
             hold on
             
             if bayesian
-                plot(fig, x_axis, 1./contrast_data(1:size(x_axis, 2)), 'red', 'LineWidth',2);
+                plot(x_axis, 1./contrast_data(1:size(x_axis, 2)), 'red', 'LineWidth', 2, 'Parent', fig);
 %                 grouper.do_plot(total_data, total_data.configuration, total_data.configuration.rate, fig);
                 
-                plot(fig, x_axis, data2plot(1:size(x_axis, 2)), 'black', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'black');
-                plot(fig, x_axis, data2plot_ns(1:size(x_axis, 2)), 'green', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'green');
+                plot(x_axis, data2plot(1:size(x_axis, 2)), 'black', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'black', 'Parent', fig);
+                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'green', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'green', 'Parent', fig);
                 ylim([-inf inf])
             else
-                plot(fig, x_axis, data2plot_001(1:size(x_axis, 2)), 'color', [0, 0, 0], 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', [0, 0, 0]);
-                plot(fig, x_axis, data2plot_01(1:size(x_axis, 2)), 'color', [.3, .3, .3], 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', [.3, .3, .3]);
-                plot(fig, x_axis, data2plot_05(1:size(x_axis, 2)), 'color', [.6, .6, .6], 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', [.6, .6, .6]);
-
+                plot(x_axis, data2plot_001(1:size(x_axis, 2)), 'color', [0, 0, 0], 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', [0, 0, 0], 'Parent', fig);
+                plot(x_axis, data2plot_01(1:size(x_axis, 2)), 'color', [.3, .3, .3], 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', [.3, .3, .3], 'Parent', fig);
+                plot(x_axis, data2plot_05(1:size(x_axis, 2)), 'color', [.6, .6, .6], 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', [.6, .6, .6], 'Parent', fig);
             end
             set(fig,'FontWeight','bold');
 
             xlabel(fig, 'Time [ms]', 'FontWeight','bold');
             
-
             if bayesian
                 ylabel(fig, 'BF', 'FontWeight','bold');
                 legend(fig, ['BF_{10}'; 'BF_{01}']);
