@@ -1,4 +1,4 @@
-function CHAP_instalation()
+function CHAP_installation()
 clear mex
 
 targetdirectory=fileparts(mfilename('fullpath'));
