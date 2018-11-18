@@ -331,7 +331,7 @@ classdef grouper
                     total_data.(char(comp)).avg_events.(evnt) = mean(total_data.(char(comp)).events.(evnt));
                     x = total_data.(char(comp)).avg_events.(evnt);
                     x = x-Trial_Onset;
-                    y = get(gca,'ylim');
+                    y = get(fig,'ylim');
                     plot([x x], y, 'Color', cmap2(i, :), 'LineStyle', '--', 'Parent', fig);
                 end
             end
