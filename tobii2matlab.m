@@ -13,7 +13,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     [path, file_name, ext] = fileparts(full_tobii_name);
     if ~strcmpi(ext, '.tbi')
         return;
-    end;
+    end
       
     print_log(['Start load and convert TOBII file: ' strrep(file_name, '_', '\_') ext], log);
 
@@ -25,7 +25,8 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     raw_data_table  = readtable([path filesep file_name '.dat'], 'Delimiter', ',');
     data.timestamps = raw_data_table.RecordingTimestamp;
     
-    
+    raw_data_table.PupilDiameterLeft(isnan(raw_data_table.PupilDiameterLeft)) = 0;
+    raw_data_table.PupilDiameterRight(isnan(raw_data_table.PupilDiameterRight)) = 0;
     raw_data_table.PupilDiameterLeft(raw_data_table.PupilDiameterLeft==0) = raw_data_table.PupilDiameterRight(raw_data_table.PupilDiameterLeft==0);
     raw_data_table.PupilDiameterRight(raw_data_table.PupilDiameterRight==0) = raw_data_table.PupilDiameterLeft(raw_data_table.PupilDiameterRight==0);
     
@@ -44,7 +45,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     while data.rate==0
         first_index = first_index+1;
         data.rate   = roundn(1000/(timestamps(first_index) - timestamps(first_index-1)), 1);
-    end;
+    end
  
     timestamps = timestamps/(1000/data.rate);
     
@@ -58,7 +59,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     if ~exist(event_csv_name, 'file')
         print_log(strcat('Error (3): events file does not found, please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
         return;
-    end;
+    end
 
 %         
 
@@ -67,7 +68,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     catch
         print_log('Error (4): incompetible file, please check your file', log);    
         return;
-    end;
+    end
     event_msgs        = mes_data_table.Event;
     event_timestamps  = mes_data_table.RecordingTimestamp/(1000/data.rate);
 
@@ -76,7 +77,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     if(isempty(trial_ids))
         print_log('Error: trials did not found', log);
         return;
-    end;
+    end
     trial_data.trial_names     = cellfun(@(x) str2double(char(regexp(char(x),'\d+','match'))), event_msgs(trial_ids));        
     trial_data.Trial_Onset_num = arrayfun(@(timestamp) get_trial_data_start(timestamp, timestamps), event_timestamps(trial_ids));
     
@@ -94,6 +95,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     
     
     var_ids = find(~cellfun(@isempty, strfind(event_msgs,'!V TRIAL_VAR')));
+    data.total_var_data_table = [];
 
     if ~isempty(var_ids)
         total_var_data = parse_data.parse_vars(event_msgs, event_timestamps, timestamps, var_ids, trial_data.Trial_Onset_num);
@@ -114,13 +116,13 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     print_log('Parsing events', log);    
     data.event_data = [];
     event_ids = find(~cellfun(@isempty, strfind(event_msgs,'!E TRIAL_EVENT_VAR')));
-        event_full_data = event_msgs(event_ids);
-        event_full_timestamps = event_timestamps(event_ids);
+    event_full_data = event_msgs(event_ids);
+    event_full_timestamps = event_timestamps(event_ids);
 
     if ~isempty(event_ids)
         event_data_table = parse_data.parse_events(event_full_data, event_full_timestamps, timestamps, data.trial_data.Trial_Onset_num);
         data.total_var_data_table = [data.total_var_data_table, event_data_table];
-    end;
+    end
 
     data.events2 = events2;
     data.vars2   = vars2;
