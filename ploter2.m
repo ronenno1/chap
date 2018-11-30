@@ -304,11 +304,13 @@ classdef ploter2
                 if~isfield(cond_events_data, cond_name)
                     continue;
                 end
-                if(size(cond_events_data.(char(cond_name)),1)==0)
+                if(size(cond_events_data.(char(cond_name)), 1)==0)
                     continue;
                 end
                 events    = cond_events_data.(cond_name);
-                  evant_avg = mean(events,2);
+                outlier_trials = find(isnan(min(ploted_data.(char(cond_name)).cuted_data)));
+                events(:, outlier_trials) = [];
+                evant_avg = mean(events, 2);
                 
                 for e = events_id_to_show  
                     event_time = evant_avg(e);
