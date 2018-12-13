@@ -585,6 +585,8 @@ function data = process_file(full_name, output_folder_name, log, events2, vars2)
             full_data_mat  = asl2matlab(full_name, output_folder_name, log, events2, vars2);
         elseif strcmp(ext, '.tbi')
             full_data_mat  = tobii2matlab(full_name, output_folder_name, log, events2, vars2);
+        elseif strcmp(ext, '.plsd')
+            full_data_mat  = plsd2matlab(full_name, output_folder_name, log, events2, vars2);
 
         end
         if(isempty(full_data_mat))

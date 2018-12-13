@@ -61,7 +61,7 @@ classdef output
         
         function save_figure2(fig, full_file_name)
             if (~exist('full_file_name', 'var'))
-                [file_name, path_name]  = uiputfile({'*.fig';'*.png'}, 'Select file to save');
+                [file_name, path_name]  = uiputfile({'*.png';'*.fig'}, 'Select file to save');
                 if(~file_name)
                     return;
                 end

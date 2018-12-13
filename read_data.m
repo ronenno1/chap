@@ -4,7 +4,7 @@ classdef read_data
         function data = read_file(log) % read result file and convert it to chap format
             start = tic;
             data = [];
-            [file_name, path_name] = uigetfile({'*.edf;*.txt;*.asl;*.tbi',  'Eye-link / Eye-tribe file(*.edf, *.txt)`'; ...
+            [file_name, path_name] = uigetfile({'*.edf;*.txt;*.asl;*.tbi;*.plsd',  'Eye-link / Eye-tribe file(*.edf, *.txt)`'; ...
                                                 '*.dat','General (*.dat)'; ...
 
 
@@ -36,6 +36,8 @@ classdef read_data
                 full_data_mat = asl2matlab(full_name, output_folder_name, log);
             elseif strcmp(ext, '.tbi')
                 full_data_mat = tobii2matlab(full_name, output_folder_name, log);
+            elseif strcmp(ext, '.plsd')
+                full_data_mat = plsd2matlab(full_name, output_folder_name, log);
 
             elseif strcmp(ext, '.dat')
                 full_data_mat = dat2matlab(full_name, output_folder_name, log);
