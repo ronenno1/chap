@@ -40,7 +40,6 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
         copyfile(full_file_name, [path filesep file_name '.dat']);
     
         pupil_data  = readtable([path filesep file_name '.dat'], 'Delimiter', ',');
-        delete([path filesep file_name '.dat']);
         
         % CHAP removes all the irrelevant fields (CHAP needs only 3)
         if (size(pupil_data, 2)>3)
@@ -50,9 +49,11 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
             pupil_data_short.diameter_3d     = pupil_data.diameter_3d;
             new_pupil_data_table = struct2table(pupil_data_short);
             
-            writetable(new_pupil_data_table, [path filesep file_name '_2.dat']);    
-            copyfile([path filesep file_name '_2.dat'], [path filesep file_name '.plsd']);
+            writetable(new_pupil_data_table, [path filesep file_name '.dat']);    
+            copyfile([path filesep file_name '.dat'], [path filesep file_name '.plsd']);
         end
+        delete([path filesep file_name '.dat']);
+
         pupil_data.world_timestamp = pupil_data.world_timestamp+diff;
 
         first_sample_timestamp = pupil_data.world_timestamp(1)/86400 + datenum('01-Jan-1970');
