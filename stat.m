@@ -415,12 +415,22 @@ classdef stat
                 contrast_name = [char(comp_names(contrasts(contrast, 1))), '_vs_', char(comp_names(contrasts(contrast, 2)))];
                 contrasts_table{contrast} = contrast_name;
                 full_data1 = total_data.(char(comp_names(contrasts(contrast, 1)))).data;
+                full_data2 = total_data.(char(comp_names(contrasts(contrast, 2)))).data;                
+% 
+%                 a = total_data.(char(comp_names(1))).data;
+%                 b = total_data.(char(comp_names(2))).data;
+%                 c = total_data.(char(comp_names(3))).data;
+%                 d = total_data.(char(comp_names(4))).data;
+%                 min2 = min([size(a, 2), size(b, 2), size(c, 2), size(d, 2)]);
+%                 full_data1 = (a(:, 1:min2)+b(:, 1:min2)+d(:, 1:min2))/3;
+%                 full_data2 = c(:, 1:min2);
+
+                
 %                 full_data1 = total_data.(char(comp_names(1))).data;
 % 
 %                 full_data3 = total_data.(char(comp_names(3))).data;
 %                 full_data4 = (full_data1+full_data3)/2;
 %                 full_data1 = full_data4;
-                full_data2 = total_data.(char(comp_names(contrasts(contrast, 2)))).data;                
 
                 total_avg1 = avgs.(char(comp_names(contrasts(contrast, 1))));
                 total_avg2 = avgs.(char(comp_names(contrasts(contrast, 2))));

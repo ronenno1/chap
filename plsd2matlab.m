@@ -35,15 +35,26 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
     loaded = false;
     try
         
-        info_file = readtable(info_csv_name);
+        info_file = readtable(info_csv_name); % the original info.csv file
         diff = str2num(char(info_file{5,2}))-str2num(char(info_file{6,2}));
         copyfile(full_file_name, [path filesep file_name '.dat']);
     
-    
         pupil_data  = readtable([path filesep file_name '.dat'], 'Delimiter', ',');
+        delete([path filesep file_name '.dat']);
         
+        % CHAP removes all the irrelevant fields (CHAP needs only 3)
+        if (size(pupil_data, 2)>3)
+        
+            pupil_data_short.world_timestamp = pupil_data.world_timestamp;
+            pupil_data_short.eye_id          = pupil_data.eye_id;
+            pupil_data_short.diameter_3d     = pupil_data.diameter_3d;
+            new_pupil_data_table = struct2table(pupil_data_short);
+            
+            writetable(new_pupil_data_table, [path filesep file_name '_2.dat']);    
+            copyfile([path filesep file_name '_2.dat'], [path filesep file_name '.plsd']);
+        end
         pupil_data.world_timestamp = pupil_data.world_timestamp+diff;
-        
+
         first_sample_timestamp = pupil_data.world_timestamp(1)/86400 + datenum('01-Jan-1970');
         record_start_time = datenum([char(info_file{3, 2}) ' ' char(info_file{4, 2})], 'dd.mm.yyyy HH:MM:SS');
 
@@ -60,7 +71,6 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
         for sample=2:100
             rate = max(rate, round(1/(pupil_data_l.world_timestamp(sample)-pupil_data_l.world_timestamp(sample-1))));
         end
-
         rate = round(rate/(10))*10;
         rate_s = 1/rate;
 
