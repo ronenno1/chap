@@ -99,7 +99,9 @@ classdef stat
             end
             xlim(fig, [statistical_data.configuration.x_axis(1) statistical_data.configuration.x_axis(end)])
 
-            title(fig, header(contrast_id+action));        
+            title(fig, header(contrast_id+action)); 
+            xtickformat(fig, '%,.4g');
+
             set(next, 'Visible', 'off');
             set(back, 'Visible', 'off');
             if (contrast_id+action)<size(contrast_names, 1)

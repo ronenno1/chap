@@ -368,6 +368,7 @@ classdef grouper
             comp_names_fixed = strrep(strrep(comp_names_fixed, '_x_', ' & '),'_',' ');
             legend(fig, char(comp_names_fixed), 'Location', 'Best');
             set(fig, 'LineWidth', 2);
+            xtickformat(fig, '%,.4g');
 
             total_data.xlabel = xlabel_text;
             total_data.ylabel = ylabel_text;
