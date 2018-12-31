@@ -21,8 +21,10 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     print_log(['Start loading and convert tbi file: ' strrep(file_name, '_', '\_') ext], log);
     copyfile(full_tobii_name,[path filesep file_name '.dat']);
     
-    
-    raw_data_table  = readtable([path filesep file_name '.dat'], 'Delimiter', ',');
+        
+    opts           = detectImportOptions([path filesep file_name '.dat']);
+    raw_data_table = readtable([path filesep file_name '.dat'], opts);
+
     delete([path filesep file_name '.dat']);
 
     data.timestamps = raw_data_table.RecordingTimestamp;
@@ -66,7 +68,8 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
 %         
 
     try
-        mes_data_table = readtable(event_csv_name, 'Delimiter', ',');    
+        opts           = detectImportOptions(event_csv_name);
+        mes_data_table = readtable(event_csv_name, opts);
     catch
         print_log('Error (4): incompetible file, please check your file', log);    
         return;

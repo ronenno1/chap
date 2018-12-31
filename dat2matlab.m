@@ -29,8 +29,9 @@ function output = dat2matlab(full_dat_name, output_folder_name, log, events2, va
     
     print_log(['Start load and convert DAT file: ' strrep(file_name, '_', '\_') ext], log);
 
-    raw_data = readtable(full_dat_name, 'Delimiter', ',');  
-    
+    opts     = detectImportOptions(full_dat_name);
+    raw_data = readtable(full_dat_name, opts);
+
     data.timestamps = raw_data.timestamp;
     data.pupil_size = raw_data.pupil_size;
     data.pupil_x    = raw_data.pupil_x;
@@ -66,7 +67,8 @@ function output = dat2matlab(full_dat_name, output_folder_name, log, events2, va
     print_log('starting loading messages', log);    
     
     try
-        mes_data_table = readtable(event_csv_name, 'Delimiter', ',');    
+        opts           = detectImportOptions(event_csv_name);
+        mes_data_table = readtable(event_csv_name, opts);
     catch
         print_log('Error (4): incompetible file, please check your file', log);    
         return;
@@ -128,7 +130,8 @@ function output = dat2matlab(full_dat_name, output_folder_name, log, events2, va
     end
     mm_file = strcat(path, filesep, file_name, '_mm.csv');
     if exist(mm_file, 'file')
-        ap_data   = readtable(mm_file, 'Delimiter', ',');
+        opts      = detectImportOptions(mm_file);
+        ap_data   = readtable(mm_file, opts);
         ap_mm     = ap_data.mm;
         ap_pixels = ap_data.pixels;
         ratio     = ap_mm/(2*sqrt(ap_pixels/pi));

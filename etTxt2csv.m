@@ -5,17 +5,17 @@ function output = etTxt2csv(full_txt_name)
     [path, file_name, ext] = fileparts(full_txt_name);
     if ~strcmpi(ext, '.txt')
         return;
-    end;
+    end
       
     output_path = ['.' filesep 'mat_files'];
     if ~exist(output_path, 'dir')
         mkdir(output_path);
-    end;
+    end
     event_csv_name = [path filesep file_name '_events.csv'];
     if ~exist(event_csv_name, 'file')
         display(strcat('Error (3): events file does not found, please add ', strrep(file_name,'_','\_'), '_events.csv to ', path));    
         return;
-    end;
+    end
     
     loaded = false;
     try
@@ -29,16 +29,18 @@ function output = etTxt2csv(full_txt_name)
                 system(['python ' folder filesep 'json2csv.py ', origin_file_path]);
             else
                 system(['py  ' folder  filesep 'json2csv.py ', origin_file_path]);
-            end;
+            end
             if exist(json_file_name, 'file')
                delete(json_file_name);
             end
 
-        end;
+        end
         
         display(['Start loading and convert csv file: ' strrep(file_name, '_', '\_') ext]);
+        
+        opts           = detectImportOptions(csv_file_name);
+        raw_data_table = readtable(csv_file_name, opts);
 
-        raw_data_table  = readtable(csv_file_name, 'Delimiter', ',');
         data.timestamps = raw_data_table.values_frame_timestamp;
         data.pupil_size = (raw_data_table.values_frame_lefteye_psize + raw_data_table.values_frame_righteye_psize)/2;
         data.pupil_x    = raw_data_table.values_frame_lefteye_avg_x;
@@ -47,7 +49,7 @@ function output = etTxt2csv(full_txt_name)
 
         loaded = true;
     catch
-    end;        
+    end        
     display('Start loading pupil data');    
     timestamps = 86400*(datenum(data.timestamps(:))- datenum('01-Jan-1970'))';
 
@@ -56,7 +58,7 @@ function output = etTxt2csv(full_txt_name)
     while data.rate==0
         first_index = first_index+1;
         data.rate   = roundn(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), 1);
-    end;
+    end
 
     data.file_name  = full_txt_name;     
 
@@ -65,12 +67,14 @@ function output = etTxt2csv(full_txt_name)
     tic;
     
     try
-        mes_data_table = readtable(event_csv_name, 'Delimiter', ',');    
+        opts           = detectImportOptions(event_csv_name);
+        mes_data_table = readtable(event_csv_name, opts);
+
     catch
     
         display('Error (4): incompetible file, please check your file');    
         return;
-    end;
+    end
         
     event_msgs        = mes_data_table.message;
     event_timestamps  = 86400*(datenum(mes_data_table.timestamp)- datenum('01-Jan-1970'));
@@ -88,7 +92,7 @@ function output = etTxt2csv(full_txt_name)
         pos      = find(timestamp>timestamps, 1, 'last');
         T1 = {event_date, 0, 0, 0, event_msg};
         events_table  = [events_table; T1];
-    end;
+    end
     
     raw_data_table2 = [raw_data_table2; cell2table(events_table, 'VariableNames',{'timestamps' 'pupil_size' 'pupil_x' 'pupil_y' 'message'})];
     

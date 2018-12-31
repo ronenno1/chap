@@ -34,12 +34,14 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
 
     loaded = false;
     try
-        
-        info_file = readtable(info_csv_name); % the original info.csv file
+        opts      = detectImportOptions(info_csv_name);
+        info_file = readtable(info_csv_name, opts); % the original info.csv file
         diff = str2num(char(info_file{5,2}))-str2num(char(info_file{6,2}));
         copyfile(full_file_name, [path filesep file_name '.dat']);
     
-        pupil_data  = readtable([path filesep file_name '.dat'], 'Delimiter', ',');
+        
+        opts       = detectImportOptions([path filesep file_name '.dat']);
+        pupil_data = readtable([path filesep file_name '.dat'], opts);
         
         % CHAP removes all the irrelevant fields (CHAP needs only 3)
         if (size(pupil_data, 2)>3)
@@ -128,7 +130,8 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
     
     tic;
     try
-        mes_data_table = readtable(event_csv_name, 'Delimiter', ',');    
+        opts           = detectImportOptions(event_csv_name);
+        mes_data_table = readtable(event_csv_name, opts); 
     catch
         print_log('Error (4): incompetible file, please check your file', log);    
         return;
