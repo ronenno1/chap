@@ -13,21 +13,23 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
     [path, file_name, ext] = fileparts(full_asl_name);
     if ~strcmpi(ext, '.asl')
         return;
-    end;
+    end
       
     event_csv_name = [path filesep file_name '_events.csv'];
     if ~exist(event_csv_name, 'file')
         print_log(strcat('Error (3): events file does not found, please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
         return;
-    end;
+    end
 
     print_log(['Start load and convert ASL file: ' strrep(file_name, '_', '\_') ext], log);
 
         
     print_log(['Start loading and convert csv file: ' strrep(file_name, '_', '\_') ext], log);
     copyfile(full_asl_name,[path filesep file_name '.dat']);
-        
+    
     raw_data_table  = readtable([path filesep file_name '.dat'], 'Delimiter', ',');
+    delete([path filesep file_name '.dat']);
+    
     data.timestamps = raw_data_table.times;
     data.pupil_size = raw_data_table.pupil_size;
     data.pupil_x    = raw_data_table.pupil_x;
@@ -49,7 +51,7 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
     
         print_log('Error (4): incompetible file, please check your file', log);    
         return;
-    end;
+    end
         
     event_msgs        = mes_data_table.message;
     event_timestamps  = mes_data_table.times';
@@ -66,7 +68,7 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
     if(isempty(trial_ids))
         print_log('Error: trials did not found', log);
         return;
-    end;
+    end
     trial_data.trial_names     = cellfun(@(x) str2double(char(regexp(char(x),'\d+','match'))), event_msgs(trial_ids));        
     trial_data.Trial_Onset_num = event_timestamps(trial_ids)';
     
@@ -82,7 +84,7 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
     if ~isempty(var_ids)
         total_var_data = parse_data.parse_vars(event_msgs, event_timestamps, data.timestamps, var_ids, trial_data.Trial_Onset_num);
         data.total_var_data_table = struct2table(total_var_data);
-    end;
+    end
 
     print_log('Parsing events', log);    
     data.event_data = [];
@@ -93,7 +95,7 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
     if ~isempty(event_ids)
         event_data_table = parse_data.parse_events(event_full_data, event_full_timestamps, data.timestamps, data.trial_data.Trial_Onset_num);
         data.total_var_data_table = [data.total_var_data_table, event_data_table];
-    end;
+    end
 
     mm_file = strcat(path, filesep, file_name, '_mm.csv');
     if exist(mm_file, 'file')
@@ -105,7 +107,7 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
         pupil_diameter_pixels = data.pupil_size;
         pupil_diameter_mm     = pupil_diameter_pixels*ratio;
         data.pupil_size       = pupil_diameter_mm;
-    end;
+    end
     data.events2 = events2;
     data.vars2   = vars2;
     trial_data.trial_length = trial_data.Trial_Offset_num-trial_data.Trial_Onset_num;

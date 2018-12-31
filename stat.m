@@ -187,7 +187,23 @@ classdef stat
            N = sum(~isnan(data), 1);
            se = sd/(N^0.5);
            t = d/se;
-           v = N-1;         
+           v = N-1;
+%            [t, sd, N, v] = stat.my_independent_ttest(data1, data2);
+        end
+        
+        function [t, sd, N, v] = my_independent_ttest(data1, data2)
+           sd = -1;
+           data = data1 - data2; 
+           d  = nanmean(data);
+           d1 = nanmean(data1);
+           d2 = nanmean(data2);
+           ss = sum((d1-data1).^2) + sum((d2-data2).^2);
+           n1 = sum(~isnan(data1), 1);
+           n2 = sum(~isnan(data2), 1);
+           N  = n1*n2/(n1+n2);
+           v  = n1 + n2 - 2;
+           s2 = ss/v;
+           t  = (d1-d2)/(sqrt((s2/n1) + (s2/n2)));
         end
         
         function [t, bf, N, sd, pes, p_value] = ttest_and_bf(data1, data2)
@@ -211,7 +227,7 @@ classdef stat
         end
         
         function num = rounder(X, N)
-        if (~exist('N', 'var'))
+            if (~exist('N', 'var'))
                 N = 3;
             end
             num = round(X*(10^N))/10^N;

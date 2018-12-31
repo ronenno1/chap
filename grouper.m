@@ -205,7 +205,7 @@ classdef grouper
                 
                 total_data.(char(comp)).avg = total_data.(char(comp)).avg(1:lengths.(char(comp)));
                 total_data.(char(comp)).std = total_data.(char(comp)).std(1:lengths.(char(comp)));
-                total_data.(char(comp)).pop = total_data.(char(comp)).data(1:lengths.(char(comp)));
+%                 total_data.(char(comp)).pop = total_data.(char(comp)).data(1:lengths.(char(comp)));
 
                 Trial_Offset_ms = size(total_data.(char(comp)).avg, 2)*(round(ms*Bins));
                 x_axis = linspace(0 ,Trial_Offset_ms,size(total_data.(char(comp)).avg, 2))-PreEventNumber;

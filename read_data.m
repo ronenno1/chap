@@ -4,17 +4,15 @@ classdef read_data
         function data = read_file(log) % read result file and convert it to chap format
             start = tic;
             data = [];
-            [file_name, path_name] = uigetfile({'*.edf;*.txt;*.asl;*.tbi;*.plsd',  'Eye-link / Eye-tribe file(*.edf, *.txt)`'; ...
+            [file_name, path_name] = uigetfile({'*.edf;*.txt;*.asl;*.tbi;*.plsd',  'Eye-link(*.edf) / Eye-tribe(*.txt) / ASL(*.asl) / Tobii(*.tbi) / pupil-labs(*.plsd)'; ...
                                                 '*.dat','General (*.dat)'; ...
-
-
                                                 '*.*',  'All Files (*.*)'}, ...
                                                 'Pick a file');
             
             
             if(~file_name)
                 return;
-            end;
+            end
 
             full_name = [path_name, file_name];
             cd(path_name)
@@ -24,12 +22,12 @@ classdef read_data
             output_folder_name = path_name;
             if(~output_folder_name)
                 return;
-            end;
+            end
             
             if strcmp(ext, '.edf')
                 full_data_mat = edf2matlab2(full_name, output_folder_name, log);
-            elseif strcmp(ext, '.tsv')
-                full_data_mat = etTsv2matlab(full_name, output_folder_name, log);
+            elseif strcmp(ext, '.txt')
+                full_data_mat = etTxt2matlab(full_name, output_folder_name, log);
             elseif strcmp(ext, '.csv')
                 full_data_mat = etCsv2matlab(full_name, output_folder_name, log);
             elseif strcmp(ext, '.asl')
@@ -42,12 +40,11 @@ classdef read_data
             elseif strcmp(ext, '.dat')
                 full_data_mat = dat2matlab(full_name, output_folder_name, log);
             else
-
                 full_data_mat = etTxt2matlab(full_name, output_folder_name, log);
-            end;
+            end
             if strfind(get(log, 'String'), 'Error')
                 return;
-            end;
+            end
             data = read_data.parse_data(full_data_mat, log);
             print_log([strrep(file_name, '_', '\_') ' successfully load! ' num2str(toc(start)) ' seconds'], log);    
         end
@@ -56,7 +53,7 @@ classdef read_data
             data = [];
             if(isempty(full_data_mat))
                 return;
-            end;
+            end
             full_data_mat       = load_chap_data(full_data_mat, log);
             data.data_mat       = full_data_mat.data;
             vars                = data.data_mat.Properties.VariableNames();
@@ -85,7 +82,7 @@ classdef read_data
                 if(strfind(var_name, 'event_'))
                     vars = vars(~ismember(vars, var_name));
                     continue;
-                end;
+                end
                 data_mat.(var_name)(cellfun(@isempty, data_mat.(var_name))) = {''};
                 conds       = unique(data_mat.(var_name));
                 conds       = conds(~strcmp(conds,''));
