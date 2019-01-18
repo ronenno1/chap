@@ -164,7 +164,7 @@ classdef output
             
             [folder, file_name, ext]   = fileparts(full_file_name);
 
-            full_mrd2_file_name =  [folder, filesep, 'mrd2_', file_name, ext];
+            full_mrd2_file_name =  [folder, filesep, file_name, '_trials_data', ext];
 
 
             data.var_data_table = var_data_table;

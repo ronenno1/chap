@@ -433,7 +433,7 @@ classdef stat
                 contrast_name = [char(comp_names(contrasts(contrast, 1))), '_vs_', char(comp_names(contrasts(contrast, 2)))];
                 contrasts_table{contrast} = contrast_name;
                 full_data1 = total_data.(char(comp_names(contrasts(contrast, 1)))).data;
-                full_data2 = total_data.(char(comp_names(contrasts(contrast, 2)))).data;                
+                    full_data2 = total_data.(char(comp_names(contrasts(contrast, 2)))).data;                
 % 
 %                 a = total_data.(char(comp_names(1))).data;
 %                 b = total_data.(char(comp_names(2))).data;
