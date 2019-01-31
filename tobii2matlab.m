@@ -19,12 +19,17 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
 
         
     print_log(['Start loading and convert tbi file: ' strrep(file_name, '_', '\_') ext], log);
-    copyfile(full_tobii_name,[path filesep file_name '.dat']);
-    
-        
-    opts           = detectImportOptions([path filesep file_name '.dat']);
-    raw_data_table = readtable([path filesep file_name '.dat'], opts);
+  
+    dat_file_name = [path filesep file_name '.dat'];
 
+    copyfile(full_tobii_name, dat_file_name);
+    
+    if exist('detectImportOptions', 'file')
+        raw_data_table = readtable(dat_file_name, detectImportOptions(dat_file_name));
+    else
+        raw_data_table = readtable(dat_file_name, 'Delimiter', ',');
+    end
+    
     delete([path filesep file_name '.dat']);
 
     data.timestamps = raw_data_table.RecordingTimestamp;
@@ -65,11 +70,12 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
         return;
     end
 
-%         
-
     try
-        opts           = detectImportOptions(event_csv_name);
-        mes_data_table = readtable(event_csv_name, opts);
+        if exist('detectImportOptions', 'file')
+            mes_data_table = readtable(event_csv_name, detectImportOptions(event_csv_name));
+        else
+            mes_data_table = readtable(event_csv_name, 'Delimiter', ',');
+        end     
     catch
         print_log('Error (4): incompetible file, please check your file', log);    
         return;
@@ -77,7 +83,6 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     event_msgs        = mes_data_table.Event;
     event_timestamps  = mes_data_table.RecordingTimestamp/(1000/data.rate);
 
-%     event_msgs = raw_data_table.Event;
     trial_ids = find(~cellfun(@isempty, strfind(event_msgs,'TRIALID'))); %trial is defined by message with the form TRIALID [num_of_trial]
     if(isempty(trial_ids))
         print_log('Error: trials did not found', log);

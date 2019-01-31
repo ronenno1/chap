@@ -161,9 +161,13 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     external_var_ids = [];
     var_list_file = strcat(file_path, filesep, 'var_list.csv');
     if exist(var_list_file, 'file') 
-        opts     = detectImportOptions(var_list_file);
-        var_file = readtable(var_list_file, opts);
-
+        
+        if exist('detectImportOptions', 'file')
+            var_file = readtable(var_list_file, detectImportOptions(var_list_file));
+        else
+            var_file = readtable(var_list_file, 'Delimiter', ',');
+        end
+        
         vars2    = var_file.var_name;
         for i=1:size(vars2, 1)
             expression = strcat('\w*', char(vars2(i)), '*');
@@ -218,8 +222,9 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
             full_csv_name                   = [csv_path_name csv_file_name];
             if(csv_path_name)
                 data.full_csv_name = full_csv_name; 
-                opts       = detectImportOptions(full_csv_name);
-                event_file = readtable(full_csv_name, opts);
+                
+                event_file = readtable(full_csv_name, 'Delimiter', ',');
+                
                 events2    = event_file.event_name;
             end
         end
@@ -252,8 +257,11 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     
     mm_file = strcat(file_path, filesep, file_name, '_mm.csv');
     if exist(mm_file, 'file')
-        opts      = detectImportOptions(mm_file);
-        ap_data   = readtable(mm_file, opts);
+        if exist('detectImportOptions', 'file')
+            ap_data = readtable(mm_file, detectImportOptions(mm_file));
+        else
+            ap_data = readtable(mm_file, 'Delimiter', ',');
+        end
 
         ap_mm     = ap_data.mm;
         ap_pixels = ap_data.pixels;

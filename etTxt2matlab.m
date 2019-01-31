@@ -42,9 +42,11 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
         
         print_log(['Start loading and convert csv file: ' strrep(file_name, '_', '\_') '.csv'], log);
         
-        
-        opts           = detectImportOptions(csv_file_name);
-        raw_data_table = readtable(csv_file_name, opts);
+        if exist('detectImportOptions', 'file')
+            raw_data_table = readtable(csv_file_name, detectImportOptions(csv_file_name));
+        else
+            raw_data_table = readtable(csv_file_name, 'Delimiter', ',');
+        end
 
         data.timestamps = raw_data_table.values_frame_timestamp;
         raw_data_table.values_frame_lefteye_psize(raw_data_table.values_frame_lefteye_psize==0) = raw_data_table.values_frame_righteye_psize(raw_data_table.values_frame_lefteye_psize==0);
@@ -83,9 +85,11 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     
     tic;
     try
-        
-        opts           = detectImportOptions(event_csv_name);
-        mes_data_table = readtable(event_csv_name, opts);
+        if exist('detectImportOptions', 'file')
+            mes_data_table = readtable(event_csv_name, detectImportOptions(event_csv_name));
+        else
+            mes_data_table = readtable(event_csv_name, 'Delimiter', ',');
+        end     
     catch
         print_log('Error (4): incompetible file, please check your file', log);    
         return;
@@ -148,8 +152,11 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     end
     mm_file = strcat(path, filesep, file_name, '_mm.csv');
     if exist(mm_file, 'file')
-        opts      = detectImportOptions(mm_file);
-        ap_data   = readtable(mm_file, opts);
+        if exist('detectImportOptions', 'file')
+            ap_data = readtable(mm_file, detectImportOptions(mm_file));
+        else
+            ap_data = readtable(mm_file, 'Delimiter', ',');
+        end
         ap_mm     = ap_data.mm;
         ap_pixels = ap_data.pixels;
         ratio     = ap_mm/(2*sqrt(ap_pixels/pi));

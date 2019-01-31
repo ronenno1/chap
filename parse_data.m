@@ -1,8 +1,13 @@
 classdef parse_data
     methods(Static)
         function var_data_table = parse_external_vars(vars_file)
-            opts           = detectImportOptions(vars_file);
-            var_data_table = readtable(vars_file, opts);
+            if exist('detectImportOptions', 'file')
+                var_data_table = readtable(vars_file, detectImportOptions(vars_file));
+            else
+                var_data_table = readtable(vars_file, 'Delimiter', ',');
+            end
+
+            
             if ~ismember('trial_id', var_data_table.Properties.VariableNames)
                 error('Corrupt variable file (trial\_id column does not exist)');
             end

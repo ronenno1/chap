@@ -34,15 +34,26 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
 
     loaded = false;
     try
-        opts      = detectImportOptions(info_csv_name);
-        info_file = readtable(info_csv_name, opts); % the original info.csv file
+        
+        if exist('detectImportOptions', 'file')
+            info_file = readtable(info_csv_name, detectImportOptions(info_csv_name));
+        else
+            info_file = readtable(info_csv_name, 'Delimiter', ',');
+        end     
+
+        
         diff = str2num(char(info_file{5,2}))-str2num(char(info_file{6,2}));
-        copyfile(full_file_name, [path filesep file_name '.dat']);
-    
+        dat_file_name = [path filesep file_name '.dat'];
+
+        copyfile(full_file_name, dat_file_name);
+            
         
-        opts       = detectImportOptions([path filesep file_name '.dat']);
-        pupil_data = readtable([path filesep file_name '.dat'], opts);
-        
+        if exist('detectImportOptions', 'file')
+            pupil_data = readtable(dat_file_name, detectImportOptions(dat_file_name));
+        else
+            pupil_data = readtable(dat_file_name, 'Delimiter', ',');
+        end
+
         % CHAP removes all the irrelevant fields (CHAP needs only 3)
         if (size(pupil_data, 2)>3)
         
@@ -130,8 +141,11 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
     
     tic;
     try
-        opts           = detectImportOptions(event_csv_name);
-        mes_data_table = readtable(event_csv_name, opts); 
+        if exist('detectImportOptions', 'file')
+            mes_data_table = readtable(event_csv_name, detectImportOptions(event_csv_name));
+        else
+            mes_data_table = readtable(event_csv_name, 'Delimiter', ',');
+        end     
     catch
         print_log('Error (4): incompetible file, please check your file', log);    
         return;
@@ -207,57 +221,6 @@ end
 function start_time = get_trial_data_onset(timestamp, timestamps)
     start_time      = find(timestamp>timestamps, 1, 'last');
 end
-
-
-
-% info = readtable('info.csv');
-% diff = str2num(char(info{5,2}))-str2num(char(info{6,2}));
-% pupil_data = readtable('pupil_positions.csv');
-% pupil_data.world_timestamp = pupil_data.world_timestamp+diff;
-% tic
-% pupil_data_r = pupil_data(pupil_data.eye_id==0, :);
-% pupil_data_l = pupil_data(pupil_data.eye_id==1, :);
-% 
-% rate = 0;
-% 
-% for sample=2:100
-%     rate = max(rate, round(1/(pupil_data_l.world_timestamp(sample)-pupil_data_l.world_timestamp(sample-1))));
-% end
-% 
-% rate = round(rate/(10))*10;
-% rate_s = 1/rate;
-% 
-% gaps_r = calculate_gaps(pupil_data_r.world_timestamp, rate_s);
-% gaps_l = calculate_gaps(pupil_data_l.world_timestamp, rate_s);
-% 
-% pupil_r = insert_gaps(pupil_data_r, gaps_r, rate_s);
-% pupil_l = insert_gaps(pupil_data_l, gaps_l, rate_s);
-% 
-% first_eye  = pupil_r;
-% second_eye = pupil_l;
-% if(pupil_r.world_timestamp(1)>=pupil_l.world_timestamp(1))
-%     first_eye  = pupil_l;
-%     second_eye = pupil_r;
-% end
-% 
-% equal_times = false;
-% while ~equal_times
-%     if second_eye.world_timestamp(1)-first_eye.world_timestamp(1) < rate_s/2
-%         equal_times = true;
-%     end
-%     first_eye(1,:) = [];
-% end
-% num_of_samples = min(size(first_eye, 1), size(second_eye, 1))-1;
-% first_eye      = first_eye(1:num_of_samples, :);
-% second_eye     = second_eye(1:num_of_samples, :);
-% pupil_data_correct.world_timestamp = first_eye.world_timestamp;
-% 
-% first_eye.diameter_3d(isnan(first_eye.diameter_3d))   = second_eye.diameter_3d(isnan(first_eye.diameter_3d));
-% second_eye.diameter_3d(isnan(second_eye.diameter_3d)) = first_eye.diameter_3d(isnan(second_eye.diameter_3d));
-% 
-% pupil_data_correct.pupil_size = (first_eye.diameter_3d+second_eye.diameter_3d)/2;
-% 
-% toc
 
 function pupil_data_full = insert_gaps(pupil_data, num_of_gaps, rate_s)
     total_samples = num_of_gaps + size(pupil_data, 1);

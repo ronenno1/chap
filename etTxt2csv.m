@@ -38,9 +38,14 @@ function output = etTxt2csv(full_txt_name)
         
         display(['Start loading and convert csv file: ' strrep(file_name, '_', '\_') ext]);
         
-        opts           = detectImportOptions(csv_file_name);
-        raw_data_table = readtable(csv_file_name, opts);
+    
+        if exist('detectImportOptions', 'file')
+            raw_data_table = readtable(csv_file_name, detectImportOptions(csv_file_name));
+        else
+            raw_data_table = readtable(csv_file_name, 'Delimiter', ',');
+        end
 
+        
         data.timestamps = raw_data_table.values_frame_timestamp;
         data.pupil_size = (raw_data_table.values_frame_lefteye_psize + raw_data_table.values_frame_righteye_psize)/2;
         data.pupil_x    = raw_data_table.values_frame_lefteye_avg_x;
@@ -67,8 +72,11 @@ function output = etTxt2csv(full_txt_name)
     tic;
     
     try
-        opts           = detectImportOptions(event_csv_name);
-        mes_data_table = readtable(event_csv_name, opts);
+        if exist('detectImportOptions', 'file')
+            mes_data_table = readtable(event_csv_name, detectImportOptions(event_csv_name));
+        else
+            mes_data_table = readtable(event_csv_name, 'Delimiter', ',');
+        end
 
     catch
     
