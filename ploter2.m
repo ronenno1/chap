@@ -276,7 +276,10 @@ classdef ploter2
                 plot(ploted_data.(cond_name).x_axis, ploted_data.(cond_name).pupil, 'LineWidth',3, 'Color', cmap2(comp,:), 'Parent', fig);
             end            
             set(fig, 'LineWidth', 2);
-            xtickformat(fig, '%,.4g');
+            try
+                xtickformat(fig, '%,.4g');
+            catch
+            end
         end
         
         function [ploted_data, events] = do_draw_events(ploted_data, cond_events_data, comp_names, event_names, cmap, ms, events_id_to_show, fig)
