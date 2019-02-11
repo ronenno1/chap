@@ -367,6 +367,11 @@ classdef grouper
             comp_names_fixed = cellfun(@(x) x(3:end), comp_names, 'UniformOutput', false);
             comp_names_fixed = strrep(strrep(comp_names_fixed, '_x_', ' & '),'_',' ');
             legend(fig, char(comp_names_fixed), 'Location', 'Best');
+            if ~strcmp(scattering, 'no')
+                chs = flipud(get(fig,'children'));
+                legend(chs(size(comp_names_fixed, 1)+1:size(comp_names_fixed, 1)*2), char(comp_names_fixed), 'Location', 'Best');
+            end
+
             set(fig, 'LineWidth', 2);
             try
                 xtickformat(fig, '%,.4g');
