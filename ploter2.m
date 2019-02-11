@@ -187,8 +187,8 @@ classdef ploter2
                 d  = avg_cond_mat;
                 sd = std_cond_mat;
                 n  = [];
-                ci = [];
-                se = [];
+                ci = sd;
+                se = sd;
                 for i=1:size(data4analyze, 1)
                     n(i) = sum(~isnan(data4analyze(i, :)));
                 end
