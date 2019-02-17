@@ -181,7 +181,7 @@ classdef ploter2
                 x_axis = linspace(0 ,Trial_Offset_ms, size(avg_cond_mat,1))-PreEventNumber;
                
                 
-                x = x_axis';
+                    x = x_axis';
                 
                 
                 d  = avg_cond_mat;

@@ -20,9 +20,14 @@ classdef output
             copyobj(fig, temp_fig);
             comp_names = strrep(strrep(comp_names, '_x_', ' & '),'_',' ');
 
-
-            if strcmp(type,'.fig') 
+            fig_axis = flipud(get(temp_fig,'children'));
+            chs = flipud(get(fig_axis,'children'));
+            if (contains(lower(class(chs(1))), 'patch'))
+                legend(chs(size(comp_names, 1)+1:size(comp_names, 1)*2), char(comp_names), 'Location', 'Best');
+            else
                 legend(char(comp_names), 'Location', 'Best');
+            end
+            if strcmp(type,'.fig') 
                 saveas(temp_fig, full_file_name);
             elseif strcmp(type, '.png')
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'), 'LineWidth', 8);
@@ -44,7 +49,12 @@ classdef output
                 legend(gca,'off');
 
                 set(temp_fig, 'PaperUnits', 'inches', 'PaperPosition', [0 0 20 15]);
-                legend(char(comp_names), 'Location', 'Best');
+                if (contains(lower(class(chs(1))), 'patch'))
+                    legend(chs(size(comp_names, 1)+1:size(comp_names, 1)*2), char(comp_names), 'Location', 'Best');
+                else
+                    legend(char(comp_names), 'Location', 'Best');
+                end
+
                 try
                     print(temp_fig, '-dpng', '-r300', full_file_name);
                 catch
