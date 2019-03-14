@@ -26,14 +26,16 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     if isunix && ~ismac
         mat_file_path = strcat(file_path, filesep, mat_path, filesep, file_name, '_extend.mat');
         if(~exist(mat_file_path, 'file'))
-            matlab_version = version('-release');
             full_path = mfilename('fullpath');
             
             path = strrep(full_path(1:end-11), ' ', '\ ');
             mat_file_path_fixed = strrep(mat_file_path, ' ', '\ ');
-
-            system(['export LD_LIBRARY_PATH=/usr/local/MATLAB/R' matlab_version '/bin/glnxa64/:/usr/local/MATLAB/' matlab_version '/sys/os/glnxa64/']);
-            system([path 'edf2mat/edfmat_ubuntu64 ' full_edf_name_fixed ' ' mat_file_path_fixed])
+            setenv('LD_LIBRARY_PATH', [matlabroot '/bin/glnxa64:' matlabroot '/sys/os/glnxa64'])
+            convertor = 'edf2mat/edfmat_ubuntu32';
+            if contains(computer, '64')
+                convertor = 'edf2mat/edfmat_ubuntu64';
+            end
+            system([path convertor ' ' full_edf_name_fixed ' ' mat_file_path_fixed])
             print_log(['Load mat file: ' strrep(file_name, '_', '\_') '.mat'], log);
             clc
         end
@@ -150,7 +152,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     print_log('Parsing variables', log);    
        
     data.total_var_data_table = [];
-   
+    event_msgs = strrep(event_msgs, '&', '_x_');
     var_ids  = find(~cellfun(@isempty, strfind(event_msgs,'!V TRIAL_VAR ')));
 
     if ~isempty(var_ids)
