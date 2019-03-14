@@ -150,9 +150,8 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
 
     %% find variables
     print_log('Parsing variables', log);    
-       
+   
     data.total_var_data_table = [];
-    event_msgs = strrep(event_msgs, '&', '_x_');
     var_ids  = find(~cellfun(@isempty, strfind(event_msgs,'!V TRIAL_VAR ')));
 
     if ~isempty(var_ids)
