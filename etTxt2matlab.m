@@ -33,7 +33,7 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
             if isunix
                 system(['python ' folder filesep 'json2csv.py ', origin_file_path]);
             else
-                system(['py  ' folder  filesep 'json2csv.py ', origin_file_path]);
+                system(['py ' folder filesep 'json2csv.py ', '"', strcat(path, filesep, file_name), '"']);
             end
             if exist(json_file_name, 'file')
                delete(json_file_name);

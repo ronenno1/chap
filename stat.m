@@ -431,12 +431,17 @@ classdef stat
             stat_data.configuration.range = round(linspace(stat_data.configuration.x_axis(1), stat_data.configuration.x_axis(end), min_length));
             contrasts_table = cell(size(contrasts, 1));         
             percentages = zeros(1, 10);
+%             a2 = total_data.(char(comp_names(2))).data(:, 1:256);
+%             a3 = total_data.(char(comp_names(3))).data(:, 1:256);
+%             a = (a2 + a3)./2;
+%             total_data.(char(comp_names(2))).data = a;
+%             total_data.(char(comp_names(3))).data = a;
 
             for contrast = 1:size(contrasts, 1)
                 contrast_name = [char(comp_names(contrasts(contrast, 1))), '_vs_', char(comp_names(contrasts(contrast, 2)))];
                 contrasts_table{contrast} = contrast_name;
                 full_data1 = total_data.(char(comp_names(contrasts(contrast, 1)))).data;
-                    full_data2 = total_data.(char(comp_names(contrasts(contrast, 2)))).data;                
+                full_data2 = total_data.(char(comp_names(contrasts(contrast, 2)))).data;                
 % 
 %                 a = total_data.(char(comp_names(1))).data;
 %                 b = total_data.(char(comp_names(2))).data;
