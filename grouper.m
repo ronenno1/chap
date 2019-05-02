@@ -357,13 +357,6 @@ classdef grouper
             set(gca,'FontWeight','bold');
             set(gca,'box','on');            
 
-            title_text = 'All Participants';
-            project_name = strrep(configuration.paths.project_name, '_', ' ');
-
-            if( ~strcmp(project_name, ''))
-                title_text = strcat(title_text, ' (', project_name, ')');
-            end
-            title(title_text);
             comp_names_fixed = cellfun(@(x) x(3:end), comp_names, 'UniformOutput', false);
             comp_names_fixed = strrep(strrep(comp_names_fixed, '_x_', ' & '),'_',' ');
             legend(fig, char(comp_names_fixed), 'Location', 'Best');
@@ -377,6 +370,14 @@ classdef grouper
                 xtickformat(fig, '%,.4g');
             catch
             end
+            title_text = 'All Participants';
+            project_name = strrep(configuration.paths.project_name, '_', ' ');
+
+            if( ~strcmp(project_name, ''))
+                title_text = strcat(title_text, ' (', project_name, ')');
+            end
+            title(title_text);
+
             total_data.xlabel = xlabel_text;
             total_data.ylabel = ylabel_text;
             total_data.title  = title_text;

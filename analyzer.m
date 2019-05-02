@@ -109,7 +109,6 @@ classdef analyzer
                 
                 comp_name = ['c_', char(strrep(strrep(char(comp_name), '.', '_'), '-', '_'))];
                 
-
                 [cond_mat_data, cond_events_data, cond_ids, avg_cond_mat, avg_events, outliers, valid_trials] = analyzer.parse_condition(data_mat, comp_name, events_names, id, counter, size(comp_nums, 1), log);
                 data.cond_blinks.(comp_name)      = data.blinks_data(cond_ids);
                 data.cond_mat_data.(comp_name)    = cond_mat_data;

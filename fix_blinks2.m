@@ -179,7 +179,6 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
         else
             blinks_data_positions = [blinks_data_positions, -p2];
         end
-        
 
         if pupil_data(p2+2)>0
             p2 = p2+2;
@@ -203,9 +202,10 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
             p3 = size(pupil_data, 1)+1;
         end
         
-        if pupil_data(p3-1)>0
+        if pupil_data(p3-1)>0 || p3 == size(pupil_data, 1)+1
              p3 = p3-1;
         end
+        
         blinks_data_positions = [blinks_data_positions, p3];
        
         if without_noise
@@ -243,9 +243,8 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
         if(p2==p3) 
             continue;
         end
-        
         if(linear_interpulation || p2-p1~=p4-p3)
-            b = spline([p2 p3],[pupil_data(p2) pupil_data(p3)],p2:p3)';
+            b = spline([p2 p3],[pupil_data(p2) pupil_data(p3)], p2:p3)';
         else
             b = spline([p1 p2 p3 p4],[pupil_data(p1) pupil_data(p2) pupil_data(p3) pupil_data(p4)],p2:p3)';
         end
