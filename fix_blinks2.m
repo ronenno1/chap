@@ -3,7 +3,6 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
     blinks_data_positions = [];
     gap_interval          = 100;                             % set the interval between two sets that appear consecutively for concatenation.
     gap_interval_samples  = gap_interval/(1000/rate); 
-
     start_debug = 0;
     if (~exist('debug_mode', 'var'))
         debug_mode = false;
@@ -237,7 +236,7 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
             pupil_data(1:p3) =  pupil_data(p3);
             continue;
         end
-        if(p3==p4)
+        if(p3>=p4)
             continue;
         end
         if(p2==p3) 

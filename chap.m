@@ -337,7 +337,6 @@ function data = show_analyze_window(src, cond_mat_cleaned, cond_events, data)
     data.fail = false;
     for i=1:size(comp_names, 1)
         num_of_valid_trials = valid_trials.(char(comp_names(i)));
-        thing = struct2cell(ploted_data.(char(comp_names(i))).events);
         data_table(i,:) = [outliers.(char(comp_names(i))) num_of_valid_trials int32(struct2array(ploted_data.(char(comp_names(i))).events))];
         if(num_of_valid_trials<data.min_trials)
             print_log('Error: ', log_a);   
