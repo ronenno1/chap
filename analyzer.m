@@ -33,16 +33,11 @@ classdef analyzer
 
         function data = analyze_all(data, data_mat, cond_names, comp_nums, conds, events_names, comp_names, log)
             counter = 0;
-            tmp_comp_name = 0;
-            used = false;
             for comp = 1:size(comp_nums, 1) % comp - index for posible comparation
+
                 comp_name = [];
-                id = [];
                 used = true;
-                if comp == 17
-                end
                 for condition = 1:size(comp_nums, 2)
-                    cond_name = char(cond_names(condition));
                     level     = comp_nums(comp, condition);
                     if(~level)
                         continue;
@@ -104,12 +99,14 @@ classdef analyzer
                     continue;
                 end
                 
-
-                counter   = counter + 1;
-                
                 comp_name = ['c_', char(strrep(strrep(char(comp_name), '.', '_'), '-', '_'))];
-                
-                [cond_mat_data, cond_events_data, cond_ids, avg_cond_mat, avg_events, outliers, valid_trials] = analyzer.parse_condition(data_mat, comp_name, events_names, id, counter, size(comp_nums, 1), log);
+                counter   = counter + 1;
+
+                total_comps = size(comp_nums, 1);
+                if size(comp_names, 1)>0
+                    total_comps = size(comp_names, 1);
+                end
+                [cond_mat_data, cond_events_data, cond_ids, avg_cond_mat, avg_events, outliers, valid_trials] = analyzer.parse_condition(data_mat, comp_name, events_names, id, counter, total_comps, log);
                 data.cond_blinks.(comp_name)      = data.blinks_data(cond_ids);
                 data.cond_mat_data.(comp_name)    = cond_mat_data;
                 data.cond_ids.(comp_name)         = cond_ids;
@@ -123,6 +120,8 @@ classdef analyzer
             if (~exist('avg_cond_mat', 'var') || strcmp(log, ''))
                 return;
             end
+            print_log('Finish parsing levels' , log);    
+
         end
         
         function [cond_mat_data, cond_events_data, trials, avg_cond_mat, avg_events, outliers, valid_trials] = parse_condition(data_mat, comp_name, events_names, id, counter, total_comps, log)
