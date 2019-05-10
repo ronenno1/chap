@@ -433,7 +433,9 @@ classdef stat
 %             total_data.(char(comp_names(3))).data = a;
 
             for contrast = 1:size(contrasts, 1)
-                contrast_name = [char(comp_names(contrasts(contrast, 1))), '_vs_', char(comp_names(contrasts(contrast, 2)))];
+                first_level  = comp_names{contrasts(contrast, 1)};
+                second_level = comp_names{contrasts(contrast, 2)};
+                contrast_name = [first_level(3:end), '_vs_', second_level(3:end)];
                 contrasts_table{contrast} = contrast_name;
                 full_data1 = total_data.(char(comp_names(contrasts(contrast, 1)))).data;
                 full_data2 = total_data.(char(comp_names(contrasts(contrast, 2)))).data;                
@@ -495,7 +497,7 @@ classdef stat
                     data2save.pValues      = stat_data.contrasts.pValues.(['contrast_' num2str(contrast)])(1:num_of_samples)';
                     data2save.pValues_bonf = stat_data.contrasts.pValues_bonf.(['contrast_' num2str(contrast)])(1:num_of_samples)';
                     data2save.BFs          = stat_data.contrasts.BFs.(['contrast_' num2str(contrast)])(1:num_of_samples)';
-                    contrast_names_fixed   = strrep(strrep(contrast_name(3:end), '_x_', ' & '), '_', ' ');
+                    contrast_names_fixed   = strrep(strrep(contrast_name, '_x_', ' & '), '_', ' ');
                     writetable(struct2table(data2save), [total_data.paths.stat_output_folder_name filesep contrast_names_fixed '.csv'])
 
                 else
