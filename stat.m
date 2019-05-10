@@ -72,11 +72,8 @@ classdef stat
             cla(fig);
             plot(x_axis, contrast_data(1:size(x_axis, 2)), 'blue', 'LineWidth', 2, 'Parent', fig);
             hold on
-            
             if bayesian
                 plot(x_axis, 1./contrast_data(1:size(x_axis, 2)), 'red', 'LineWidth', 2, 'Parent', fig);
-%                 grouper.do_plot(total_data, total_data.configuration, total_data.configuration.rate, fig);
-                
                 plot(x_axis, data2plot(1:size(x_axis, 2)), 'black', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'black', 'Parent', fig);
                 plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'green', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'green', 'Parent', fig);
                 ylim([-inf inf])
@@ -95,7 +92,6 @@ classdef stat
             else
                 ylabel(fig, 'p-value', 'FontWeight','bold');
                 legend(fig, 'p-value');
-
             end
             xlim(fig, [statistical_data.configuration.x_axis(1) statistical_data.configuration.x_axis(end)])
 
@@ -104,7 +100,6 @@ classdef stat
                 xtickformat(fig, '%,.4g');
             catch
             end
-            
             set(next, 'Visible', 'off');
             set(back, 'Visible', 'off');
             if (contrast_id+action)<size(contrast_names, 1)
@@ -500,7 +495,7 @@ classdef stat
                     data2save.pValues      = stat_data.contrasts.pValues.(['contrast_' num2str(contrast)])(1:num_of_samples)';
                     data2save.pValues_bonf = stat_data.contrasts.pValues_bonf.(['contrast_' num2str(contrast)])(1:num_of_samples)';
                     data2save.BFs          = stat_data.contrasts.BFs.(['contrast_' num2str(contrast)])(1:num_of_samples)';
-                    contrast_names_fixed   = strrep(strrep(strrep(contrast_name, 'c_', ''), '_x_', ' & '),'_',' ');
+                    contrast_names_fixed   = strrep(strrep(contrast_name(3:end), '_x_', ' & '), '_', ' ');
                     writetable(struct2table(data2save), [total_data.paths.stat_output_folder_name filesep contrast_names_fixed '.csv'])
 
                 else
