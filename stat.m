@@ -2,11 +2,13 @@ classdef stat
     methods(Static)
 
         function configuration = statistical_vals(configuration)
-            configuration.vals.measure      = gui_lib.get_popupmenu_val(configuration.var.measure);
-            configuration.vals.approach     = gui_lib.get_popupmenu_val(configuration.var.approach);
-            configuration.vals.output_type  = gui_lib.get_popupmenu_val(configuration.var.output_type);
-            configuration.vals.from         = str2num(gui_lib.get_popupmenu_val(configuration.var.from));
-            configuration.vals.to           = str2num(gui_lib.get_popupmenu_val(configuration.var.to));
+            configuration.vals.measure           = gui_lib.get_popupmenu_val(configuration.var.measure);
+            configuration.vals.approach          = gui_lib.get_popupmenu_val(configuration.var.approach);
+            configuration.vals.output_type       = gui_lib.get_popupmenu_val(configuration.var.output_type);
+            configuration.vals.presentation_type = gui_lib.get_popupmenu_val(configuration.var.presentation_type);
+
+            configuration.vals.from              = str2num(gui_lib.get_popupmenu_val(configuration.var.from));
+            configuration.vals.to                = str2num(gui_lib.get_popupmenu_val(configuration.var.to));
         end
         
         function calc_and_plot(src, evnt, fig, figure, total_data, statistical_data, comp_names, next, back, configuration)
@@ -18,6 +20,131 @@ classdef stat
             stat.plot_statistics(0,0, fig, figure, statistical_data, total_data, 1, 0, next, back);
         end
 
+        
+        function plot_compact(fig, total_data)
+            cla(fig);
+            hold off
+            grouper.do_plot(total_data, total_data.configuration, total_data.configuration.rate, fig);
+            hold on
+            
+            stat_output_folder_name = total_data.paths.stat_output_folder_name;
+            files = dir([stat_output_folder_name filesep '*.csv']);
+            files = {files.name}';
+
+            
+
+            [min_val, max_val] = stat.find_y_limits(fig);
+
+            num_of_contrasts = length(files);
+            range = max_val-min_val;
+
+            ylim(fig, [min_val-abs(range*.1*num_of_contrasts), max_val+0.1*range] )
+            yticks(fig, 'auto');
+            yticklabels(fig, 'auto');
+
+
+            contrasts = nchoosek(1:size(total_data.configuration.comp_names, 1), 2);
+
+            colors = [0, 1, 0;
+                      1, 0, 0;
+                      0, 0, 1;
+                      1, 0, 1;
+                      0, 1, 1;
+                      1, 1, 0;
+                      0, 0, 0];
+
+            colors2 = colors+.7;
+            colors2(colors2>1) = 1;
+            
+            hold off;
+            x_axis = total_data.x_axis;
+            for file = 1:length(files)
+                stat_data = readtable([stat_output_folder_name filesep files{file}]);
+                
+                data2plot = stat_data.BFs(1:size(x_axis, 2));
+
+                data2plot(data2plot<3) = nan;
+
+                data2plot_ns = stat_data.BFs(1:size(x_axis, 2));
+                data2plot_ns(data2plot_ns>(1/3)) = nan;
+
+                line_pos =  min_val-abs(range*.1*file);
+                line_dist = abs(range*.025);
+
+                hold on
+                data2plot(~isnan(data2plot)) = line_pos;
+
+                all_lines = findall(fig,'Type','Line');
+                legend_str = all_lines(length(all_lines)-size(total_data.configuration.comp_names, 1)+1:length(all_lines));
+
+                plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(contrasts(file, 1), :), 'LineWidth', 2,  'LineStyle','-', 'Parent', fig);
+                data2plot(~isnan(data2plot)) = line_pos-line_dist;
+                plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(contrasts(file, 2), :), 'LineWidth', 2,  'LineStyle','-', 'Parent', fig);
+
+                data2plot_ns(~isnan(data2plot_ns)) = line_pos;
+                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(contrasts(file, 1), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
+                data2plot_ns(~isnan(data2plot_ns)) = line_pos-line_dist;
+                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(contrasts(file, 2), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
+                legend(fig, flipud(legend_str));
+            end
+            [min_val, max_val] = stat.find_y_limits(fig);
+            range = max_val-min_val;
+            ylim(fig, [min_val-abs(range*.1), max_val+0.1*abs(range)] )
+
+        end
+        
+        function plot_combined(fig, total_data)
+            cla(fig);
+            stat_output_folder_name = total_data.paths.stat_output_folder_name;
+            files = dir([stat_output_folder_name filesep '*.csv']);
+            files = {files.name}';
+
+            hold off;
+            
+            contrasts = cell(size(files));
+            for file = 1:length(files)
+                [~, file_name, ~] = fileparts(files{file});
+                stat_data = readtable([stat_output_folder_name filesep files{file}]);
+                contrasts{file} = file_name;
+                plot(stat_data.x_axis, log10(stat_data.BFs),  'LineWidth', 2, 'Parent', fig);
+                hold on;
+            end
+            set(fig,'FontWeight','bold');
+
+            high_threshold = ones(length(stat_data.x_axis), 1) * log10(3);
+
+            plot(stat_data.x_axis, high_threshold, '--' , 'color', [0, 0, 0],  'LineWidth', 2, 'Parent', fig);
+
+            low_threshold = ones(length(stat_data.x_axis), 1) * log10(1/3);
+
+            plot(stat_data.x_axis, low_threshold, '--' , 'color', [0, 0, 0],  'LineWidth', 2, 'Parent', fig);
+
+            xlim(fig, [min(stat_data.x_axis), max(stat_data.x_axis)]);
+
+            [min_val, max_val] = stat.find_y_limits(fig);
+            min_val = min(min_val, log10(1/3));
+            max_val = max(max_val, log10(3));
+            
+            ylim(fig, [min_val-abs(max_val*.05), 1.05*max_val] )
+
+
+            xlabel(fig, 'Time [ms]');
+
+            ylabel(fig, 'BF_{10}');
+
+            lables = round(10*(10.^yticks(fig)))/10;
+            new_lables = arrayfun(@(x) stat.log_round(x), lables);
+            yticks(fig, log10(new_lables));
+            yticklabels(fig, new_lables);
+
+            try
+                xtickformat('%,.4g');
+            catch
+            end
+            legend(fig, contrasts, 'Location', 'Best');
+            hold off;
+        end
+        
         function plot_statistics(src, evnt, fig, figure, statistical_data, total_data, contrast_id, action, next, back)
             statistical_data.configuration = stat.statistical_vals(statistical_data.configuration);
             bayesian = strcmp(statistical_data.configuration.vals.approach, 'Bayesian');
@@ -42,7 +169,6 @@ classdef stat
             if ~bayesian
                 contrast_data = classical_contrast_data_bonf;
             end
-            
             
             contrast_data_effect  = statistical_data.contrasts.pes.(char(contrast_names(contrast_id+action)));
           
@@ -72,11 +198,84 @@ classdef stat
             cla(fig);
             plot(x_axis, contrast_data(1:size(x_axis, 2)), 'blue', 'LineWidth', 2, 'Parent', fig);
             hold on
+            
+            combined = strcmp(statistical_data.configuration.vals.presentation_type, 'combined');
+
+            compact = strcmp(statistical_data.configuration.vals.presentation_type, 'compact');
             if bayesian
-                plot(x_axis, 1./contrast_data(1:size(x_axis, 2)), 'red', 'LineWidth', 2, 'Parent', fig);
-                plot(x_axis, data2plot(1:size(x_axis, 2)), 'black', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'black', 'Parent', fig);
-                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'green', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'green', 'Parent', fig);
-                ylim([-inf inf])
+                if combined
+                    stat.plot_combined(fig, total_data);
+                    output.save_figure2(fig, [total_data.paths.stat_output_folder_name, filesep, 'combined.fig']);
+
+                elseif compact
+                    stat.plot_compact(fig, total_data);
+                    stat.plot_compact(fig, total_data);
+                    
+                    
+                    output.save_figure2(fig, [total_data.paths.stat_output_folder_name, filesep, 'compact.fig']);
+
+%                     cla(fig);
+%                     hold off
+%                     grouper.do_plot(total_data, total_data.configuration, total_data.configuration.rate, fig);
+%                     hold on
+%                     
+%                     y_values = get(get(fig, 'children'), 'YData');
+%                     max_val = -inf;
+%                     min_val = inf;
+% 
+%                     for line_id = 1:size(y_values, 1)
+%                         if length(y_values{line_id}) < 3
+%                             continue;
+%                         end
+%                         if size(y_values{line_id}, 1)>1
+%                             max_val = max([max_val; y_values{line_id}]);
+%                             min_val = min([min_val; y_values{line_id}]);
+%                         else
+%                             max_val = max([max_val, y_values{line_id}]);
+%                             min_val = min([min_val, y_values{line_id}]);
+%                         end
+%                     end
+%                     ylim(fig, [min_val-abs(max_val*.1), 1.05*max_val] )
+%                     yticks(fig, 'auto');
+%                     yticklabels(fig, 'auto');
+% 
+%                     contrasts = nchoosek(1:size(total_data.configuration.comp_names, 1), 2);
+% 
+%                     colors = [0, 1, 0;
+%                               1, 0, 0;
+%                               0, 0, 1;
+%                               1, 0, 1;
+%                               0, 1, 1;
+%                               1, 1, 0;
+%                               0, 0, 0];
+% 
+%                     colors2 = colors+.7;
+%                     colors2(colors2>1) = 1;
+% 
+%                     min_val = min_val-abs(max_val*.02);
+%                     hold on
+%                     data2plot(~isnan(data2plot)) = min_val;
+%                     
+%                     all_lines = findall(fig,'Type','Line');
+%                     legend_str = all_lines(length(all_lines)-size(total_data.configuration.comp_names, 1)+1:length(all_lines));
+% 
+%                     plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(contrasts(contrast_id+action, 1), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
+%                     data2plot(~isnan(data2plot)) = min_val-.1;
+%                     plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(contrasts(contrast_id+action, 2), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
+% 
+%                     data2plot_ns(~isnan(data2plot_ns)) = min_val;
+%                     plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(contrasts(contrast_id+action, 1), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
+%                     data2plot_ns(~isnan(data2plot_ns)) = min_val-.11;
+%                     plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(contrasts(contrast_id+action, 2), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
+%                     legend(fig, flipud(legend_str));
+                else
+                    plot(x_axis, 1./contrast_data(1:size(x_axis, 2)), 'red', 'LineWidth', 2, 'Parent', fig);
+                    plot(x_axis, data2plot(1:size(x_axis, 2)), 'black', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'black', 'Parent', fig);
+                    plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'green', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'green', 'Parent', fig);
+                    ylim(fig, [-max_bf/50, 1.05*max_bf] );
+                    yticks(fig, 'auto');
+                    yticklabels(fig, 'auto');
+                end
             else
                 plot(x_axis, data2plot_001(1:size(x_axis, 2)), 'color', [0, 0, 0], 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', [0, 0, 0], 'Parent', fig);
                 plot(x_axis, data2plot_01(1:size(x_axis, 2)), 'color', [.3, .3, .3], 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', [.3, .3, .3], 'Parent', fig);
@@ -87,26 +286,31 @@ classdef stat
             xlabel(fig, 'Time [ms]', 'FontWeight','bold');
             
             if bayesian
-                ylabel(fig, 'BF', 'FontWeight','bold');
-                legend(fig, ['BF_{10}'; 'BF_{01}']);
+                if ~compact && ~combined
+                    ylabel(fig, 'BF', 'FontWeight','bold');
+                    legend(fig, ['BF_{10}'; 'BF_{01}']);
+                end
             else
                 ylabel(fig, 'p-value', 'FontWeight','bold');
                 legend(fig, 'p-value');
             end
             xlim(fig, [statistical_data.configuration.x_axis(1) statistical_data.configuration.x_axis(end)])
-
-            title(fig, header(contrast_id+action)); 
+            if ~combined && ~compact               
+                title(fig, header(contrast_id+action)); 
+            end
             try
                 xtickformat(fig, '%,.4g');
             catch
             end
             set(next, 'Visible', 'off');
             set(back, 'Visible', 'off');
-            if (contrast_id+action)<size(contrast_names, 1)
-                set(next, 'Visible', 'on');
-            end
-            if contrast_id+action>1
-                set(back, 'Visible', 'on');
+            if ~combined && ~compact
+                if (contrast_id+action)<size(contrast_names, 1)
+                    set(next, 'Visible', 'on');
+                end
+                if contrast_id+action>1
+                    set(back, 'Visible', 'on');
+                end
             end
             set(next, 'callback', {@stat.plot_statistics, fig, figure, statistical_data, total_data, contrast_id+action, 1, next, back}); 
             set(back, 'callback', {@stat.plot_statistics, fig, figure, statistical_data, total_data, contrast_id+action, -1, next, back}); 
@@ -116,7 +320,6 @@ classdef stat
             hpt   = uipanel('Units','Pixels', 'BackgroundColor',[0.1 0.32 0.46], 'Position',[38 90 width  150]);
             y     = 147-hight;
             x     = 1;
-
 
             header2 = [cellstr('Comparison'), cellstr('t'), cellstr('BF 10'), cellstr('BF 01'), cellstr('Cohen''s d'), 'N'];
             data_table = cell(size(header, 1), 6);
@@ -268,12 +471,16 @@ classdef stat
                 measure = 'mean';
                 approach = 'Bayesian';
                 output_type = 'descriptive';
+                presentation_type = 'full';
+
             else
                 from = configuration.vals.from;
                 to = configuration.vals.to;
                 measure = configuration.vals.measure;
                 approach = configuration.vals.approach;
                 output_type = configuration.vals.output_type;
+                presentation_type = configuration.vals.presentation_type;
+
             end
             bayesian = strcmp(approach, 'Bayesian');
 
@@ -439,7 +646,7 @@ classdef stat
                 contrasts_table{contrast} = contrast_name;
                 full_data1 = total_data.(char(comp_names(contrasts(contrast, 1)))).data;
                 full_data2 = total_data.(char(comp_names(contrasts(contrast, 2)))).data;                
-% 
+ 
 %                 a = total_data.(char(comp_names(1))).data;
 %                 b = total_data.(char(comp_names(2))).data;
 %                 c = total_data.(char(comp_names(3))).data;
@@ -447,10 +654,9 @@ classdef stat
 %                 min2 = min([size(a, 2), size(b, 2), size(c, 2), size(d, 2)]);
 %                 full_data1 = (a(:, 1:min2)+b(:, 1:min2)+d(:, 1:min2))/3;
 %                 full_data2 = c(:, 1:min2);
-
                 
 %                 full_data1 = total_data.(char(comp_names(1))).data;
-% 
+ 
 %                 full_data3 = total_data.(char(comp_names(3))).data;
 %                 full_data4 = (full_data1+full_data3)/2;
 %                 full_data1 = full_data4;
@@ -530,6 +736,101 @@ classdef stat
               stat_data.contrasts.total.cohensd,...
               'VariableNames', {'Comperison', 't', 'BF','N', 'cohensd'});
             stat_data.contrast_names = all_fixed_contrast_names;
+%             if isempty(statistical_data)
+%                 stat.plot_combined_figure(total_data.paths.stat_output_folder_name);
+%             end
         end 
+        
+%         function plot_combined_figure(stat_output_folder_name)
+%             
+%             files = dir([stat_output_folder_name filesep '*.csv']);
+%             files = {files.name}';
+% 
+%             fig = figure('visible', 'off', 'position', [-10000 -10000 800 600],'units','normalized','outerposition',[0 0 1 1]);
+% 
+%             hold off;
+%             contrasts = cell(size(files));
+%             for file = 1:length(files)
+%                 [~, file_name, ~] = fileparts(files{file});
+%                 stat_data = readtable([stat_output_folder_name filesep files{file}]);
+%                 contrasts{file} = file_name;
+%                 plot(stat_data.x_axis, log10(stat_data.BFs), 'LineWidth', 8);
+%                 hold on;
+%             end
+%       
+%             high_threshold = ones(length(stat_data.x_axis), 1) * log10(3);
+%             
+%             plot(stat_data.x_axis, high_threshold, '--' , 'color', [0, 0, 0], 'LineWidth', 6);
+%             
+%             low_threshold = ones(length(stat_data.x_axis), 1) * log10(1/3);
+%             
+%             plot(stat_data.x_axis, low_threshold, '--' , 'color', [0, 0, 0], 'LineWidth', 6);
+% 
+%             set(findobj(gcf,'type','axes'), 'FontWeight','Bold');
+% 
+%             xlim([min(stat_data.x_axis), max(stat_data.x_axis)]);
+% 
+%             
+%             xlabel('Time [ms]', 'FontSize', 40);
+%            
+%             
+%             ylabel('BF_{10}', 'FontSize', 40);
+%             
+%             lables = round(10*(10.^yticks))/10;
+%             new_lables = arrayfun(@(x) stat.log_round(x), lables);
+%             yticks(log10(new_lables));
+%             yticklabels(new_lables);
+%             
+%             try
+%                 xtickformat('%,.4g');
+%             catch
+%             end
+%             
+%             legend(contrasts, 'Location', 'Best', 'FontSize', 40);
+%             
+%             
+%             set(fig, 'PaperUnits', 'inches', 'PaperPosition', [0 0 20 15]);
+%             set(gca, 'FontSize', 40);
+% 
+%             set(gca,'box','on');            
+%             set(gca, 'LineWidth', 6);
+% 
+%             file_name = 'BF10';
+%             print(fig, '-dpng', '-r300', [stat_output_folder_name filesep file_name]);
+% 
+%             set(fig, 'visible', 'on');
+%             set(fig, 'position', [0 0 10 10]);
+%             saveas(fig, [stat_output_folder_name filesep file_name]);
+%             close(fig);
+%         end
+
+        function number = log_round(number)
+            if number>3
+                numlen = numel(num2str(round(number)));
+                d = 10^(numlen-1);
+                r = mod(number, d);
+                number = number - r;
+            end
+        end
+        
+        function [min_val, max_val] = find_y_limits(fig)
+            y_values = get(get(fig, 'children'), 'YData');
+            max_val = -inf;
+            min_val = inf;
+
+            for line_id = 1:size(y_values, 1)
+                if length(y_values{line_id}) < 3
+                    continue;
+                end
+                if size(y_values{line_id}, 1)>1
+                    max_val = max([max_val; y_values{line_id}]);
+                    min_val = min([min_val; y_values{line_id}]);
+                else
+                    max_val = max([max_val, y_values{line_id}]);
+                    min_val = min([min_val, y_values{line_id}]);
+                end
+            end
+        end
+        
     end
 end

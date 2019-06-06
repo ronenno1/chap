@@ -11,7 +11,7 @@ function print_log(log_str, log)
     end
     
     full_path = mfilename('fullpath');
-    path      = strrep(full_path(1:end-length(mfilename)), ' ', '\ ');
+    path      = full_path(1:end-length(mfilename));
     log_path  = strcat(path, filesep, 'logs');
     if ~exist(log_path, 'dir')
         mkdir(log_path);

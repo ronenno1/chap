@@ -11,24 +11,23 @@ classdef output
 
             [~,~,type] = fileparts(full_file_name);
             
-            if strcmp(type,'.fig') 
-                temp_fig = figure('position', [-10000 -10000 800 600]);
-            else
-                temp_fig = figure('visible', 'off', 'position', [-10000 -10000 800 600],'units','normalized','outerposition',[0 0 1 1]);
-            end
+            temp_fig = figure('visible', 'off', 'position', [-10000 -10000 800 600],'units', 'normalized', 'outerposition', [0 0 1 1]);             
 
             copyobj(fig, temp_fig);
             comp_names = strrep(strrep(comp_names, '_x_', ' & '),'_',' ');
 
             fig_axis = flipud(get(temp_fig,'children'));
             chs = flipud(get(fig_axis,'children'));
-            if (contains(lower(class(chs(1))), 'patch'))
+            if ~isempty(strfind(lower(class(chs(1))), 'patch'))
                 legend(chs(size(comp_names, 1)+1:size(comp_names, 1)*2), char(comp_names), 'Location', 'Best');
             else
                 legend(char(comp_names), 'Location', 'Best');
             end
             if strcmp(type,'.fig') 
+                set(temp_fig, 'visible', 'on');
+                set(temp_fig, 'position', [0 0 10 10]);
                 saveas(temp_fig, full_file_name);
+
             elseif strcmp(type, '.png')
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'), 'LineWidth', 8);
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'),  'Marker','o')
@@ -45,22 +44,16 @@ classdef output
                 h=get(gca,'title');
                 set(h, 'FontSize', 40) 
                 set(gca,'YLim',[-inf inf])
-%               title(gca, '');
-                legend(gca,'off');
-
+               
                 set(temp_fig, 'PaperUnits', 'inches', 'PaperPosition', [0 0 20 15]);
-                if (contains(lower(class(chs(1))), 'patch'))
-                    legend(chs(size(comp_names, 1)+1:size(comp_names, 1)*2), char(comp_names), 'Location', 'Best');
-                else
-                    legend(char(comp_names), 'Location', 'Best');
-                end
-
+%             if ~isempty(strfind(lower(class(chs(1))), 'patch'))
+%                     legend(fig_axis, chs(size(comp_names, 1)+1:size(comp_names, 1)*2), char(comp_names), 'Location', 'Best');
+%                 else
+%                     legend(fig_axis, char(comp_names), 'Location', 'Best');
+%                 end
                 try
                     print(temp_fig, '-dpng', '-r300', full_file_name);
                 catch
-%                     set(findobj(gca, 'Type', 'Area', 'Linestyle', 'none'),  'facealpha',1);
-% 
-%                     print(temp_fig, '-dpng', '-r300', full_file_name);
                 end
 
 
@@ -68,6 +61,16 @@ classdef output
             close(temp_fig);
         end
 
+        function legend_str = use_it(lines)
+            legend_str = [];
+            for line = 1:length(lines)
+                r = lines(line);
+                if ~isempty(lines(line).DisplayName) && strcmp(lines(line).LineStyle, '-')
+                    legend_str{end+1} = lines(line).DisplayName;
+                end
+            end
+            
+        end
         
         function save_figure2(fig, full_file_name)
             if (~exist('full_file_name', 'var'))
@@ -75,50 +78,79 @@ classdef output
                 if(~file_name)
                     return;
                 end
-
                 full_file_name         = [path_name file_name];
-
             end
+
             [~,~,type] = fileparts(full_file_name);
 
-            if strcmp(type,'.fig') 
-             temp_fig = figure('position', [-10000 -10000 800 600]);
-            else
-                temp_fig = figure('visible','off');
-            end
+            temp_fig = figure('visible', 'off', 'position', [-10000 -10000 800 600],'units', 'normalized', 'outerposition', [0 0 .01 .01]);             
+            
             copyobj(fig, temp_fig);
 
-            axis = findobj(fig,'type','axe');
+            fig_axes = findobj(temp_fig,'type','Axes');
 
-            if strcmp(get(get(axis, 'ylabel'), 'string'), 'BF')
-                legend(['BF_{10}'; 'BF_{01}']);
+            all_lines = findall(fig,'Type', 'Line');
+            legend_str = output.use_it(all_lines);
+
+            chs = flipud(get(fig_axes, 'children'));
+            set(fig_axes, 'FontSize', 40) 
+
+            if ~isempty(strfind(lower(class(chs(1))), 'patch'))
+                legend(fig_axes, chs(length(legend_str)+1:length(legend_str)*2), fliplr(legend_str), 'FontSize', 40);
+            else
+                legend(fig_axes, fliplr(legend_str), 'FontSize', 30);
             end
 
+            y_values = get(get(fig_axes, 'children'), 'YData');
+
+            max_val = -inf;
+            min_val = inf;
+
+            for line_id = 1:size(y_values, 1)
+                if length(y_values{line_id}) < 3
+                    continue;
+                end
+                if size(y_values{line_id}, 1)>1
+                    max_val = max([max_val; y_values{line_id}]);
+                    min_val = min([min_val; y_values{line_id}]);
+                else
+                    max_val = max([max_val, y_values{line_id}]);
+                    min_val = min([min_val, y_values{line_id}]);
+                end
+            end
+            range = max_val-min_val;
+            ylim(fig_axes, [min_val-abs(range*.1), max_val+0.1*abs(range)] )
+
             if strcmp(type,'.fig') 
+                set(temp_fig, 'visible', 'on');
+                set(temp_fig, 'position', [0 0 10 10]);
                 saveas(temp_fig, full_file_name);
             elseif strcmp(type, '.png')
+                
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'), 'LineWidth', 8);
-                set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'),  'Marker','o')
-                set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'),  'MarkerSize',.3)
+                set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-', 'DisplayName', ''), 'LineWidth', 4);
+
+                set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'),  'MarkerSize',.5)
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '--'), 'LineWidth', 6);
-                set(findobj(gca, 'Type', 'Line', 'Linestyle', 'none'),  'LineWidth', 2);
-                set(findobj(gca, 'Type', 'Line', 'Linestyle', 'none'),  'MarkerSize', 10);
-                set(gca, 'LineWidth', 3);
-                set(gca, 'FontSize', 40) 
-                h=get(gca,'xlabel');
+
+                set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', 'none'),  'LineWidth', 2);
+                set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', 'none'),  'MarkerSize', 10)
+                set(fig_axes,'box','on');            
+
+                set(fig_axes, 'LineWidth', 3);
+                set(fig_axes, 'FontSize', 40) 
+                h=get(fig_axes,'xlabel');
                 set(h, 'FontSize', 40) 
-                h=get(gca,'ylabel');
+                h=get(fig_axes,'ylabel');
                 set(h, 'FontSize', 40) 
-                h=get(gca,'title');
+                h=get(fig_axes,'title');
                 set(h, 'FontSize', 40) 
-                set(gca,'YLim',[-inf inf])
-                set(temp_fig, 'PaperUnits', 'inches', 'PaperPosition', [0 0 20 15]); %
-                print(temp_fig, '-dpng', '-r300', full_file_name);
+                set(gcf, 'PaperUnits', 'inches', 'PaperPosition', [0 0 25.5 13]); %
+                print(temp_fig, '-dpng', '-r100', full_file_name);
             end
             close(temp_fig);
         end
-
-        
+       
         function save_csv_header2(data_analyzed, full_file_name, mrd)
             comp_names = fieldnames(data_analyzed);
             max_trail = 0;

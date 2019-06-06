@@ -145,10 +145,12 @@ classdef grouper
                     if(file>1) %padding matrix
                         size_diff = size(total_data.(char(comp)).data, 2) - size(pupil_data, 2);
                         if(size_diff>0)
-                            pupil_data = padarray(pupil_data, [0, size_diff], nan, 'post');
+                            padding = NaN(1, size_diff);
+                            pupil_data = [pupil_data, padding];
                         end
                         if(size_diff<0)
-                            total_data.(char(comp)).data = padarray(total_data.(char(comp)).data, [0, -size_diff], nan, 'post');
+                            padding = NaN(size(total_data.(char(comp)).data, 1), -size_diff);
+                            total_data.(char(comp)).data = [total_data.(char(comp)).data, padding];
                         end
                     end
                     total_data.(char(comp)).data(file, :) = pupil_data;
@@ -353,7 +355,7 @@ classdef grouper
             xlabel_text = 'Time [ms]';
             xlabel(xlabel_text, 'FontWeight','bold');
             ylabel_text = [relative_label 'Pupil Size [' y_unit_label ']'];
-            ylabel(ylabel_text, 'FontWeight','bold');
+            ylabel(fig, ylabel_text, 'FontWeight','bold');
             set(gca,'FontWeight','bold');
             set(gca,'box','on');            
 
@@ -376,7 +378,7 @@ classdef grouper
             if( ~strcmp(project_name, ''))
                 title_text = strcat(title_text, ' (', project_name, ')');
             end
-            title(title_text);
+            title(fig, title_text);
 
             total_data.xlabel = xlabel_text;
             total_data.ylabel = ylabel_text;

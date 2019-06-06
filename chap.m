@@ -4,7 +4,7 @@ function chap()
     toolboxes = ver;
     toolbox_names = {toolboxes.Name};
     if(isempty(find(~cellfun(@isempty, strfind(toolbox_names,'Curve Fitting Toolbox')),1)))
-        display('It seems that you does not have the Curve Fitting Toolbox. Please insall it and try again.');
+        display('It seems that you do not have the Curve Fitting Toolbox. Please insall it and try again.');
         return;
     end
     Figure_h = gui_lib.create_figure('CHAP - Main', 'images/chap_1.jpg', [0 0 550 440]);%create the initial figure
@@ -26,7 +26,7 @@ end
 %                   primary functions                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function read_raw_file(src, evnt, log) % read edf file and convert it to mat file
+function read_raw_file(src, evnt, log) % read data file and convert it into mat file
     data = read_data.read_file(log);
     if isempty(data)
         return;
@@ -531,14 +531,14 @@ function process_files(paths, files, data, fig, log, log_a, res_table)
         end
         
         if(ploted_data.fail)
-            output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name_err filesep file_name '.png']);
-            output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name_err filesep file_name '.fig']);
+%             output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name_err filesep file_name '.png']);
+%             output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name_err filesep file_name '.fig']);
             print_log('Error:', log_a);
             print_log('not enough trials', log);    
             save([paths.mat_output_folder_name_err filesep file_name], 'ploted_data');
         else
-            output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name filesep file_name '.png']);
-            output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name filesep file_name '.fig']);
+%             output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name filesep file_name '.png']);
+%             output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name filesep file_name '.fig']);
             single_data.printed_data = printed_data;
             save([paths.mat_output_folder_name filesep file_name], 'ploted_data');
             output.save_csv_append(printed_data, [paths.csv_output_folder_name filesep 'time-course_data.csv'], file_name);
@@ -587,7 +587,8 @@ function data = process_file(full_name, output_folder_name, log, events2, vars2)
             full_data_mat  = tobii2matlab(full_name, output_folder_name, log, events2, vars2);
         elseif strcmp(ext, '.plsd')
             full_data_mat  = plsd2matlab(full_name, output_folder_name, log, events2, vars2);
-
+        elseif strcmp(ext, '.dat') 
+            full_data_mat = dat2matlab(full_name, output_folder_name, log, events2, vars2);
         end
         if(isempty(full_data_mat))
             return;
@@ -683,7 +684,7 @@ function statistical_data = show_statistical_vars(statistical_data)
     
     
     gui_lib.uicontrol_text(hp, 'Parameter:', [title_pos_x edit_pos_y-120 90 30]);
-    tooltip = '<html><b>From</b><br><i>Select the desired parameter for analysis</html>';
+    tooltip = '<html><b>Parameter</b><br><i>Select the desired parameter for analysis</html>';
     measure = uicontrol(hp,'Style','popupmenu',...
         'Position',[edit_pos_x-40 edit_pos_y-120 120 30], 'TooltipString', tooltip, 'String', [{'mean'}; {'peak'};{'peak latency'}; {'dip'};{'dip latency'};], 'Value', 1);
     
@@ -695,11 +696,17 @@ function statistical_data = show_statistical_vars(statistical_data)
         'Position',[edit_pos_x-40 edit_pos_y-160 120 30], 'TooltipString', tooltip, 'String', [{'descriptive'}; {'inference'}], 'Value', 1);
 
     
-    statistical_data.configuration.var.from        = from;
-    statistical_data.configuration.var.to          = to;
-    statistical_data.configuration.var.approach    = approach;
-    statistical_data.configuration.var.output_type = output_type;
-    statistical_data.configuration.var.measure     = measure;
+    gui_lib.uicontrol_text(hp, 'Presentation type:', [title_pos_x edit_pos_y-160 120 30]);
+    tooltip = '<html><b>Presentation type</b><br><i>Select how to present the data (only for the Bayesian approach)</html>';
+    presentation_type = uicontrol(hp,'Style','popupmenu',...
+        'Position',[edit_pos_x-40 edit_pos_y-160 120 30], 'TooltipString', tooltip, 'String', [{'full'}; {'compact'};  {'combined'}], 'Value', 1);
+
+    statistical_data.configuration.var.from                 = from;
+    statistical_data.configuration.var.to                   = to;
+    statistical_data.configuration.var.approach             = approach;
+    statistical_data.configuration.var.measure              = measure;
+    statistical_data.configuration.var.output_type          = output_type;
+    statistical_data.configuration.var.presentation_type    = presentation_type;
 
 end
 

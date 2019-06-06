@@ -29,13 +29,12 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
             full_path = mfilename('fullpath');
             
             path = strrep(full_path(1:end-11), ' ', '\ ');
-            mat_file_path_fixed = strrep(mat_file_path, ' ', '\ ');
             setenv('LD_LIBRARY_PATH', [matlabroot '/bin/glnxa64:' matlabroot '/sys/os/glnxa64'])
             convertor = 'edf2mat/edfmat_ubuntu32';
-            if contains(computer, '64')
+            if ~isempty(strfind(computer, '64'))
                 convertor = 'edf2mat/edfmat_ubuntu64';
             end
-            system([path convertor ' ' full_edf_name_fixed ' ' mat_file_path_fixed])
+            system([path convertor, ' "', full_edf_name, '" "', mat_file_path, '"'])
             print_log(['Load mat file: ' strrep(file_name, '_', '\_') '.mat'], log);
             clc
         end
@@ -47,7 +46,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     
 
     if ispc
-        input_data = edfmex(full_edf_name_fixed);
+        input_data = edfmex(full_edf_name);
     end
     if ismac
         input_data_mac = Edf2Mat(full_edf_name_fixed);
