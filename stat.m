@@ -139,6 +139,8 @@ classdef stat
 
             try
                 xtickformat('%,.4g');
+                ytickformat('%,.4g');
+
             catch
             end
             legend(fig, contrasts, 'Location', 'Best');
@@ -500,7 +502,6 @@ classdef stat
                 to_ana = find(total_data.x_axis>=to, 1, 'first')-1;
             end
             
-
             for comp = 1:size(comp_names, 1)
                 full_data = total_data.(char(comp_names(comp))).data;
                 avgs.(char(comp_names(comp))) = nanmean(full_data(:, from_ana:to_ana), 2);

@@ -177,11 +177,12 @@ classdef grouper
             hold off;
             Bins = ceil(max(configuration.BinsNumber_val, 1)/ms);
             
+            min_length = inf;
             for i = 1:size(comp_names, 1)
                 comp = char(comp_names(i));
                 lengths.(char(comp)) = floor(sum(sum(~isnan(total_data.(char(comp)).data)))/size(total_data.(char(comp)).data, 1));
+                min_length = min(min_length, lengths.(char(comp)));
             end
-            
             cmap2 = [0, 255, 0;
                     255, 0, 0; 
                     0, 0, 255;
@@ -210,11 +211,11 @@ classdef grouper
 %                 total_data.(char(comp)).pop = total_data.(char(comp)).data(1:lengths.(char(comp)));
 
                 Trial_Offset_ms = size(total_data.(char(comp)).avg, 2)*(round(ms*Bins));
-                x_axis = linspace(0 ,Trial_Offset_ms,size(total_data.(char(comp)).avg, 2))-PreEventNumber;
+                x_axis = linspace(0, Trial_Offset_ms, size(total_data.(char(comp)).avg, 2))-PreEventNumber;
 
                 x = x_axis';
                 
-                d  =total_data.(char(comp)).avg;
+                d  = total_data.(char(comp)).avg;
                 sd = total_data.(char(comp)).std;      
                 
                 data4analyze = total_data.(char(comp)).data(1:lengths.(char(comp)));
@@ -318,7 +319,7 @@ classdef grouper
 %             total_data.diff.avg=total_data.(char(comp2)).avg(1:5500)-total_data.(char(comp1)).avg(1:5500);
 %             plot(x_axis(1:5500), total_data.diff.avg, 'LineWidth', 3, 'Color', cmap2(3,:), 'Parent', fig);
 
-            total_data.x_axis = x_axis;
+            total_data.x_axis = x_axis(1:min_length);
             %% plot events
             for i = 1:size(comp_names, 1)
                 comp = char(comp_names(i));
