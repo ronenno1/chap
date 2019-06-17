@@ -335,7 +335,14 @@ classdef grouper
                     x = total_data.(char(comp)).avg_events.(evnt);
                     x = x-Trial_Onset;
                     y = get(fig,'ylim');
-                    plot([x x], y, 'Color', cmap2(i, :), 'LineStyle', '--', 'Parent', fig);
+                    
+                    color2plot = [0, 0, 0];
+                    if x~=0
+                        color2plot = cmap2(i,:);
+                    end
+
+                    
+                    plot([x x], y, 'Color', color2plot, 'LineStyle', '--', 'Parent', fig);
                 end
             end
 

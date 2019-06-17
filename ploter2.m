@@ -323,8 +323,11 @@ classdef ploter2
                     y = get(fig, 'ylim');
                     event_time_ms = ms*event_time;
                     ploted_data.(cond_name).events.(char(event_names(e))) = event_time_ms;
-%                     line([event_time_ms event_time_ms], y, 'Color', cmap2(comp,:), 'LineStyle', '--');
-                    plot([event_time_ms event_time_ms], y, 'Color', cmap2(comp,:), 'LineStyle', '--', 'Parent', fig);
+                    color2plot = [0, 0, 0];
+                    if event_time_ms~=0
+                        color2plot = cmap2(comp,:);
+                    end
+                    plot([event_time_ms event_time_ms], y, 'Color', color2plot, 'LineStyle', '--', 'Parent', fig);
                 end
                 event_time = evant_avg(end);
                 if(relative)

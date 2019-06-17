@@ -139,7 +139,6 @@ classdef stat
 
             try
                 xtickformat('%,.4g');
-                ytickformat('%,.4g');
 
             catch
             end
