@@ -531,8 +531,8 @@ function process_files(paths, files, data, fig, log, log_a, res_table)
         end
         
         if(ploted_data.fail)
-%             output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name_err filesep file_name '.png']);
-%             output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name_err filesep file_name '.fig']);
+            output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name_err filesep file_name '.png']);
+            output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name_err filesep file_name '.fig']);
             print_log('Error:', log_a);
             print_log('not enough trials', log);    
             save([paths.mat_output_folder_name_err filesep file_name], 'ploted_data');
@@ -690,16 +690,16 @@ function statistical_data = show_statistical_vars(statistical_data)
     
     
     
-    gui_lib.uicontrol_text(hp, 'Output type:', [title_pos_x edit_pos_y-160 90 30]);
+    gui_lib.uicontrol_text(hp, 'Output type:', [title_pos_x edit_pos_y-160 120 30]);
     tooltip = '<html><b>From</b><br><i>Select first event for analyze</html>';
     output_type = uicontrol(hp,'Style','popupmenu',...
         'Position',[edit_pos_x-40 edit_pos_y-160 120 30], 'TooltipString', tooltip, 'String', [{'descriptive'}; {'inference'}], 'Value', 1);
 
     
-    gui_lib.uicontrol_text(hp, 'Presentation type:', [title_pos_x edit_pos_y-160 120 40]);
+    gui_lib.uicontrol_text(hp, 'Presentation type:', [title_pos_x edit_pos_y-210 120 40]);
     tooltip = '<html><b>Presentation type</b><br><i>Select how to present the data (only for the Bayesian approach)</html>';
     presentation_type = uicontrol(hp,'Style','popupmenu',...
-        'Position',[edit_pos_x-40 edit_pos_y-160 120 30], 'TooltipString', tooltip, 'String', [{'full'}; {'compact'};  {'combined'}], 'Value', 1);
+        'Position',[edit_pos_x-40 edit_pos_y-200 120 30], 'TooltipString', tooltip, 'String', [{'full'}; {'compact'};  {'combined'}], 'Value', 1);
 
     statistical_data.configuration.var.from                 = from;
     statistical_data.configuration.var.to                   = to;
