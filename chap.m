@@ -537,7 +537,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table)
             print_log('not enough trials', log);    
             save([paths.mat_output_folder_name_err filesep file_name], 'ploted_data');
         else
-%             output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name filesep file_name '.png']);
+            output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name filesep file_name '.png']);
 %             output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name filesep file_name '.fig']);
             single_data.printed_data = printed_data;
             save([paths.mat_output_folder_name filesep file_name], 'ploted_data');
@@ -625,19 +625,19 @@ function data = view_configuration(data)
 
     gui_lib.uicontrol_text(hp, 'Z outliers:', [title_pos_x title_pos_y 150 30]);
     ZNumber = gui_lib.uicontrol_edit(hp, [edit_pos_x edit_pos_y 50 25], tooltip, @valid_positive_number);
-    set(ZNumber, 'String', 2.5);
+    set(ZNumber, 'String', configer.z_number);
 
     tooltip = '<html><b>Missing values</b><br><i>Select the percentage of missing values to exclude trial</html>';
-    gui_lib.uicontrol_text(hp, 'Missing values (%):', [title_pos_x title_pos_y-35 150 30]);
+    gui_lib.uicontrol_text(hp, 'Missing values(%):', [title_pos_x title_pos_y-35 150 30]);
     ZeroshNumber = gui_lib.uicontrol_edit(hp, [edit_pos_x edit_pos_y-35 50 25], tooltip, @valid_positive_number);
-    set(ZeroshNumber, 'String', 20);
+    set(ZeroshNumber, 'String', configer.zeros_number);
         
     
     tooltip = '<html><b>Min. Trials</b><br><i>Select the minimum number of trials for analyzing</html>';
 
     gui_lib.uicontrol_text(hp, 'Min. trials:', [title_pos_x title_pos_y-70 150 30]);
     min_trials = gui_lib.uicontrol_edit(hp, [edit_pos_x edit_pos_y-70 50 25], tooltip, @valid_2plus_number);
-    set(min_trials, 'String', 80);
+    set(min_trials, 'String', configer.min_trials);
     
     val_options = {'Linear Interpolation', 'Cubic Interpolation', 'Without Interpolation'};
 
@@ -696,7 +696,7 @@ function statistical_data = show_statistical_vars(statistical_data)
         'Position',[edit_pos_x-40 edit_pos_y-160 120 30], 'TooltipString', tooltip, 'String', [{'descriptive'}; {'inference'}], 'Value', 1);
 
     
-    gui_lib.uicontrol_text(hp, 'Presentation type:', [title_pos_x edit_pos_y-160 120 30]);
+    gui_lib.uicontrol_text(hp, 'Presentation type:', [title_pos_x edit_pos_y-160 120 40]);
     tooltip = '<html><b>Presentation type</b><br><i>Select how to present the data (only for the Bayesian approach)</html>';
     presentation_type = uicontrol(hp,'Style','popupmenu',...
         'Position',[edit_pos_x-40 edit_pos_y-160 120 30], 'TooltipString', tooltip, 'String', [{'full'}; {'compact'};  {'combined'}], 'Value', 1);
