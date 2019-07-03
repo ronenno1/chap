@@ -35,8 +35,7 @@ For further information or if you have any questions please do not hesitate to c
 ## Citations
 
 * Hershman, R., Henik, A., & Cohen, N. (2018). A novel blink detection method based on pupillometry noise. Behavior Research Methods, 50(1), 107-114. [https://doi.org/10.3758/s13428-017-1008-1](https://doi.org/10.3758/s13428-017-1008-1)
-* Hershman, R., Henik, A., & Cohen, N. (2019). CHAP: Open-source software for processing and analyzing pupillometry data. Behavior Research Methods. [https://doi.org/10.3758/s13428-018-01190-1](https://doi.org/10.3758/s13428-018-01190-1).
-
+* Hershman, R., Henik, A., & Cohen, N. (2019). CHAP: Open-source software for processing and analyzing pupillometry data. Behavior Research Methods, 51(3), 1059-1074. [https://doi.org/10.3758/s13428-018-01190-1](https://doi.org/10.3758/s13428-018-01190-1).
 
 ### Follow us by adding yourself to our [mailing list](https://cnl.bgu.ac.il/mailing_list/?/register/d5b21996e2446231f719584cfba63b766acad424)
 
