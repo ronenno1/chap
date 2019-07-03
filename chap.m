@@ -538,7 +538,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table)
             save([paths.mat_output_folder_name_err filesep file_name], 'ploted_data');
         else
             output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name filesep file_name '.png']);
-%             output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name filesep file_name '.fig']);
+            output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name filesep file_name '.fig']);
             single_data.printed_data = printed_data;
             save([paths.mat_output_folder_name filesep file_name], 'ploted_data');
             output.save_csv_append(printed_data, [paths.csv_output_folder_name filesep 'time-course_data.csv'], file_name);
