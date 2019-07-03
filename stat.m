@@ -214,66 +214,13 @@ classdef stat
                     
                     
                     output.save_figure2(fig, [total_data.paths.stat_output_folder_name, filesep, 'compact.fig']);
-
-%                     cla(fig);
-%                     hold off
-%                     grouper.do_plot(total_data, total_data.configuration, total_data.configuration.rate, fig);
-%                     hold on
-%                     
-%                     y_values = get(get(fig, 'children'), 'YData');
-%                     max_val = -inf;
-%                     min_val = inf;
-% 
-%                     for line_id = 1:size(y_values, 1)
-%                         if length(y_values{line_id}) < 3
-%                             continue;
-%                         end
-%                         if size(y_values{line_id}, 1)>1
-%                             max_val = max([max_val; y_values{line_id}]);
-%                             min_val = min([min_val; y_values{line_id}]);
-%                         else
-%                             max_val = max([max_val, y_values{line_id}]);
-%                             min_val = min([min_val, y_values{line_id}]);
-%                         end
-%                     end
-%                     ylim(fig, [min_val-abs(max_val*.1), 1.05*max_val] )
-%                     yticks(fig, 'auto');
-%                     yticklabels(fig, 'auto');
-% 
-%                     contrasts = nchoosek(1:size(total_data.configuration.comp_names, 1), 2);
-% 
-%                     colors = [0, 1, 0;
-%                               1, 0, 0;
-%                               0, 0, 1;
-%                               1, 0, 1;
-%                               0, 1, 1;
-%                               1, 1, 0;
-%                               0, 0, 0];
-% 
-%                     colors2 = colors+.7;
-%                     colors2(colors2>1) = 1;
-% 
-%                     min_val = min_val-abs(max_val*.02);
-%                     hold on
-%                     data2plot(~isnan(data2plot)) = min_val;
-%                     
-%                     all_lines = findall(fig,'Type','Line');
-%                     legend_str = all_lines(length(all_lines)-size(total_data.configuration.comp_names, 1)+1:length(all_lines));
-% 
-%                     plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(contrasts(contrast_id+action, 1), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
-%                     data2plot(~isnan(data2plot)) = min_val-.1;
-%                     plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(contrasts(contrast_id+action, 2), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
-% 
-%                     data2plot_ns(~isnan(data2plot_ns)) = min_val;
-%                     plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(contrasts(contrast_id+action, 1), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
-%                     data2plot_ns(~isnan(data2plot_ns)) = min_val-.11;
-%                     plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(contrasts(contrast_id+action, 2), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
-%                     legend(fig, flipud(legend_str));
                 else
                     plot(x_axis, 1./contrast_data(1:size(x_axis, 2)), 'red', 'LineWidth', 2, 'Parent', fig);
                     plot(x_axis, data2plot(1:size(x_axis, 2)), 'black', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'black', 'Parent', fig);
                     plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'green', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'green', 'Parent', fig);
-                    ylim(fig, [-max_bf/50, 1.05*max_bf] );
+                    [min_val, max_val] = stat.find_y_limits(fig);
+                    range = max_val-min_val;
+                    ylim(fig, [min_val, max_val+0.1*abs(range)] )
                     yticks(fig, 'auto');
                     yticklabels(fig, 'auto');
                 end
