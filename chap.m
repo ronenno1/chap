@@ -373,9 +373,7 @@ function do_group(src, fig, log, log_a, res_table)
     configuration = data.configuration;
     comp_names    = configuration.comp_names;
     configuration.paths = paths;
-    if(overwrite)
-        process_files(paths, files, data, fig, log, log_a, res_table);
-    end
+    process_files(paths, files, data, fig, log, log_a, res_table, overwrite);
    
     if size(files, 1)<2
         print_log('Error:', log_a);    
@@ -423,7 +421,7 @@ function do_group(src, fig, log, log_a, res_table)
     print_log('Done!', log);    
 end
 
-function process_files(paths, files, data, fig, log, log_a, res_table)
+function process_files(paths, files, data, fig, log, log_a, res_table, overwrite)
     configuration = data.configuration;
 
     num_of_files  = size(files, 1);
@@ -433,10 +431,15 @@ function process_files(paths, files, data, fig, log, log_a, res_table)
     var_data_table    = [];
     behave_table      = [];
     fail_behave_table = [];
+    updated = false;
     for i = 1:num_of_files
         print_log([num2str(i) '/' num2str(num_of_files) ':'], log_a);
         print_log(['Loading: ' char(files(i)) ], log);
-
+        [~, file_name, ~] = fileparts(char(files(i)));
+        if ~overwrite && (exist([paths.mat_output_folder_name filesep file_name '.mat'], 'file') || exist([paths.mat_output_folder_name_err filesep file_name '.mat'], 'file'))            
+            continue;
+        end
+        updated = true;
         %% get the data from the file
         
         single_data             = process_file([paths.output_folder_name filesep char(files(i))], paths.chap_output_folder_name, log, data.events2, data.vars2);
@@ -482,7 +485,6 @@ function process_files(paths, files, data, fig, log, log_a, res_table)
         drawnow
 
         %% save the graphs
-        [~, file_name, ~] = fileparts(char(files(i)));
         comp_names_fixed = cellfun(@(x) x(3:end), comp_names, 'UniformOutput', false);
         comp_names_fixed = strrep(strrep(comp_names_fixed, '_x_', ' & '),'_',' ');
         printed_data = ploted_data;
@@ -538,7 +540,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table)
             save([paths.mat_output_folder_name_err filesep file_name], 'ploted_data');
         else
             output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name filesep file_name '.png']);
-%             output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name filesep file_name '.fig']);
+            output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name filesep file_name '.fig']);
             single_data.printed_data = printed_data;
             save([paths.mat_output_folder_name filesep file_name], 'ploted_data');
             output.save_csv_append(printed_data, [paths.csv_output_folder_name filesep 'time-course_data.csv'], file_name);
@@ -546,6 +548,10 @@ function process_files(paths, files, data, fig, log, log_a, res_table)
             var_data_table = [var_data_table; single_var_data_table];
         end
     end 
+    
+    if ~updated
+        return;
+    end
     if ~isempty(behave_table)
         writetable(behave_table, strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'));
     end
