@@ -75,8 +75,13 @@ pp=genpath(p);
 pathElements = textscan(pp, '%s', 'delimiter', pathsep);
 pathElements = pathElements{1}.';
 
-isNotMatching    = cellfun(@isempty,strfind(pathElements, '.git'));
+isNotMatching    = cellfun(@isempty, strfind(pathElements, '.git'));
+
 pathElements     = pathElements(isNotMatching);
+for path2add = 1:length(pathElements)
+    fprintf('Adding to MATLAB path: %s \n', pathElements{path2add});
+end
+
 pathElements     = [pathElements; repmat({pathsep},1,length(pathElements))];
 newPathList      = [pathElements{:}];
 newPathList(end) = [];
