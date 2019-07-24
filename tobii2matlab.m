@@ -66,7 +66,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     tic;
     event_csv_name = [path filesep file_name '_events.csv'];
     if ~exist(event_csv_name, 'file')
-        print_log(strcat('Error (3): events file does not found, please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
+        print_log(strcat('Error (3): events file does not found, please add: ', strcat(file_name, '_events.csv'), ' to ', path), log);    
         return;
     end
 
