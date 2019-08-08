@@ -422,11 +422,35 @@ function do_group(src, fig, log, log_a, res_table)
 end
 
 function process_files(paths, files, data, fig, log, log_a, res_table, overwrite)
+    
+    %% load data from previous analysis (in case it will be required to use it) 
+    if ~overwrite
+        if exist(strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'), 'file')
+            old_behave_table = readtable(strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'));
+        end
+        if exist(strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'), 'file')
+            old_fail_behave_table = readtable(strcat(paths.behave_output_folder_name, filesep, 'outliers.csv'));
+        end
+        
+        if exist(strcat(paths.csv_output_folder_name, filesep, 'trials_data.csv'), 'file')
+            old_var_data_table = readtable(strcat(paths.csv_output_folder_name, filesep, 'trials_data.csv'));
+        end
+        
+        if exist(strcat(paths.csv_output_folder_name, filesep, 'outliers.csv'), 'file')
+            old_outliers = readtable(strcat(paths.csv_output_folder_name, filesep, 'outliers.csv'));
+        end
+        
+        if exist(strcat(paths.csv_output_folder_name, filesep, 'valid_trials.csv'), 'file')
+            old_valid_trials = readtable(strcat(paths.csv_output_folder_name, filesep, 'valid_trials.csv'));
+        end
+    end
+    
     configuration = data.configuration;
 
     num_of_files  = size(files, 1);
-
-    output.save_csv_header(configuration.comp_names, [paths.csv_output_folder_name filesep 'time-course_data.csv']);
+    if overwrite || ~exist(strcat(paths.csv_output_folder_name, filesep, 'time-course_data.csv'), 'file')
+        output.save_csv_header(configuration.comp_names, [paths.csv_output_folder_name filesep 'time-course_data.csv']);
+    end
     comp_names        = configuration.comp_names;
     var_data_table    = [];
     behave_table      = [];
@@ -436,12 +460,24 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         print_log([num2str(i) '/' num2str(num_of_files) ':'], log_a);
         print_log(['Loading: ' char(files(i)) ], log);
         [~, file_name, ~] = fileparts(char(files(i)));
-        if ~overwrite && (exist([paths.mat_output_folder_name filesep file_name '.mat'], 'file') || exist([paths.mat_output_folder_name_err filesep file_name '.mat'], 'file'))            
+        
+        skip_me = ~overwrite && (exist([paths.mat_output_folder_name filesep file_name '.mat'], 'file') || exist([paths.mat_output_folder_name_err filesep file_name '.mat'], 'file'));
+    
+        if skip_me && exist('old_outliers', 'var')
+            participant_id = strcmp(old_outliers.participant_id, file_name);
+            participants.outliers(i) = table2struct(old_outliers(participant_id, :));
+        end
+        
+        if skip_me && exist('old_valid_trials', 'var')
+            participant_id = strcmp(old_valid_trials.participant_id, file_name);
+            participants.valid_trials(i) = table2struct(old_valid_trials(participant_id, :));
+        end
+
+        if skip_me
             continue;
         end
         updated = true;
-        %% get the data from the file
-        
+        %% get data from file        
         single_data             = process_file([paths.output_folder_name filesep char(files(i))], paths.chap_output_folder_name, log, data.events2, data.vars2);
         single_data.var_handler = data.var_handler;
         single_data.configuration = configuration;
@@ -456,7 +492,6 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         end
         if(single_data.rate~=data.rate)
             print_log(['Error: wrong smapling rate: ' char(files(i)) ': '], log);    
-%             single_data = [];
             continue;
         end
         skip = false;
@@ -474,9 +509,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         if skip
             continue;
         end
-
-        cond_ids            = single_data.cond_ids;
-                
+        cond_ids            = single_data.cond_ids;     
         [ploted_data, ~]    = ploter2.draw_graph(single_data.cond_mat_data, single_data.cond_events_data, single_data.cond_blinks, comp_names, single_data.rate, fig, single_data.data_mean, single_data.data_std, data.configuration, char(files(i)));
        	if(isfield(ploted_data, 'wrong_range'))
            print_log(['Error: wrong_range: ' char(files(i)) ': '], log);    
@@ -510,7 +543,6 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         outliers = single_data.outliers;
         outliers.participant_id = file_name;
         participants.outliers(i) = outliers;
-
 
         %% print the data
         header = [cellstr('outliers') cellstr('Valid_Trials') fieldnames(ploted_data.(char(comp_names(1))).events)'];
@@ -553,12 +585,26 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         return;
     end
     if ~isempty(behave_table)
+        if exist('old_behave_table', 'var')
+            behave_table = [old_behave_table; behave_table];
+        end            
         writetable(behave_table, strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'));
     end
+    
     if(~isempty(fail_behave_table))
+        if exist('old_fail_behave_table', 'var')
+            fail_behave_table = [old_fail_behave_table; fail_behave_table];
+        end            
         writetable(fail_behave_table, strcat(paths.behave_output_folder_name, filesep, 'outliers.csv'));
     end
+    
     writetable(var_data_table, [paths.csv_output_folder_name filesep 'trials_data.csv']);
+    if exist('old_var_data_table', 'var')
+        new_var_data_table = readtable(strcat(paths.csv_output_folder_name, filesep, 'trials_data.csv'));
+        var_data_table = [old_var_data_table; new_var_data_table];
+        writetable(var_data_table, [paths.csv_output_folder_name filesep 'trials_data.csv']);
+    end
+    
     writetable(struct2table(participants.outliers), strcat(paths.csv_output_folder_name, filesep, 'outliers.csv'));
     writetable(struct2table(participants.valid_trials), strcat(paths.csv_output_folder_name, filesep, 'valid_trials.csv'));
 

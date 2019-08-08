@@ -207,13 +207,14 @@ classdef stat
                 if combined
                     stat.plot_combined(fig, total_data);
                     output.save_figure2(fig, [total_data.paths.stat_output_folder_name, filesep, 'combined.fig']);
-
+                    output.save_figure2(fig, [total_data.paths.stat_output_folder_name, filesep, 'combined.png']);
                 elseif compact
                     stat.plot_compact(fig, total_data);
                     stat.plot_compact(fig, total_data);
                     
                     
                     output.save_figure2(fig, [total_data.paths.stat_output_folder_name, filesep, 'compact.fig']);
+                    output.save_figure2(fig, [total_data.paths.stat_output_folder_name, filesep, 'compact.png']);
 
 %                     cla(fig);
 %                     hold off

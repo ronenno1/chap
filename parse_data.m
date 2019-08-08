@@ -29,7 +29,6 @@ classdef parse_data
                 if external
                     total_var_data.(char(var_data_arr(1)))(trial_id, :) = var_data_arr(2);
                 else
-                    
                     total_var_data.(char(var_data_arr(3)))(trial_id, :) = strrep(var_data_arr(4), '''', '') ;
                 end
                 
