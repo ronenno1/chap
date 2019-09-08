@@ -20,10 +20,9 @@ function output = load_chap_data(compressed_data, log)
         if percentage>0 && ~mod(percentage, 10) && percentages(percentage/10)==0 
             print_log(['Trials wrote: ' num2str(percentage) '%'], log);    
             percentages(percentage/10) = 1;
-        end;
+        end
         data_var.trial_id(compressed_data.trial_data.Trial_Onset_num(i): compressed_data.trial_data.Trial_Offset_num(i)) = i;
-
-    end;
+    end
     
     %% find variables
     print_log('Start writing variables', log);    
@@ -47,25 +46,25 @@ function output = load_chap_data(compressed_data, log)
         if percentage>0 && ~mod(percentage, 10) && percentages(percentage/10)==0 
             print_log(['Variables wrote: ' num2str(percentage) '%'], log);    
             percentages(percentage/10) = 1;
-        end;
+        end
 
         for var = 1:size(headers, 1)
             var_name = headers(var);
             data_event2.(char(var_name))(data_var.trial_id == trial) = compressed_data.total_var_data_table.(char(var_name))(trial, :);
-        end;
-    end;
+        end
+    end
 
     var_namesk = fieldnames(data_var);
     for i = 1: size(var_namesk,1)
         v_name          = char(var_namesk(i));
         data.(v_name)   = data_var.(v_name)';
-    end; 
+    end 
 
     
     for i = 1: size(headers, 1)
         e_name          = char(headers(i));
         data.(e_name)   = data_event2.(e_name)';
-    end;
+    end
     
     full_data_table       = struct2table(data);
     output.data           = full_data_table;

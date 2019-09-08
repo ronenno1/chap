@@ -120,8 +120,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     %% find trials
     print_log('Parsing trials', log); 
     
-%     trial_ids = find(~cellfun(@isempty, strfind(event_msgs,'Start Recording')));
-        trial_ids = find(~cellfun(@isempty, strfind(event_msgs, 'TRIALID')));
+    trial_ids = find(~cellfun(@isempty, strfind(event_msgs, 'TRIALID')));
 
     if(isempty(trial_ids))
         print_log('Error: trials did not found', log);
@@ -230,10 +229,8 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
         end
         if(~isempty(events2))
             for i=1:size(events2, 1)
-                
-                expression = strcat('\w*', char(events2(i)), '$');
-                event_ids_one =~cellfun(@isempty, regexp(event_msgs, expression, 'ONCE')); 
-                event_msgs(event_ids_one, :) = {['!E TRIAL_EVENT_VAR ' events2{i}]};
+                event_ids_one =~cellfun(@isempty, strfind(event_msgs, events2(i))); 
+                event_msgs(event_ids_one, :) = {['!E TRIAL_EVENT_VAR ' strrep(strrep(events2{i}, ':', ''), ' ', '_')]};
             end            
         end
         event_ids = find(~cellfun(@isempty, strfind(event_msgs,'!E TRIAL_EVENT_VAR')));
