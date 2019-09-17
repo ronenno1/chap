@@ -131,6 +131,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     trial_data.Trial_Onset_num = arrayfun(@(x) get_Trial_Onset(x, event_timestamps, timestamps), trial_ids);
     
     Trial_Offset_ids = find(~cellfun(@isempty, strfind(event_msgs,'TRIAL_END')));
+
     if(isempty(Trial_Offset_ids))
         Trial_Offset_ids = find(~cellfun(@isempty, strfind(event_msgs,'TRIAL_RESULT 0')));
     end

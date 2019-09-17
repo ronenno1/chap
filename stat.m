@@ -274,7 +274,11 @@ classdef stat
                     plot(x_axis, 1./contrast_data(1:size(x_axis, 2)), 'red', 'LineWidth', 2, 'Parent', fig);
                     plot(x_axis, data2plot(1:size(x_axis, 2)), 'black', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'black', 'Parent', fig);
                     plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'green', 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', 'green', 'Parent', fig);
-                    ylim(fig, [-max_bf/50, 1.05*max_bf] );
+                    
+                    [min_val, max_val] = stat.find_y_limits(fig);            
+                    range = max_val-min_val;
+                    ylim(fig, [min_val, max_val+.05*range] )
+
                     yticks(fig, 'auto');
                     yticklabels(fig, 'auto');
                 end

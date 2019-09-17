@@ -383,6 +383,7 @@ function do_group(src, fig, log, log_a, res_table)
 
     total_data = grouper.do_avaraging(paths, comp_names);
     if (isempty(total_data) || size(total_data.(char(comp_names(1))).data, 1)<2)
+        
         print_log('Error:', log_a);    
         print_log('There are no enough valid files', log);    
         return;
