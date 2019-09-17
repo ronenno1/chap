@@ -429,7 +429,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         if exist(strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'), 'file')
             old_behave_table = readtable(strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'));
         end
-        if exist(strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'), 'file')
+        if exist(strcat(paths.behave_output_folder_name, filesep, 'outliers.csv'), 'file')
             old_fail_behave_table = readtable(strcat(paths.behave_output_folder_name, filesep, 'outliers.csv'));
         end
         
