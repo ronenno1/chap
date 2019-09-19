@@ -414,7 +414,7 @@ function do_group(src, fig, log, log_a, res_table)
     save([paths.project_output_folder_name filesep 'total'], 'total_data');
 
 
-    if (size(files, 1)>1)
+    if (size(files, 1)>1 && length(comp_names)>1)
         statistic_data = stat.do_stat(total_data, comp_names);
         show_statistical_window(src, statistic_data, total_data, comp_names);
     end
@@ -582,7 +582,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         end
     end 
     
-    if ~updated
+    if ~updated 
         return;
     end
     if ~isempty(behave_table)
@@ -599,16 +599,20 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         writetable(fail_behave_table, strcat(paths.behave_output_folder_name, filesep, 'outliers.csv'));
     end
     
-    writetable(var_data_table, [paths.csv_output_folder_name filesep 'trials_data.csv']);
+    if exist('var_data_table', 'var')
+        writetable(var_data_table, [paths.csv_output_folder_name filesep 'trials_data.csv']);
+    end
+    
     if exist('old_var_data_table', 'var')
         new_var_data_table = readtable(strcat(paths.csv_output_folder_name, filesep, 'trials_data.csv'));
         var_data_table = [old_var_data_table; new_var_data_table];
         writetable(var_data_table, [paths.csv_output_folder_name filesep 'trials_data.csv']);
     end
     
-    writetable(struct2table(participants.outliers), strcat(paths.csv_output_folder_name, filesep, 'outliers.csv'));
-    writetable(struct2table(participants.valid_trials), strcat(paths.csv_output_folder_name, filesep, 'valid_trials.csv'));
-
+    if exist('participants', 'var')
+        writetable(struct2table(participants.outliers), strcat(paths.csv_output_folder_name, filesep, 'outliers.csv'));
+        writetable(struct2table(participants.valid_trials), strcat(paths.csv_output_folder_name, filesep, 'valid_trials.csv'));
+    end
 end
 
 function data = process_file(full_name, output_folder_name, log, events2, vars2) % read edf file and convert it to mat file
