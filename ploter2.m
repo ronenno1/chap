@@ -96,7 +96,6 @@ classdef ploter2
             cmap3 = cmap2+0.8;
             cmap3(cmap3>1) = 1;
             hold on;
-            opengl_data = opengl('data');
 
             for comp = 1:size(comp_names, 1)
 
@@ -164,7 +163,6 @@ classdef ploter2
                 cuted_data(pre_event_samples+1) = cuted_data(pre_event_samples+1) + 0.001;
                 cuted_data(cuted_data==0)=nan;
                 cuted_data(pre_event_samples+1) = cuted_data(pre_event_samples+1) - 0.001;
-%                 cuted_data = diff(cuted_data);
                 avg_cond_mat = nanmean(cuted_data, 2);
                 std_cond_mat = nanstd(cuted_data')';
                 num_of_trials = size(cuted_data, 2);
@@ -174,6 +172,10 @@ classdef ploter2
                 if(end_with_avg-start_with_avg+pre_event_samples>length(cuted_data))
                     continue;
                 end
+                if(start_with_avg<pre_event_samples)
+                    continue;
+                end
+
                 data4analyze = cuted_data(1:end_with_avg-start_with_avg+pre_event_samples,:);
                 avg_cond_mat = avg_cond_mat(1:end_with_avg-start_with_avg+pre_event_samples,:);                    
                 std_cond_mat = std_cond_mat(1:end_with_avg-start_with_avg+pre_event_samples,:);                    
@@ -188,7 +190,7 @@ classdef ploter2
                 x_axis = linspace(0 ,Trial_Offset_ms, size(avg_cond_mat,1))-PreEventNumber;
                
                 
-                    x = x_axis';
+                x = x_axis';
                 
                 
                 d  = avg_cond_mat;
@@ -380,6 +382,13 @@ classdef ploter2
             cmap = hsv(size(comp_names, 1));
             ms   = 1000/rate;
             [ploted_data, events_id_to_show] = ploter2.do_draw_conditions(cond_mat_data, cond_events_data, blinks_data, comp_names, event_names, cmap, ms, fig, data_mean, data_std, Bins, PreEventNumber, Method, from, to, relative, baseline, scattering);
+            
+            if length(fieldnames(ploted_data))<length(comp_names)
+                events = [];
+                ploted_data.wrong_range = true;
+                return
+            end
+
             [ploted_data, events] = ploter2.do_draw_events(ploted_data, cond_events_data, comp_names, event_names, cmap, ms, events_id_to_show, fig);
             ploter2.do_draw_lables(relative, Method, file_name, fig);
             comp_names_fixed = cellfun(@(x) x(3:end), comp_names, 'UniformOutput', false);

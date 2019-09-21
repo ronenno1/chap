@@ -137,12 +137,16 @@ function start_analyze(src, ~, data, handler, log)
     guidata(src, data);
 end
 
-function do_analyze(data, fig, src, log)
+function do_analyze(data, fig, src, log, log_a)
+
     data.configuration = get_analyze_vals(data.configuration);
     analyzed_data      = reload_graph(data, data.configuration, fig);
+    error_msg = 'Wrong range (too many samples before the first event)';
     if (isfield(analyzed_data, 'wrong_range'))
-        print_log('Error: wrong range (too many samples before the first event)', log);    
-    else
+        print_log('Error: ', log_a);   
+        print_log(error_msg, log);    
+    elseif strfind(log.String, error_msg)
+        print_log('', log_a);   
         print_log('', log);    
     end
     data.analyzed_data = analyzed_data;
@@ -329,7 +333,7 @@ function data = show_analyze_window(src, cond_mat_cleaned, cond_events, data)
     outliers                      = data.outliers;
     valid_trials                  = data.valid_trials;
    
-    set(analyze_bot, 'callback', @(~,~)do_analyze(data, fig, src, log)); 
+    set(analyze_bot, 'callback', @(~,~)do_analyze(data, fig, src, log, log_a)); 
 
     num_of_events = size(fieldnames(ploted_data.(char(comp_names(1))).events),1);
     data_table    = zeros(size(comp_names,1), num_of_events + 2);
@@ -346,7 +350,7 @@ function data = show_analyze_window(src, cond_mat_cleaned, cond_events, data)
     end
 
     view_analyze_results(ploted_data, comp_names, data_table, src, cond_mat_cleaned, cond_events, figure, fig, log, log_a);
-    do_analyze(data, fig, src, log);
+    do_analyze(data, fig, src, log, log_a);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -359,7 +363,7 @@ function do_group(src, fig, log, log_a, res_table)
     print_log('', log);    
 
     data = guidata(src);
-    do_analyze(data, fig, src, log);
+    do_analyze(data, fig, src, log, log_a);
     data = guidata(src);
     [paths, files, overwrite] = grouper.init_folders(data.file_type);
     if(isempty(paths))
@@ -920,7 +924,7 @@ function view_analyze_results(analyzed_data, comp_names, data_table, src, cond_m
 %     tooltip = '<html><i>Save the figure of the participant as image (png file)';
 %     gui_lib.uicontrol_button(figure, [534 281 155 30], 'Save as image', @(~,~)output.(fig, comp_names_fixed), tooltip);
     tooltip = '<html><i>Save the data of the participant (mat file)';
-    gui_lib.uicontrol_button(figure, [714 281 155 30], 'Save data', @(~,~)save_participant_output(src, fig, log), tooltip);   
+    gui_lib.uicontrol_button(figure, [714 281 155 30], 'Save data', @(~,~)save_participant_output(src, fig, log, log_a), tooltip);   
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -939,9 +943,9 @@ function configuration = Get_processing_vals(configuration)
     configuration.ZeroshNumber_val = str2double(ZeroshNumber);
 end
 
-function save_participant_output(src, fig, log)
+function save_participant_output(src, fig, log, log_a)
     data = guidata(src);
-    do_analyze(data, fig, src, log);
+    do_analyze(data, fig, src, log, log_a);
     output.save_output(src)
 end
 
