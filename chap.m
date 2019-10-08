@@ -416,7 +416,27 @@ function do_group(src, fig, log, log_a, res_table)
     output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name filesep 'total.fig']);
   
     save([paths.project_output_folder_name filesep 'total'], 'total_data');
+    properties.Z_outliers = total_data.configuration.ZOutliers_val;
+    properties.missing_values = total_data.configuration.ZeroshNumber_val;
+    properties.min_trials = total_data.configuration.min_trials_val;
+    properties.interpolation_type = gui_lib.get_popupmenu_val(total_data.configuration.interpolation_type);
+    properties.bins = total_data.configuration.BinsNumber_val;
+    properties.from = total_data.configuration.from_val;
+    properties.to = total_data.configuration.to_val;
+    properties.pre_event_ms = total_data.configuration.PreEventNumber_val;
+    properties.relative = total_data.configuration.relative_val;
+    properties.method = total_data.configuration.Method_val;
+    properties.baseline = total_data.configuration.baseline_val;
+    properties.scattering = total_data.configuration.scattering_val;
+   
+    event_names  = cellfun(@(e) {e(7:end)}, total_data.configuration.event_names, 'UniformOutput', false);
+    properties.event = event_names(1:end-1);
+    contrast_names_fixed   = strrep(strrep(strrep(total_data.configuration.comp_names_val', 'c_', ''), '_x_', ' & '),'_',' ');
 
+    properties.var = contrast_names_fixed;
+
+    properties_table = struct2table(properties);
+    writetable(properties_table, [paths.project_output_folder_name filesep 'properties.csv']);  
 
     if (size(files, 1)>1 && length(comp_names)>1)
         statistic_data = stat.do_stat(total_data, comp_names);
@@ -603,7 +623,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         writetable(fail_behave_table, strcat(paths.behave_output_folder_name, filesep, 'outliers.csv'));
     end
     
-    if exist('var_data_table', 'var')
+    if exist('var_data_table', 'var') && size(var_data_table, 1) > 0
         writetable(var_data_table, [paths.csv_output_folder_name filesep 'trials_data.csv']);
     end
     
