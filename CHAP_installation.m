@@ -1,9 +1,26 @@
 function CHAP_installation()
 clear mex
 
+version = 'V1.3';
+
+fprintf('Check for latest version of CHAP...\n');
+
 targetdirectory=fileparts(mfilename('fullpath'));
 cd (targetdirectory);
-
+try
+    is_out_of_date =  urlread(['https://cnl.bgu.ac.il/res/chap/?v=', version]);
+    if is_out_of_date
+        fprintf([is_out_of_date, '\n']);
+        answer=input('Do you want to continue the current installation (yes or no)? ','s');
+        if ~strcmpi(answer,'yes') && ~strcmpi(answer,'y')
+            fprintf('You didn''t say "yes", so I''m taking it as no.\n');
+            return;
+        end
+    end
+catch
+    fprintf('Cannot check for latest version. \n');
+end
+fprintf('This is the latest version of CHAP...\n');
 
 % Does SAVEPATH work?
 if exist('savepath')
