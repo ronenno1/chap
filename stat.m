@@ -74,7 +74,10 @@ classdef stat
 
             for file = 1:length(files)
                 stat_data = readtable([stat_output_folder_name filesep files{file}]);
-                
+                conds = strsplit(strrep(strrep(files{file}(1:end-3), '&', 'x'), ' ', '_'), 'vs');
+                cond1_id = find(strcmp(total_data.configuration.comp_names, ['c_' conds{1}(1:end-1)]));
+                cond2_id = find(strcmp(total_data.configuration.comp_names, ['c' conds{2}(1:end-1)]));
+
                 data2plot = stat_data.BFs(1:size(x_axis, 2));
 
                 data2plot(data2plot<3) = nan;
@@ -90,16 +93,17 @@ classdef stat
 
                 all_lines = findall(fig,'Type','Line');
                 legend_str = all_lines(length(all_lines)-size(total_data.configuration.comp_names, 1)+1:length(all_lines));
+                
 
-                plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(contrasts(file, 1), :), 'LineWidth', 2,  'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors(contrasts(file, 1), :), 'MarkerSize', 1.5 , 'Parent', fig);
+                plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(cond1_id, :), 'LineWidth', 2,  'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors(contrasts(file, 1), :), 'MarkerSize', 1.5 , 'Parent', fig);
                 data2plot(~isnan(data2plot)) = line_pos-line_dist;
-                plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(contrasts(file, 2), :), 'LineWidth', 2,  'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors(contrasts(file, 2), :), 'MarkerSize', 1.5 , 'Parent', fig);
+                plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(cond2_id, :), 'LineWidth', 2,  'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors(contrasts(file, 2), :), 'MarkerSize', 1.5 , 'Parent', fig);
 
                 data2plot_ns(~isnan(data2plot_ns)) = line_pos;
-                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(contrasts(file, 1), :), 'LineWidth', 2, 'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors2(contrasts(file, 1), :), 'MarkerSize', 1.5, 'Parent', fig);
+                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(cond1_id, :), 'LineWidth', 2, 'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors2(contrasts(file, 1), :), 'MarkerSize', 1.5, 'Parent', fig);
 
                 data2plot_ns(~isnan(data2plot_ns)) = line_pos-line_dist;
-                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(contrasts(file, 2), :), 'LineWidth', 2, 'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors2(contrasts(file, 2), :), 'MarkerSize', 1.5, 'Parent', fig);
+                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(cond2_id, :), 'LineWidth', 2, 'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors2(contrasts(file, 2), :), 'MarkerSize', 1.5, 'Parent', fig);
 
                 legend(fig, flipud(legend_str));
             end
