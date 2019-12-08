@@ -68,8 +68,11 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
         return;
     end
     print_log('Start loading pupil data', log);  
-    timestamps = 86400*(datenum(data.timestamps(:), 'yyyy-mm-dd HH:MM:SS.FFF')- datenum('01-Jan-1970'))';
-    
+    try
+        timestamps = 86400*(datenum(data.timestamps(:), 'yyyy-mm-dd HH:MM:SS.FFF')- datenum('01-Jan-1970'))';
+    catch
+        timestamps = 86400*(datenum(data.timestamps(:))- datenum('01-Jan-1970'))';
+    end
     data.rate = 0;
     first_index = 2;
     while data.rate==0
@@ -96,8 +99,11 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     print_log('starting loading messages', log);    
 
     event_msgs        = mes_data_table.message;
-    event_timestamps  = data.rate*86400*(datenum(mes_data_table.timestamp, 'yyyy-mm-dd HH:MM:SS.FFF')- datenum('01-Jan-1970'));
-
+    try
+        event_timestamps  = data.rate*86400*(datenum(mes_data_table.timestamp, 'yyyy-mm-dd HH:MM:SS.FFF')- datenum('01-Jan-1970'));
+    catch
+        event_timestamps  = data.rate*86400*(datenum(mes_data_table.timestamp)- datenum('01-Jan-1970'));
+    end
     print_log(['Finished loading messages: ' num2str(toc) ' seconds'], log);    
 
     %%  Get gase's information & timestamps

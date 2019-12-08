@@ -137,12 +137,16 @@ function start_analyze(src, ~, data, handler, log)
     guidata(src, data);
 end
 
-function do_analyze(data, fig, src, log)
+function do_analyze(data, fig, src, log, log_a)
+
     data.configuration = get_analyze_vals(data.configuration);
     analyzed_data      = reload_graph(data, data.configuration, fig);
+    error_msg = 'Wrong range (too many samples before the first event)';
     if (isfield(analyzed_data, 'wrong_range'))
-        print_log('Error: wrong range (too many samples before the first event)', log);    
-    else
+        print_log('Error: ', log_a);   
+        print_log(error_msg, log);    
+    elseif strfind(log.String, error_msg)
+        print_log('', log_a);   
         print_log('', log);    
     end
     data.analyzed_data = analyzed_data;
@@ -329,7 +333,7 @@ function data = show_analyze_window(src, cond_mat_cleaned, cond_events, data)
     outliers                      = data.outliers;
     valid_trials                  = data.valid_trials;
    
-    set(analyze_bot, 'callback', @(~,~)do_analyze(data, fig, src, log)); 
+    set(analyze_bot, 'callback', @(~,~)do_analyze(data, fig, src, log, log_a)); 
 
     num_of_events = size(fieldnames(ploted_data.(char(comp_names(1))).events),1);
     data_table    = zeros(size(comp_names,1), num_of_events + 2);
@@ -346,7 +350,7 @@ function data = show_analyze_window(src, cond_mat_cleaned, cond_events, data)
     end
 
     view_analyze_results(ploted_data, comp_names, data_table, src, cond_mat_cleaned, cond_events, figure, fig, log, log_a);
-    do_analyze(data, fig, src, log);
+    do_analyze(data, fig, src, log, log_a);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -359,7 +363,7 @@ function do_group(src, fig, log, log_a, res_table)
     print_log('', log);    
 
     data = guidata(src);
-    do_analyze(data, fig, src, log);
+    do_analyze(data, fig, src, log, log_a);
     data = guidata(src);
     [paths, files, overwrite] = grouper.init_folders(data.file_type);
     if(isempty(paths))
@@ -412,9 +416,29 @@ function do_group(src, fig, log, log_a, res_table)
     output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name filesep 'total.fig']);
   
     save([paths.project_output_folder_name filesep 'total'], 'total_data');
+    properties.Z_outliers = total_data.configuration.ZOutliers_val;
+    properties.missing_values = total_data.configuration.ZeroshNumber_val;
+    properties.min_trials = total_data.configuration.min_trials_val;
+    properties.interpolation_type = gui_lib.get_popupmenu_val(total_data.configuration.interpolation_type);
+    properties.bins = total_data.configuration.BinsNumber_val;
+    properties.from = total_data.configuration.from_val;
+    properties.to = total_data.configuration.to_val;
+    properties.pre_event_ms = total_data.configuration.PreEventNumber_val;
+    properties.relative = total_data.configuration.relative_val;
+    properties.method = total_data.configuration.Method_val;
+    properties.baseline = total_data.configuration.baseline_val;
+    properties.scattering = total_data.configuration.scattering_val;
+   
+    event_names  = cellfun(@(e) {e(7:end)}, total_data.configuration.event_names, 'UniformOutput', false);
+    properties.event = event_names(1:end-1);
+    contrast_names_fixed   = strrep(strrep(strrep(total_data.configuration.comp_names_val', 'c_', ''), '_x_', ' & '),'_',' ');
 
+    properties.var = contrast_names_fixed;
 
-    if (size(files, 1)>1)
+    properties_table = struct2table(properties);
+    writetable(properties_table, [paths.project_output_folder_name filesep 'properties.csv']);  
+
+    if (size(files, 1)>1 && length(comp_names)>1)
         statistic_data = stat.do_stat(total_data, comp_names);
         show_statistical_window(src, statistic_data, total_data, comp_names);
     end
@@ -582,7 +606,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         end
     end 
     
-    if ~updated
+    if ~updated 
         return;
     end
     if ~isempty(behave_table)
@@ -599,16 +623,20 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         writetable(fail_behave_table, strcat(paths.behave_output_folder_name, filesep, 'outliers.csv'));
     end
     
-    writetable(var_data_table, [paths.csv_output_folder_name filesep 'trials_data.csv']);
+    if exist('var_data_table', 'var') && size(var_data_table, 1) > 0
+        writetable(var_data_table, [paths.csv_output_folder_name filesep 'trials_data.csv']);
+    end
+    
     if exist('old_var_data_table', 'var')
         new_var_data_table = readtable(strcat(paths.csv_output_folder_name, filesep, 'trials_data.csv'));
         var_data_table = [old_var_data_table; new_var_data_table];
         writetable(var_data_table, [paths.csv_output_folder_name filesep 'trials_data.csv']);
     end
     
-    writetable(struct2table(participants.outliers), strcat(paths.csv_output_folder_name, filesep, 'outliers.csv'));
-    writetable(struct2table(participants.valid_trials), strcat(paths.csv_output_folder_name, filesep, 'valid_trials.csv'));
-
+    if exist('participants', 'var')
+        writetable(struct2table(participants.outliers), strcat(paths.csv_output_folder_name, filesep, 'outliers.csv'));
+        writetable(struct2table(participants.valid_trials), strcat(paths.csv_output_folder_name, filesep, 'valid_trials.csv'));
+    end
 end
 
 function data = process_file(full_name, output_folder_name, log, events2, vars2) % read edf file and convert it to mat file
@@ -916,7 +944,7 @@ function view_analyze_results(analyzed_data, comp_names, data_table, src, cond_m
 %     tooltip = '<html><i>Save the figure of the participant as image (png file)';
 %     gui_lib.uicontrol_button(figure, [534 281 155 30], 'Save as image', @(~,~)output.(fig, comp_names_fixed), tooltip);
     tooltip = '<html><i>Save the data of the participant (mat file)';
-    gui_lib.uicontrol_button(figure, [714 281 155 30], 'Save data', @(~,~)save_participant_output(src, fig, log), tooltip);   
+    gui_lib.uicontrol_button(figure, [714 281 155 30], 'Save data', @(~,~)save_participant_output(src, fig, log, log_a), tooltip);   
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -935,9 +963,9 @@ function configuration = Get_processing_vals(configuration)
     configuration.ZeroshNumber_val = str2double(ZeroshNumber);
 end
 
-function save_participant_output(src, fig, log)
+function save_participant_output(src, fig, log, log_a)
     data = guidata(src);
-    do_analyze(data, fig, src, log);
+    do_analyze(data, fig, src, log, log_a);
     output.save_output(src)
 end
 

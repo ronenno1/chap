@@ -36,6 +36,10 @@ classdef stat
             [min_val, max_val] = stat.find_y_limits(fig);
 
             num_of_contrasts = length(files);
+            %% put scale here
+%             min_val = -4    
+%             max_val = 7
+
             range = max_val-min_val;
 
             ylim(fig, [min_val-abs(range*.1*num_of_contrasts), max_val+0.1*range] )
@@ -44,23 +48,36 @@ classdef stat
 
 
             contrasts = nchoosek(1:size(total_data.configuration.comp_names, 1), 2);
+            
+            
+            colors = [0, 255, 0;
+                    255, 0, 0; 
+                    0, 0, 255;
+                    255, 0, 255;
+                    0, 255, 255;
+                    255, 255, 0; 
+                    0, 128, 0;
+                    128, 0, 0; 
+                    0, 0, 128;
+                    128, 0, 128;
+                    0, 128, 128;
+                    128, 128, 0; 
+                    128, 128, 128; 
+                    0, 0, 0]/255;
 
-            colors = [0, 1, 0;
-                      1, 0, 0;
-                      0, 0, 1;
-                      1, 0, 1;
-                      0, 1, 1;
-                      1, 1, 0;
-                      0, 0, 0];
 
             colors2 = colors+.7;
             colors2(colors2>1) = 1;
             
             hold off;
             x_axis = total_data.x_axis;
+
             for file = 1:length(files)
                 stat_data = readtable([stat_output_folder_name filesep files{file}]);
-                
+                conds = strsplit(strrep(strrep(files{file}(1:end-3), '&', 'x'), ' ', '_'), 'vs');
+                cond1_id = find(strcmp(total_data.configuration.comp_names, ['c_' conds{1}(1:end-1)]));
+                cond2_id = find(strcmp(total_data.configuration.comp_names, ['c' conds{2}(1:end-1)]));
+
                 data2plot = stat_data.BFs(1:size(x_axis, 2));
 
                 data2plot(data2plot<3) = nan;
@@ -76,18 +93,22 @@ classdef stat
 
                 all_lines = findall(fig,'Type','Line');
                 legend_str = all_lines(length(all_lines)-size(total_data.configuration.comp_names, 1)+1:length(all_lines));
+                
 
-                plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(contrasts(file, 1), :), 'LineWidth', 2,  'LineStyle','-', 'Parent', fig);
+                plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(cond1_id, :), 'LineWidth', 2,  'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors(cond1_id, :), 'MarkerSize', 1.5 , 'Parent', fig);
                 data2plot(~isnan(data2plot)) = line_pos-line_dist;
-                plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(contrasts(file, 2), :), 'LineWidth', 2,  'LineStyle','-', 'Parent', fig);
+                plot(x_axis, data2plot(1:size(x_axis, 2)), 'Color', colors(cond2_id, :), 'LineWidth', 2,  'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors(cond2_id, :), 'MarkerSize', 1.5 , 'Parent', fig);
 
                 data2plot_ns(~isnan(data2plot_ns)) = line_pos;
-                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(contrasts(file, 1), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
+                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(cond1_id, :), 'LineWidth', 2, 'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors2(cond1_id, :), 'MarkerSize', 1.5, 'Parent', fig);
+
                 data2plot_ns(~isnan(data2plot_ns)) = line_pos-line_dist;
-                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(contrasts(file, 2), :), 'LineWidth', 2,  'LineStyle','-',  'MarkerFaceColor', 'black', 'Parent', fig);
+                plot(x_axis, data2plot_ns(1:size(x_axis, 2)), 'Color', colors2(cond2_id, :), 'LineWidth', 2, 'Marker','s', 'LineStyle','-',  'MarkerFaceColor', colors2(cond2_id, :), 'MarkerSize', 1.5, 'Parent', fig);
+
                 legend(fig, flipud(legend_str));
             end
             [min_val, max_val] = stat.find_y_limits(fig);
+
             range = max_val-min_val;
             ylim(fig, [min_val-abs(range*.1), max_val+0.1*abs(range)] )
 

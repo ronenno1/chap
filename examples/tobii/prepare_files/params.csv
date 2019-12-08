@@ -1,0 +1,4 @@
+trial_onset,times,vars,events,pupil_left,pupil_right
+TrialId,RecordingTimestamp,ACC,CurrentObject,PupilDiameterLeft,PupilDiameterRight
+,,block,,,
+,,TASK,,,

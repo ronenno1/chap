@@ -235,14 +235,16 @@ classdef output
                 max_trail = max(max_trail, size(data_analyzed.(char(comp_names(i))).pupil, 1));
              end
 
-            single_data.var_data_table.trial_mean = NaN(size(single_data.var_data_table, 1), 1);
-            single_data.var_data_table.trial_max  = NaN(size(single_data.var_data_table, 1), 1);
-            single_data.var_data_table.trial_min  = NaN(size(single_data.var_data_table, 1), 1);
-            single_data.var_data_table.first_bin  = NaN(size(single_data.var_data_table, 1), 1);
-            single_data.var_data_table.last_bin   = NaN(size(single_data.var_data_table, 1), 1);
+            single_data.var_data_table.trial_mean        = NaN(size(single_data.var_data_table, 1), 1);
+            single_data.var_data_table.trial_max         = NaN(size(single_data.var_data_table, 1), 1);
+            single_data.var_data_table.trial_max_latency = NaN(size(single_data.var_data_table, 1), 1);
+            single_data.var_data_table.trial_min         = NaN(size(single_data.var_data_table, 1), 1);
+            single_data.var_data_table.trial_min_latency = NaN(size(single_data.var_data_table, 1), 1);
+            single_data.var_data_table.first_bin         = NaN(size(single_data.var_data_table, 1), 1);
+            single_data.var_data_table.last_bin          = NaN(size(single_data.var_data_table, 1), 1);
             
-            single_data.var_data_table.valid_blinks = zeros(size(single_data.var_data_table, 1), 1);
-            single_data.var_data_table.blinks_mean  = zeros(size(single_data.var_data_table, 1), 1);
+            single_data.var_data_table.valid_blinks      = zeros(size(single_data.var_data_table, 1), 1);
+            single_data.var_data_table.blinks_mean       = zeros(size(single_data.var_data_table, 1), 1);
 
             from_event = single_data.configuration.from_val;
             to_event   = single_data.configuration.to_val;
@@ -258,9 +260,13 @@ classdef output
 
                     single_data.var_data_table.trial_mean(trial_id) = nanmean(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial));
                     
-                    single_data.var_data_table.trial_max(trial_id)  = nanmax(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial));
-                    single_data.var_data_table.trial_min(trial_id)  = nanmin(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial));
-                    
+                    [max_val, max_latency] = nanmax(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial));
+                    single_data.var_data_table.trial_max(trial_id) = max_val; 
+                    single_data.var_data_table.trial_max_latency(trial_id) = round((1000/rate)*max_latency); 
+
+                    [min_val, min_latency] = nanmin(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial));
+                    single_data.var_data_table.trial_min(trial_id)  = min_val;
+                    single_data.var_data_table.trial_min_latency(trial_id)  = round((1000/rate)*min_latency);
                     trial_data = data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial);
                     nonnan_trial_data = trial_data(~isnan(trial_data));
                     first_bin = nan;
