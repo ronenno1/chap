@@ -520,6 +520,9 @@ classdef stat
             
             %% required contrasts
             if ~isfield(statistical_data, 'required_comparisons')
+                delete([total_data.paths.stat_output_folder_name filesep '*vs*.csv']);
+
+                
                 contrast_name = cell(size(contrasts, 1), 1);
                 for contrast = 1:size(contrasts, 1)
                     first_level  = comp_names{contrasts(contrast, 1)};
