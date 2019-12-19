@@ -518,6 +518,33 @@ classdef stat
 
             contrasts = nchoosek(1:size(comp_names, 1), 2);
             
+            %% required contrasts
+            if ~isfield(statistical_data, 'required_comparisons')
+                contrast_name = cell(size(contrasts, 1), 1);
+                for contrast = 1:size(contrasts, 1)
+                    first_level  = comp_names{contrasts(contrast, 1)};
+                    second_level = comp_names{contrasts(contrast, 2)};
+                    contrast_name{contrast} = [first_level(3:end), '_vs_', second_level(3:end)];
+                end
+
+                header           = strrep(strrep(contrast_name, '_x_', ' & '),'_',' ');
+                required_comparisons        = listdlg('PromptString',...
+                                           'Select Bayesian comparisons:',...
+                                           'ListSize',[600 300],...
+                                           'SelectionMode','multiple',...
+                                           'ListString', header);    
+            else
+                required_comparisons = statistical_data.required_comparisons;
+            end
+            
+            if isempty(required_comparisons)
+                required_comparisons = 1:size(contrasts, 1);
+            end
+            stat_data.required_comparisons = required_comparisons;
+            required_comparisons_arr = zeros(size(contrasts, 1), 1);
+            required_comparisons_arr(required_comparisons) = 1;
+            %%
+            
             from_ana = 1; 
             if from > total_data.x_axis(1)
                 from_ana = find(total_data.x_axis<=from, 1, 'last');
@@ -664,12 +691,16 @@ classdef stat
 %             a = (a2 + a3)./2;
 %             total_data.(char(comp_names(2))).data = a;
 %             total_data.(char(comp_names(3))).data = a;
-
+            contrast_id = 0;
             for contrast = 1:size(contrasts, 1)
+                if ~required_comparisons_arr(contrast)
+                    continue;
+                end
+                contrast_id = contrast_id + 1;
                 first_level  = comp_names{contrasts(contrast, 1)};
                 second_level = comp_names{contrasts(contrast, 2)};
                 contrast_name = [first_level(3:end), '_vs_', second_level(3:end)];
-                contrasts_table{contrast} = contrast_name;
+                contrasts_table{contrast_id} = contrast_name;
                 full_data1 = total_data.(char(comp_names(contrasts(contrast, 1)))).data;
                 full_data2 = total_data.(char(comp_names(contrasts(contrast, 2)))).data;                
  
@@ -693,7 +724,7 @@ classdef stat
                 [total_t, total_bf, N, total_sd, pes] = stat.ttest_and_bf(total_avg1, total_avg2);
                 for s=1:size(total_avg1, 1)
                     [~, sequential_bf, ~, ~, ~] = stat.ttest_and_bf(total_avg1(1:s), total_avg2(1:s));
-                    stat_data.contrasts.sequential.bf(contrast, s) = sequential_bf;
+                    stat_data.contrasts.sequential.bf(contrast_id, s) = sequential_bf;
                 end
                 if isempty(statistical_data)
                     for sample = 1:min_length
@@ -741,14 +772,19 @@ classdef stat
                 end
                 
                 
-                stat_data.contrasts.total.bf(contrast, :) = total_bf;
-                stat_data.contrasts.total.t(contrast, :)  = total_t;
-                stat_data.contrasts.total.N(contrast, :) = N;
-                stat_data.contrasts.total.cohensd(contrast, :) = (nanmean(total_avg1)-nanmean(total_avg2))/total_sd;
+                stat_data.contrasts.total.bf(contrast_id, :) = total_bf;
+                stat_data.contrasts.total.t(contrast_id, :)  = total_t;
+                stat_data.contrasts.total.N(contrast_id, :) = N;
+                stat_data.contrasts.total.cohensd(contrast_id, :) = (nanmean(total_avg1)-nanmean(total_avg2))/total_sd;
             end
-            all_fixed_contrast_names = cell(size(contrasts, 1), 1);
+            all_fixed_contrast_names = cell(size(required_comparisons, 1), 1);
+            contrast_id = 0;
             for contrast = 1:size(contrasts, 1)
-                all_fixed_contrast_names{contrast, :} = [char(comp_names_fixed(contrasts(contrast, 1))), ' - ', char(comp_names_fixed(contrasts(contrast, 2)))];
+                if ~required_comparisons_arr(contrast)
+                    continue;
+                end
+                contrast_id = contrast_id+1;
+                all_fixed_contrast_names{contrast_id, :} = [char(comp_names_fixed(contrasts(contrast, 1))), ' - ', char(comp_names_fixed(contrasts(contrast, 2)))];
             end
 
             stat_data.output.bayesian_sequential = table(all_fixed_contrast_names,...
