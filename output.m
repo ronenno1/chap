@@ -94,18 +94,17 @@ classdef output
 
             chs = flipud(get(fig_axes, 'children'));
             set(fig_axes, 'FontSize', 40) 
-
-            if ~isempty(strfind(lower(class(chs(1))), 'patch'))
-                legend(fig_axes, chs(length(legend_str)+1:length(legend_str)*2), fliplr(legend_str), 'FontSize', 40, 'Location', 'Best');
-            else
-                legend(fig_axes, fliplr(legend_str), 'FontSize', 30, 'Location', 'Best');
+            if ~strcmp(chs(1).DisplayName, '')
+                if ~isempty(strfind(lower(class(chs(1))), 'patch'))
+                    legend(fig_axes, chs(length(legend_str)+1:length(legend_str)*2), fliplr(legend_str), 'FontSize', 40, 'Location', 'Best');
+                else
+                    legend(fig_axes, fliplr(legend_str), 'FontSize', 30, 'Location', 'Best');
+                end
             end
-
             y_values = get(get(fig_axes, 'children'), 'YData');
 
             max_val = -inf;
             min_val = inf;
-
             for line_id = 1:size(y_values, 1)
                 if length(y_values{line_id}) < 3
                     continue;

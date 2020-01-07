@@ -432,7 +432,7 @@ classdef stat
            
         end
         
-        function [t, bf, N, sd, pes, p_value] = ttest_and_bf(data1, data2, independenst)
+        function [t, bf, N, sd, pes, p_value] = ttest_and_bf(data1, data2, independent)
             if exist('independent', 'var') && independent
                 [t, sd, N, v] = stat.my_independent_ttest(data1, data2);
             else

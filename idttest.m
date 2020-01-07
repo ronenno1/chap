@@ -49,6 +49,7 @@ classdef idttest
                 data2 = full_data2(:, sample);
                 [t, bf, n, sd, pes, pvalue]        = stat.ttest_and_bf(data1, data2, true);
                 stat_data.contrasts.se(:, sample)  = sd./(n.^0.5);
+                stat_data.contrasts.pes(:, sample) = pes;
                 stat_data.contrasts.tValues(:, sample)  = t;
                 stat_data.contrasts.pValues(:, sample)  = pvalue;
                 stat_data.contrasts.BFs(:, sample)      = bf;
@@ -57,11 +58,11 @@ classdef idttest
             %% BF10
             fig = figure('Name', 'idttest');
             hold off
-            plot(axis, stat_data.contrasts.BFs, 'DisplayName', 'below 3');
+            plot(axis, stat_data.contrasts.BFs, 'DisplayName', '');
             above_3 = stat_data.contrasts.BFs;
             above_3(above_3<3) = NaN;
             hold on
-            plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', 'above 3');
+            plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', '');
             xtickformat('%,.4g');
             title(condition_str);
             xlabel('Time [ms]', 'FontWeight','bold');
@@ -82,13 +83,13 @@ classdef idttest
 
             hold off
             %% BF01
-            plot(axis, 1./stat_data.contrasts.BFs, 'DisplayName', 'below 3');
+            plot(axis, 1./stat_data.contrasts.BFs, 'DisplayName', '');
 
             above_3 = 1./stat_data.contrasts.BFs;
             above_3(above_3<3) = NaN;
             hold on
 
-            plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', 'above 3');
+            plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', '');
 
             xtickformat('%,.4g');
             title(condition_str);
