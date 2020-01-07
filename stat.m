@@ -416,7 +416,6 @@ classdef stat
            se = sd/(N^0.5);
            t = d/se;
            v = N-1;
-%            [t, sd, N, v] = stat.my_independent_ttest(data1, data2);
         end
         
         function [t, sd, N, v] = my_independent_ttest(data1, data2)
@@ -437,7 +436,7 @@ classdef stat
             if exist('independent', 'var') && independent
                 [t, sd, N, v] = stat.my_independent_ttest(data1, data2);
             else
-                [t, sd, N, v] = stat.my_ttest(data1, data2);אני 
+                [t, sd, N, v] = stat.my_ttest(data1, data2);
             end
             
             if t == Inf || isnan(t)
