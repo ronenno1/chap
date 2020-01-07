@@ -96,9 +96,9 @@ classdef output
             set(fig_axes, 'FontSize', 40) 
 
             if ~isempty(strfind(lower(class(chs(1))), 'patch'))
-                legend(fig_axes, chs(length(legend_str)+1:length(legend_str)*2), fliplr(legend_str), 'FontSize', 40);
+                legend(fig_axes, chs(length(legend_str)+1:length(legend_str)*2), fliplr(legend_str), 'FontSize', 40, 'Location', 'Best');
             else
-                legend(fig_axes, fliplr(legend_str), 'FontSize', 30);
+                legend(fig_axes, fliplr(legend_str), 'FontSize', 30, 'Location', 'Best');
             end
 
             y_values = get(get(fig_axes, 'children'), 'YData');
@@ -128,7 +128,7 @@ classdef output
             elseif strcmp(type, '.png')
                 
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'), 'LineWidth', 8);
-                set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-', 'DisplayName', ''), 'LineWidth', 4);
+%                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-', 'DisplayName', ''), 'LineWidth', 4);
 
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'),  'MarkerSize',.5)
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '--'), 'LineWidth', 6);
@@ -146,7 +146,7 @@ classdef output
                 h=get(fig_axes,'title');
                 set(h, 'FontSize', 40) 
                 set(gcf, 'PaperUnits', 'inches', 'PaperPosition', [0 0 25.5 13]); %
-                print(temp_fig, '-dpng', '-r100', full_file_name);
+                print(temp_fig, '-dpng', full_file_name);
             end
             close(temp_fig);
         end

@@ -33,8 +33,17 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     delete([path filesep file_name '.dat']);
 
     data.timestamps = raw_data_table.RecordingTimestamp;
-    
+
+    if iscell(raw_data_table.PupilDiameterRight)
+        raw_data_table.PupilDiameterRight = str2double(raw_data_table.PupilDiameterRight);
+    end
+    if iscell(raw_data_table.PupilDiameterLeft)
+        raw_data_table.PupilDiameterLeft = str2double(raw_data_table.PupilDiameterLeft);
+    end
+
+
     raw_data_table.PupilDiameterLeft(isnan(raw_data_table.PupilDiameterLeft)) = 0;
+
     raw_data_table.PupilDiameterRight(isnan(raw_data_table.PupilDiameterRight)) = 0;
     raw_data_table.PupilDiameterLeft(raw_data_table.PupilDiameterLeft==0) = raw_data_table.PupilDiameterRight(raw_data_table.PupilDiameterLeft==0);
     raw_data_table.PupilDiameterRight(raw_data_table.PupilDiameterRight==0) = raw_data_table.PupilDiameterLeft(raw_data_table.PupilDiameterRight==0);

@@ -421,8 +421,6 @@ classdef stat
         
         function [t, sd, N, v] = my_independent_ttest(data1, data2)
            sd = -1;
-           data = data1 - data2; 
-           d  = nanmean(data);
            d1 = nanmean(data1);
            d2 = nanmean(data2);
            ss = sum((d1-data1).^2) + sum((d2-data2).^2);
@@ -432,10 +430,16 @@ classdef stat
            v  = n1 + n2 - 2;
            s2 = ss/v;
            t  = (d1-d2)/(sqrt((s2/n1) + (s2/n2)));
+           
         end
         
-        function [t, bf, N, sd, pes, p_value] = ttest_and_bf(data1, data2)
-            [t, sd, N, v] = stat.my_ttest(data1, data2);
+        function [t, bf, N, sd, pes, p_value] = ttest_and_bf(data1, data2, independenst)
+            if exist('independent', 'var') && independent
+                [t, sd, N, v] = stat.my_independent_ttest(data1, data2);
+            else
+                [t, sd, N, v] = stat.my_ttest(data1, data2);אני 
+            end
+            
             if t == Inf || isnan(t)
                 t = NaN;
                 bf = NaN;
@@ -443,15 +447,14 @@ classdef stat
                 p_value = NaN;
                 return;
             end
+            
             r   = 0.707;
             a   = (1+(t^2)/v)^-((v+1)/2);
             fun = @(g) ((1+N*g*(r^2)).^(-1/2)) .* ((1+(t.^2)./((1+N.*g*(r^2)).*v)).^-((v+1)./2)) .* ((2.*pi).^(-1/2)) .* (g.^(-3/2)) .* exp(-1./(2.*g));
             b   = integral(fun, 0, inf);
-            
             bf = b/a;
             pes = t^2/(t^2 + v);
             p_value = 1-fcdf(t^2, 1, v);
-            
         end
         
         function num = rounder(X, N)

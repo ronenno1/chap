@@ -16,6 +16,8 @@ function add_main_buttons(Figure_h)
 
     gui_lib.uicontrol_button(Figure_h, [22 332 195 40], 'New project', {@read_raw_file, log});
     gui_lib.uicontrol_button(Figure_h, [22 280 195 40], 'Open existing project', {@read_chap, log});
+    gui_lib.uicontrol_button(Figure_h, [22 228 195 40], 'Between groups analysis', {@idttest, log});
+
 %     gui_lib.uicontrol_button(Figure_h, [228 332 195 40], 'Convert EDF to Matlab', {@quickEdf2mat, log});    
     gui_lib.uicontrol_button(Figure_h, [228 332 195 40], 'About', @about);    
 
@@ -63,6 +65,10 @@ end
 %     edf2simpleMat(full_edf_name, full_mat_name, log);
 %     print_log(['"' strrep(edf_file_name,  '_', '\_') '" successfully convert! ' num2str(toc(start)) ' seconds'], log);    
 % end
+
+function idttest(src, evnt, log) % read edf file and convert it to mat file
+    idttest.run_idttest;
+end
 
 function read_chap(src, evnt, log) % read edf file and convert it to mat file
     start = tic;
