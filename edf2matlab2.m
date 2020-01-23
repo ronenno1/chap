@@ -97,7 +97,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     if pupil_size(1)<0  % Take "good" pupil (value >=0) 
         pupil_size = pupil_sizes(2,:);
     end
-    if(pupil_size(1)>=0 && pupil_size(2)>=0
+    if(pupil_size(1)>=0 && pupil_size(2))>=0
         pupil_sizes(pupil_sizes==0) = nan;
         pupil_size = nanmean(pupil_sizes);
     end
