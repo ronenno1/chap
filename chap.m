@@ -3,9 +3,8 @@ function chap()
     clc
     toolboxes = ver;
     toolbox_names = {toolboxes.Name};
-    if(isempty(find(~cellfun(@isempty, strfind(toolbox_names,'Curve Fitting Toolbox')),1)))
-        display('It seems that you do not have the Curve Fitting Toolbox. Please insall it and try again.');
-        return;
+    if(isempty(find(~cellfun(@isempty, strfind(toolbox_names,'Curve Fitting Toolboxa')),1)))
+        disp('It seems that you do not have the Curve Fitting Toolbox. It is highly recommended to install it.');
     end
     Figure_h = gui_lib.create_figure('CHAP - Main', 'images/chap_1.jpg', [0 0 550 440]);%create the initial figure
     add_main_buttons(Figure_h)  %create for buttons and present them in the figure

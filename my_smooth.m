@@ -1,4 +1,4 @@
-function [c,ww] = smooth(varargin)
+function [c,ww] = my_smooth(varargin)
 %SMOOTH  Smooth data.
 %   Z = SMOOTH(Y) smooths data Y using a 5-point moving average.
 %
