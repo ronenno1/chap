@@ -104,7 +104,7 @@ function output = dat2matlab(full_dat_name, output_folder_name, log, events2, va
     data.trial_data = struct2table(trial_data);
     
 
-    
+    data.total_var_data_table = [];
     print_log('Parsing variables', log);    
     var_ids = find(~cellfun(@isempty, strfind(event_msgs,'!V TRIAL_VAR')));
 
@@ -122,6 +122,12 @@ function output = dat2matlab(full_dat_name, output_folder_name, log, events2, va
             print_log(['Error: ' err.message], log);
             return;
         end
+    end
+    
+    if isempty(data.total_var_data_table)
+        print_log('There are no variables, dummy variable is created...', log);
+        dummy.dummy = repmat({'dummy'},size(trial_ids));
+        data.total_var_data_table = struct2table(dummy);
     end
 
     print_log('Parsing events', log);    

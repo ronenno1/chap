@@ -95,8 +95,27 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
     if ~isempty(var_ids)
         total_var_data = parse_data.parse_vars(event_msgs, event_timestamps, data.timestamps, var_ids, trial_data.Trial_Onset_num);
         data.total_var_data_table = struct2table(total_var_data);
+    else
+        data.total_var_data_table = [];
     end
 
+    vars_file = strcat(path, filesep, file_name, '_vars.csv');
+    if exist(vars_file, 'file')
+        try
+            var_data_table = parse_data.parse_external_vars(vars_file);
+            data.total_var_data_table = [data.total_var_data_table, var_data_table];
+        catch err
+            print_log(['Error: ' err.message], log);
+            return;
+        end
+    end
+    if isempty(data.total_var_data_table)
+        print_log('There are no variables, dummy variable is created...', log);
+        dummy.dummy = repmat({'dummy'},size(trial_ids));
+        data.total_var_data_table = struct2table(dummy);
+    end
+    
+    
     print_log('Parsing events', log);    
     data.event_data = [];
     event_ids = find(~cellfun(@isempty, strfind(event_msgs,'!E TRIAL_EVENT_VAR')));
@@ -108,6 +127,7 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
         data.total_var_data_table = [data.total_var_data_table, event_data_table];
     end
 
+    
     mm_file = strcat(path, filesep, file_name, '_mm.csv');
     if exist(mm_file, 'file')
         

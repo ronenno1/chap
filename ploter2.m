@@ -96,13 +96,18 @@ classdef ploter2
             cmap3 = cmap2+0.8;
             cmap3(cmap3>1) = 1;
             hold on;
-
+            valid_comp_id = 0;
             for comp = 1:size(comp_names, 1)
 
                 cond_name = char(comp_names(comp));
                 if~isfield(cond_mat_data, cond_name)
                     continue;
                 end
+                if ~isnan(nanmean(nanmean(cond_mat_data.(cond_name)))) 
+                    valid_comp_id = valid_comp_id +1;
+                    valid_comps{valid_comp_id, :} = cond_name;
+                end
+
                 % cut, calculate the baseline and align to the first event
                 cuted_data = zeros(round(size(cond_mat_data.(cond_name), 1)/Bins), size(cond_mat_data.(cond_name), 2));
 
@@ -289,6 +294,7 @@ classdef ploter2
                 xtickformat(fig, '%,.4g');
             catch
             end
+            ploted_data.valid_comps = valid_comps;
         end
         
         function [ploted_data, events] = do_draw_events(ploted_data, cond_events_data, comp_names, event_names, cmap, ms, events_id_to_show, fig)
@@ -391,7 +397,8 @@ classdef ploter2
 
             [ploted_data, events] = ploter2.do_draw_events(ploted_data, cond_events_data, comp_names, event_names, cmap, ms, events_id_to_show, fig);
             ploter2.do_draw_lables(relative, Method, file_name, fig);
-            comp_names_fixed = cellfun(@(x) x(3:end), comp_names, 'UniformOutput', false);
+            
+            comp_names_fixed = cellfun(@(x) x(3:end), ploted_data.valid_comps, 'UniformOutput', false);
             comp_names_fixed = strrep(strrep(comp_names_fixed, '_x_', ' & '),'_',' ');
             legend(fig, char(comp_names_fixed), 'Location', 'Best');
             if ~strcmp(scattering, 'no')

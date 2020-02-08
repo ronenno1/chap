@@ -112,10 +112,8 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     tic;
     
     
-    
-    var_ids = find(~cellfun(@isempty, strfind(event_msgs,'!V TRIAL_VAR')));
     data.total_var_data_table = [];
-
+    var_ids = find(~cellfun(@isempty, strfind(event_msgs,'!V TRIAL_VAR')));
     if ~isempty(var_ids)
         total_var_data = parse_data.parse_vars(event_msgs, event_timestamps, timestamps, var_ids, trial_data.Trial_Onset_num);
         data.total_var_data_table = struct2table(total_var_data);
@@ -130,6 +128,12 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
             print_log(['Error: ' err.message], log);
             return;
         end
+    end
+    
+    if isempty(data.total_var_data_table)
+        print_log('There are no variables, dummy variable is created...', log);
+        dummy.dummy = repmat({'dummy'},size(trial_ids));
+        data.total_var_data_table = struct2table(dummy);
     end
 
     print_log('Parsing events', log);    

@@ -125,7 +125,7 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
    
     trial_data.trial_length    = trial_data.Trial_Offset_num-trial_data.Trial_Onset_num;
     data.trial_data = struct2table(trial_data);
-    
+    data.total_var_data_table = [];
     print_log('Parsing variables', log);    
     var_ids = find(~cellfun(@isempty, strfind(event_msgs,'!V TRIAL_VAR')));
 
@@ -145,6 +145,13 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
         end
     end
 
+    
+    if isempty(data.total_var_data_table)
+        print_log('There are no variables, dummy variable is created...', log);
+        dummy.dummy = repmat({'dummy'},size(trial_ids));
+        data.total_var_data_table = struct2table(dummy);
+    end
+    
     print_log('Parsing events', log);    
     data.event_data = [];
     event_ids = find(~cellfun(@isempty, strfind(event_msgs,'!E TRIAL_EVENT_VAR')));

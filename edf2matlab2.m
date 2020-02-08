@@ -150,7 +150,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     trial_data.trial_length    = trial_data.Trial_Offset_num-trial_data.Trial_Onset_num;
         
     data.trial_data = struct2table(trial_data);
-
+    data.total_var_data_table = [];
     %% find variables
     print_log('Parsing variables', log);    
    
@@ -194,6 +194,14 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
         end
     end
         
+    
+    if isempty(data.total_var_data_table)
+        print_log('There are no variables, dummy variable is created...', log);
+        dummy.dummy = repmat({'dummy'},size(trial_ids));
+        data.total_var_data_table = struct2table(dummy);
+    end
+
+    
     print_log('Parsing events', log);    
     data.event_data = [];
     
@@ -252,7 +260,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     data.vars2   = vars2;
     trial_data.trial_length = trial_data.Trial_Offset_num-trial_data.Trial_Onset_num;
     if length(trial_data.trial_length) ~= size(data.total_var_data_table, 1)
-        print_log('Error: Variable does not consistent with trials', log);
+        print_log('Error: Number of Variables does not consistent with trials', log);
         return;
     end
     data.total_var_data_table.event_Trial_Offset = trial_data.trial_length;
