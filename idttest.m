@@ -48,18 +48,18 @@ classdef idttest
                 data1 = full_data1(:, sample);
                 data2 = full_data2(:, sample);
                 [t, bf, n, sd, pes, pvalue]        = stat.ttest_and_bf(data1, data2, true);
-                stat_data.contrasts.se(:, sample)  = sd./(n.^0.5);
-                stat_data.contrasts.pes(:, sample) = pes;
-                stat_data.contrasts.tValues(:, sample)  = t;
-                stat_data.contrasts.pValues(:, sample)  = pvalue;
-                stat_data.contrasts.BFs(:, sample)      = bf;
+                stat_data.se(:, sample)  = sd./(n.^0.5);
+                stat_data.pes(:, sample) = pes;
+                stat_data.tValues(:, sample)  = t;
+                stat_data.pValues(:, sample)  = pvalue;
+                stat_data.BFs(:, sample)      = bf;
             end
 
             %% BF10
             fig = figure('Name', 'idttest');
             hold off
-            plot(axis, stat_data.contrasts.BFs, 'DisplayName', '');
-            above_3 = stat_data.contrasts.BFs;
+            plot(axis, stat_data.BFs, 'DisplayName', '');
+            above_3 = stat_data.BFs;
             above_3(above_3<3) = NaN;
             hold on
             plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', '');
@@ -70,8 +70,8 @@ classdef idttest
             xlim([-1000, 9000]);
             set(gca,'FontWeight','bold');
 
-            max_val = max(stat_data.contrasts.BFs);
-            min_val = min(stat_data.contrasts.BFs);
+            max_val = max(stat_data.BFs);
+            min_val = min(stat_data.BFs);
 
             range = max_val-min_val;
 
@@ -83,9 +83,9 @@ classdef idttest
 
             hold off
             %% BF01
-            plot(axis, 1./stat_data.contrasts.BFs, 'DisplayName', '');
+            plot(axis, 1./stat_data.BFs, 'DisplayName', '');
 
-            above_3 = 1./stat_data.contrasts.BFs;
+            above_3 = 1./stat_data.BFs;
             above_3(above_3<3) = NaN;
             hold on
 
@@ -99,8 +99,8 @@ classdef idttest
 
             set(gca,'FontWeight','bold');
 
-            max_val = max(1./stat_data.contrasts.BFs);
-            min_val = min(1./stat_data.contrasts.BFs);
+            max_val = max(1./stat_data.BFs);
+            min_val = min(1./stat_data.BFs);
 
             range = max_val-min_val;
 
@@ -143,14 +143,14 @@ classdef idttest
 
             ylim([min_val-abs(range*.2), max_val+0.05*range] )
 
-            BF10 = stat_data.contrasts.BFs;
+            BF10 = stat_data.BFs;
             BF10(BF10<3) = NaN;
             BF10(~isnan(BF10)) = line_pos;
 
             plot(axis(1:min_axis), BF10(1:min_axis), 'Color', [.75, .75, .75], 'LineWidth', 2, 'DisplayName', '');
 
 
-            BF01 = 1./stat_data.contrasts.BFs;
+            BF01 = 1./stat_data.BFs;
             BF01(BF01<3) = NaN;
             BF01(~isnan(BF01)) = line_pos;
 
