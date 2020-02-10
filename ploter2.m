@@ -34,7 +34,7 @@ classdef ploter2
         % 9.  draw the curve with color number n (according to the number of the condition)
         % 10. save the curve and the x-axis values to ploted_data.
         % 11. draw legend.
-        function [ploted_data, events_id_to_show] = do_draw_conditions(cond_mat_data, cond_events_data, blinks_data, comp_names, event_names, cmap, ms, fig, data_mean, data_std, bins_ms, PreEventNumber, method, from, to, relative, baseline, scattering)
+        function [ploted_data, events_id_to_show, valid_comps] = do_draw_conditions(cond_mat_data, cond_events_data, blinks_data, comp_names, event_names, cmap, ms, fig, data_mean, data_std, bins_ms, PreEventNumber, method, from, to, relative, baseline, scattering)
             %debug
 %             from = 'Frame_to_be_displayed_1';
 %             to = 'event_Frame_to_be_displayed_236';
@@ -97,6 +97,7 @@ classdef ploter2
             cmap3(cmap3>1) = 1;
             hold on;
             valid_comp_id = 0;
+            valid_comps = {''};
             for comp = 1:size(comp_names, 1)
 
                 cond_name = char(comp_names(comp));
@@ -294,7 +295,6 @@ classdef ploter2
                 xtickformat(fig, '%,.4g');
             catch
             end
-            ploted_data.valid_comps = valid_comps;
         end
         
         function [ploted_data, events] = do_draw_events(ploted_data, cond_events_data, comp_names, event_names, cmap, ms, events_id_to_show, fig)
@@ -387,7 +387,7 @@ classdef ploter2
             cla(fig);
             cmap = hsv(size(comp_names, 1));
             ms   = 1000/rate;
-            [ploted_data, events_id_to_show] = ploter2.do_draw_conditions(cond_mat_data, cond_events_data, blinks_data, comp_names, event_names, cmap, ms, fig, data_mean, data_std, Bins, PreEventNumber, Method, from, to, relative, baseline, scattering);
+            [ploted_data, events_id_to_show, valid_comps] = ploter2.do_draw_conditions(cond_mat_data, cond_events_data, blinks_data, comp_names, event_names, cmap, ms, fig, data_mean, data_std, Bins, PreEventNumber, Method, from, to, relative, baseline, scattering);
             
             if length(fieldnames(ploted_data))<length(comp_names)
                 events = [];
@@ -398,7 +398,7 @@ classdef ploter2
             [ploted_data, events] = ploter2.do_draw_events(ploted_data, cond_events_data, comp_names, event_names, cmap, ms, events_id_to_show, fig);
             ploter2.do_draw_lables(relative, Method, file_name, fig);
             
-            comp_names_fixed = cellfun(@(x) x(3:end), ploted_data.valid_comps, 'UniformOutput', false);
+            comp_names_fixed = cellfun(@(x) x(3:end), valid_comps, 'UniformOutput', false);
             comp_names_fixed = strrep(strrep(comp_names_fixed, '_x_', ' & '),'_',' ');
             legend(fig, char(comp_names_fixed), 'Location', 'Best');
             if ~strcmp(scattering, 'no')
