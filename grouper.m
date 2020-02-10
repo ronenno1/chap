@@ -172,7 +172,7 @@ classdef grouper
             scattering     = configuration.scattering_val;
             relative       = configuration.relative_val;   
 
-            ms   = round(1000/rate);
+            ms   = 1000/rate;
             
             hold off;
             Bins = ceil(max(configuration.BinsNumber_val, 1)/ms);
