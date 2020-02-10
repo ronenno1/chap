@@ -192,7 +192,7 @@ classdef ploter2
                 % convert the data to the relevant units
 
                 % create x_axis
-                Trial_Offset_ms = size(avg_cond_mat, 1)*(round(ms*Bins));
+                Trial_Offset_ms = round(size(avg_cond_mat, 1)*ms*Bins);
                 x_axis = linspace(0 ,Trial_Offset_ms, size(avg_cond_mat,1))-PreEventNumber;
                
                 
