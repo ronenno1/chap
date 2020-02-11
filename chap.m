@@ -725,7 +725,7 @@ function data = view_configuration(data)
     min_trials = gui_lib.uicontrol_edit(hp, [edit_pos_x edit_pos_y-70 50 25], tooltip, @valid_2plus_number);
     set(min_trials, 'String', configer.min_trials);
     
-    tooltip = '<html><b>Blinks currection (based on <a href = "https://doi.org/10.3758/s13428-018-01190-1">Hershman et.al., 2018</a>)</b><br> <br><i>Select how to reconstruct the missing values: <li> Linear interpolation <li>  Cubic interpolation <li> No correction</html>';
+    tooltip = '<html><b>Blinks correction (based on <a href = "https://doi.org/10.3758/s13428-018-01190-1">Hershman et.al., 2018</a>)</b><br> <br><i>Select how to reconstruct the missing values: <li> Linear interpolation <li>  Cubic interpolation <li> No correction</html>';
 
     val_options = {'Linear Interpolation', 'Cubic Interpolation', 'Without Interpolation'};
 
