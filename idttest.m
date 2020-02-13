@@ -206,14 +206,23 @@ classdef idttest
                disp('Error: Conditions have to be chosen');
                return;
             end
-
+            
             total = 0;
             min_length = inf;
-            for i=required_condition
-                min_length = min(min_length, size(group_all_data.(full_condition_names{required_condition(i)}).data, 2));
+            if length(required_condition) >1
+                for i=required_condition
+                    min_length = min(min_length, size(group_all_data.(full_condition_names{i}).data, 2));
+                end
+            else
+                min_length = size(group_all_data.(full_condition_names{required_condition}).data, 2);
             end
-            for i=required_condition
-                total = total + group_all_data.(full_condition_names{required_condition(i)}).data(:, 1:min_length);
+            if length(required_condition) >1
+
+                for i=required_condition
+                    total = total + group_all_data.(full_condition_names{i}).data(:, 1:min_length);
+                end
+            else
+                total = group_all_data.(full_condition_names{required_condition}).data(:, 1:min_length);
             end
             data = total./length(required_condition);
             axis = group_all_data.x_axis;    
