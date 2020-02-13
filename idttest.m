@@ -176,7 +176,7 @@ classdef idttest
 
 
             close(fig);
-            save(['stat_data_' condition_str '.mat'], 'stat_data');
+            save([output_folder_name, filesep 'stat_data_' condition_str '.mat'], 'stat_data');
         end
         
         
