@@ -12,6 +12,8 @@ end
 
 function add_main_buttons(Figure_h)
     log = text(10, 420, '', 'HorizontalAlignment', 'left', 'Color', [1 1 1], 'FontWeight', 'bold');
+    
+    text(22, 390, 'For questions contact: ronenhe@post.bgu.ac.il | noga.cohen@edu.haifa.ac.il', 'HorizontalAlignment', 'left', 'Color', [1 1 1], 'FontSize', 8, 'FontWeight', 'bold');
 
     gui_lib.uicontrol_button(Figure_h, [22 332 195 40], 'New project', {@read_raw_file, log});
     gui_lib.uicontrol_button(Figure_h, [22 280 195 40], 'Open existing project', {@read_chap, log});
