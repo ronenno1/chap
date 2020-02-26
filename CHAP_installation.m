@@ -1,7 +1,7 @@
 function CHAP_installation()
 clear mex
 
-version = 'V1.41';
+version = 'V1.4.1';
 
 fprintf('Check for latest version of CHAP...\n');
 
