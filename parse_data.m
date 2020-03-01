@@ -32,7 +32,7 @@ classdef parse_data
                     if size(var_data_arr, 2)==3
                         var_data_arr{4} = '-';
                     end
-                    total_var_data.(char(var_data_arr(3)))(trial_id, :) = strrep(var_data_arr(4), '''', '') ;
+                    total_var_data.(regexprep(char(var_data_arr(3)), '\W', '_'))(trial_id, :) = strrep(var_data_arr(4), '''', '') ;
                 end
             end
             var_names = fieldnames(total_var_data);
@@ -43,7 +43,6 @@ classdef parse_data
                     total_var_data.(char(var_names(var))){max_values, :} = [];
                 end
             end
-            
         end
         
         function event_data_table = parse_events(event_msgs, event_timestamps, timestamps, Trial_Onset_num, Trial_Offset_num, external)
@@ -74,7 +73,7 @@ classdef parse_data
                 else
                     event_diff_val = (timestamp-timestamps(Trial_Onset_num(trial_id)));
                 end
-                total_event_data.(char(event_name))(trial_id, :) = event_diff_val;    
+                total_event_data.(regexprep(char(event_name), '\W', '_'))(trial_id, :) = event_diff_val;    
             end
             event_names = fieldnames(total_event_data);
             max_values = size(Trial_Onset_num, 1);

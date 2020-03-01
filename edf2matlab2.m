@@ -158,7 +158,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     var_ids  = find(~cellfun(@isempty, strfind(event_msgs,'!V TRIAL_VAR ')));
 
     if ~isempty(var_ids)
-        total_var_data = parse_data.parse_vars(event_msgs, event_timestamps, timestamps, var_ids, trial_data.Trial_Onset_num);
+        total_var_data = parse_data.parse_vars(event_msgs, event_timestamps, event_timestamps, var_ids, trial_ids);
         data.total_var_data_table = struct2table(total_var_data);
     end
     
@@ -178,8 +178,9 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
             external_var_ids = find(~cellfun(@isempty, regexp(event_msgs, expression, 'ONCE'))); 
         end        
     end
+    
     if ~isempty(external_var_ids)
-        total_var_data = parse_data.parse_vars(event_msgs, event_timestamps, timestamps, external_var_ids, trial_data.Trial_Onset_num, true);
+        total_var_data = parse_data.parse_vars(event_msgs, event_timestamps, event_timestamps, external_var_ids, trial_ids, true);
         data.total_var_data_table = struct2table(total_var_data);
     end
 
