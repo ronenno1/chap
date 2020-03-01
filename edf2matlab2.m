@@ -23,6 +23,11 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     print_log(['Start load and convert EDF file: ' strrep(file_name, '_', '\_') ext], log);
     full_edf_name_fixed = strrep(full_edf_name, ' ', '\ ');
     
+    if length(full_edf_name)>100
+        print_log('Error: the length of the EDF path exceeds the limit of 100 characters', log);
+        return;
+    end
+    
     if isunix && ~ismac
         mat_file_path = strcat(file_path, filesep, mat_path, filesep, file_name, '_extend.mat');
         if(~exist(mat_file_path, 'file'))
