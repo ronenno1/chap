@@ -216,6 +216,7 @@ classdef idttest
             else
                 min_length = size(group_all_data.(full_condition_names{required_condition}).data, 2);
             end
+            
             if length(required_condition) >1
 
                 for i=required_condition
@@ -224,6 +225,8 @@ classdef idttest
             else
                 total = group_all_data.(full_condition_names{required_condition}).data(:, 1:min_length);
             end
+%             total = group_all_data.(full_condition_names{1}).data(:, 1:min_length)-group_all_data.(full_condition_names{2}).data(:, 1:min_length);
+
             data = total./length(required_condition);
             axis = group_all_data.x_axis;    
         end

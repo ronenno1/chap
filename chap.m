@@ -18,6 +18,7 @@ function add_main_buttons(Figure_h)
     gui_lib.uicontrol_button(Figure_h, [22 332 195 40], 'New project', {@read_raw_file, log});
     gui_lib.uicontrol_button(Figure_h, [22 280 195 40], 'Open existing project', {@read_chap, log});
     gui_lib.uicontrol_button(Figure_h, [22 228 195 40], 'Between groups analysis', {@do_idttest, log});
+    gui_lib.uicontrol_button(Figure_h, [22 176 195 40], 'Merge multiple chp files', {@do_merge_chps, log});
 
 %     gui_lib.uicontrol_button(Figure_h, [228 332 195 40], 'Convert EDF to Matlab', {@quickEdf2mat, log});    
     gui_lib.uicontrol_button(Figure_h, [228 332 195 40], 'About', @about);    
@@ -67,7 +68,14 @@ end
 %     print_log(['"' strrep(edf_file_name,  '_', '\_') '" successfully convert! ' num2str(toc(start)) ' seconds'], log);    
 % end
 
-function do_idttest(src, evnt, log) %
+
+
+function do_merge_chps(~, ~, ~)
+    merge_chps();
+end
+
+
+function do_idttest(~, ~, ~)
     idttest.run_idttest();
 end
 
