@@ -392,8 +392,13 @@ function do_group(src, fig, log, log_a, res_table)
     configuration = data.configuration;
     comp_names    = configuration.comp_names;
     configuration.paths = paths;
-    process_files(paths, files, data, fig, log, log_a, res_table, overwrite);
-   
+    try
+        process_files(paths, files, data, fig, log, log_a, res_table, overwrite);
+    catch err
+            print_log('Error:', log_a);
+            print_log(err.message, log);    
+            return;
+    end
     if size(files, 1)<2
         print_log('Error:', log_a);    
         print_log('You need at least 2 files for group analysis', log);    
@@ -401,8 +406,7 @@ function do_group(src, fig, log, log_a, res_table)
     end
 
     total_data = grouper.do_avaraging(paths, comp_names);
-    if (isempty(total_data) || size(total_data.(char(comp_names(1))).data, 1)<2)
-        
+    if (isempty(total_data) || size(total_data.(char(comp_names(1))).data, 1)<2) 
         print_log('Error:', log_a);    
         print_log('There are no enough valid files', log);    
         return;
@@ -444,6 +448,9 @@ function do_group(src, fig, log, log_a, res_table)
     properties.baseline = total_data.configuration.baseline_val;
     properties.scattering = total_data.configuration.scattering_val;
    
+    if ~iscell(total_data.configuration.event_names)
+        total_data.configuration.event_names = {total_data.configuration.event_names};
+    end
     event_names  = cellfun(@(e) {e(7:end)}, total_data.configuration.event_names, 'UniformOutput', false);
     properties.event = event_names(1:end-1);
     contrast_names_fixed   = strrep(strrep(strrep(total_data.configuration.comp_names_val', 'c_', ''), '_x_', ' & '),'_',' ');
@@ -617,6 +624,12 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
             save([paths.mat_output_folder_name filesep file_name], 'ploted_data');
             output.save_csv_append(printed_data, [paths.csv_output_folder_name filesep 'time-course_data.csv'], file_name);
             single_var_data_table = output.save_csv_append4(single_data, cond_ids, ploted_data.rate);
+            if ~isempty(var_data_table)
+                common_var_data_columns = intersect(single_var_data_table.Properties.VariableNames, var_data_table.Properties.VariableNames, 'stable');
+                if length(common_var_data_columns) < length(single_var_data_table.Properties.VariableNames)
+                    error('All files have to include the same variables');
+                end
+            end
             var_data_table = [var_data_table; single_var_data_table];
         end
     end 

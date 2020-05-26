@@ -14,8 +14,6 @@ classdef parse_data
             var_data_table.trial_id = [];
         end
         
-        
-        
         function total_var_data = parse_vars(event_msgs, event_timestamps, timestamps, var_ids, Trial_Onset_num, external)
             if (~exist('external', 'var'))
                 external = false;
@@ -85,6 +83,63 @@ classdef parse_data
 
             event_data_table = struct2table(total_event_data);
         end
-        
+   
+        function [timestamps, data] = add_missing_samples(timestamps, data)
+            diffs = diff(timestamps);
+            misses = find(diffs>1/data.rate);
+            gap_counter = 0;
+            for miss = 1: length(misses)
+                if misses(miss)+2>length(timestamps)
+                    continue;
+                end
+
+                gaps2 = round((timestamps(misses(miss)+2)-timestamps(misses(miss)))*data.rate)-2;
+                gaps1 = round((timestamps(misses(miss)+1)-timestamps(misses(miss)))*data.rate)-1;
+
+                gaps  = min(gaps1, gaps2);
+                if miss<length(misses) && misses(miss+1)==misses(miss)+1
+                    gaps = round((timestamps(misses(miss)+1)-timestamps(misses(miss)))*data.rate)-1;
+                end
+
+                gap_id = gaps;
+                gap_counter = gap_counter+gap_id;
+                while gap_id 
+
+                    [gap_id, misses(miss)];
+                    trial_time   = timestamps(misses(miss))+(1/data.rate);
+
+                    timestamps = [timestamps(1:misses(miss)), trial_time, timestamps(misses(miss)+1:end)]; 
+                    new_time = datestr(((trial_time/86400)+ datenum('01-Jan-1970')), 'yyyy-mm-dd HH:MM:SS.FFF');
+
+                    data.timestamps = [data.timestamps(1:misses(miss)); new_time; data.timestamps(misses(miss)+1:end)]; 
+
+                    data.pupil_size = [data.pupil_size(1:misses(miss)); 0; data.pupil_size(misses(miss)+1:end)]; 
+                    data.pupil_x = [data.pupil_x(1:misses(miss)); 0; data.pupil_x(misses(miss)+1:end)]; 
+                    data.pupil_y = [data.pupil_y(1:misses(miss)); 0; data.pupil_y(misses(miss)+1:end)]; 
+                    gap_id = gap_id-1;
+                    misses(miss:end)=misses(miss:end)+1; 
+                end        
+            end
+            data.gap_counter = gap_counter/data.rate;
+
+            %% recheck
+%             diffs = diff(timestamps);
+%             missesa = find(diffs>=1/data.rate);
+% 
+%             gap_counter = 0;
+%             for miss = 1: length(missesa)
+%                 if misses(miss)+2>length(timestamps)
+%                     continue;
+%                 end
+% 
+%                 gaps = round((timestamps(misses(miss)+2)-timestamps(misses(miss)))*data.rate)-2;
+% 
+%                 if miss<length(misses) && misses(miss+1)==misses(miss)+1
+%                     gaps = round((timestamps(misses(miss)+1)-timestamps(misses(miss)))*data.rate)-1;
+%                 end
+% 
+%                 gap_counter = gap_counter+gaps;
+%             end
+        end
     end
 end

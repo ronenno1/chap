@@ -60,6 +60,8 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
         raw_data_table.values_frame_lefteye_avg_y(raw_data_table.values_frame_lefteye_avg_y==0) = raw_data_table.values_frame_righteye_avg_y(raw_data_table.values_frame_lefteye_avg_y==0);
         raw_data_table.values_frame_righteye_avg_y(raw_data_table.values_frame_righteye_avg_y==0) = raw_data_table.values_frame_lefteye_avg_y(raw_data_table.values_frame_righteye_avg_y==0);
         data.pupil_y    = (raw_data_table.values_frame_lefteye_avg_y + raw_data_table.values_frame_righteye_avg_y)/2;
+%         data.pupil_size = abs(raw_data_table.values_frame_lefteye_avg_x - raw_data_table.values_frame_righteye_avg_x);
+%         data.pupil_size = data.pupil_y; using 
         loaded = true;
     catch
     end        
@@ -79,7 +81,9 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
         first_index = first_index+1;
         data.rate   = roundn(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), 1);
     end
-
+    
+    [timestamps, data] = parse_data.add_missing_samples(timestamps, data);
+    
     data.file_name  = full_txt_name;     
     timestamps = timestamps*data.rate;
     

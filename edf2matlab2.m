@@ -248,7 +248,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
         end
         if(~isempty(events2))
             for i=1:size(events2, 1)
-                event_ids_one =~cellfun(@isempty, strfind(event_msgs, events2(i))); 
+                event_ids_one =~cellfun(@isempty, strfind(event_msgs, events2{i})); 
                 event_msgs(event_ids_one, :) = {['!E TRIAL_EVENT_VAR ' strrep(strrep(events2{i}, ':', ''), ' ', '_')]};
             end            
         end

@@ -41,10 +41,14 @@ function output = dat2matlab(full_dat_name, output_folder_name, log, events2, va
     data.pupil_y    = raw_data.pupil_y;
     
     print_log('Start loading pupil data', log);    
-    timestamps = 86400*(datenum(data.timestamps(:))- datenum('01-Jan-1970'));
+    try
+        timestamps = 86400*(datenum(data.timestamps(:), 'yyyy-mm-dd HH:MM:SS.FFF')- datenum('01-Jan-1970'))';
+    catch
+        timestamps = 86400*(datenum(data.timestamps(:))- datenum('01-Jan-1970'))';
+    end
 
     data.rate = 0;
-    first_index = 1;
+    first_index = 3;
     while data.rate==0
         first_index = first_index+1;
         data.rate   = roundn(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), 1);
@@ -55,7 +59,10 @@ function output = dat2matlab(full_dat_name, output_folder_name, log, events2, va
     %% Get all the indexes of user's messages
     
     tic;
+        
     
+    [timestamps, data] = parse_data.add_missing_samples(timestamps, data);
+
     
     timestamps = timestamps*data.rate;
 

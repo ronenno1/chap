@@ -43,9 +43,16 @@ classdef stat
             range = max_val-min_val;
 
             ylim(fig, [min_val-abs(range*.1*num_of_contrasts), max_val+0.1*range] )
-            yticks(fig, 'auto');
-            yticklabels(fig, 'auto');
-
+            
+            v = ver('matlab');
+            v = str2num(v(1).Version); 
+            if v>9
+                yticks(fig, 'auto');
+                yticklabels(fig, 'auto');
+            else
+                set(fig, 'YTickMode', 'auto');
+                set(fig, 'YTickLabel', 'auto');
+            end
 
             contrasts = nchoosek(1:size(total_data.configuration.comp_names, 1), 2);
             
@@ -152,12 +159,22 @@ classdef stat
             xlabel(fig, 'Time [ms]');
 
             ylabel(fig, 'BF_{10}');
+            v = ver('matlab');
+            v = str2num(v(1).Version); 
 
-            lables = round(10*(10.^yticks(fig)))/10;
-            new_lables = arrayfun(@(x) stat.log_round(x), lables);
-            yticks(fig, log10(new_lables));
-            yticklabels(fig, new_lables);
+            if v>9
+                lables = round(10*(10.^yticks(fig)))/10;
+                new_lables = arrayfun(@(x) stat.log_round(x), lables);
+                yticks(fig, log10(new_lables));
+                yticklabels(fig, new_lables);
+            else
+                lables = round(10*(10.^get(fig, 'YTick')))/10; 
+                new_lables = arrayfun(@(x) stat.log_round(x), lables);
+                set(fig, 'YTick', log10(new_lables)); 
+                set(fig, 'YTickLabels', new_lables); 
+            end
 
+            
             try
                 xtickformat('%,.4g');
 
@@ -299,9 +316,16 @@ classdef stat
                     [min_val, max_val] = stat.find_y_limits(fig);            
                     range = max_val-min_val;
                     ylim(fig, [min_val, max_val+.05*range] )
+                    v = ver('matlab');
+                    v = str2num(v(1).Version); 
 
-                    yticks(fig, 'auto');
-                    yticklabels(fig, 'auto');
+                    if v>9
+                        yticks(fig, 'auto');
+                        yticklabels(fig, 'auto');
+                    else
+                        set(fig, 'YTickMode', 'auto');
+                        set(fig, 'YTickLabel', 'auto');
+                    end
                 end
             else
                 plot(x_axis, data2plot_001(1:size(x_axis, 2)), 'color', [0, 0, 0], 'LineWidth', 0.1, 'Marker','s', 'LineStyle','none',  'MarkerFaceColor', [0, 0, 0], 'Parent', fig);

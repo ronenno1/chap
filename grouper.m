@@ -225,6 +225,9 @@ classdef grouper
                 d  = total_data.(char(comp)).avg;
                 sd = total_data.(char(comp)).std;      
                 
+%                 d = -2*atand((d./75.4)./50);
+%                 sd = 2*atand((sd./75.4)./50);
+
                 data4analyze = total_data.(char(comp)).data(1:lengths.(char(comp)));
 
                 n  = [];
@@ -320,6 +323,8 @@ classdef grouper
                 
                 hold on;
                 plot(x_axis, total_data.(char(comp)).avg, 'LineWidth', 3, 'Color', cmap2(i,:), 'Parent', fig);
+%                 plot(x_axis, -2*atand(((total_data.(char(comp)).avg)./75.4)./50), 'LineWidth', 3, 'Color', cmap2(i,:), 'Parent', fig);
+
             end
 %             comp1 = char(comp_names(1));
 %             comp2 = char(comp_names(2));
