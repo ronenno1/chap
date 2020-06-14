@@ -246,9 +246,14 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
                 events2    = event_file.event_name;
             end
         end
+        events2 = flip(sort(events2));
         if(~isempty(events2))
-            for i=1:size(events2, 1)
+            for i=1:length(events2)
                 event_ids_one =~cellfun(@isempty, strfind(event_msgs, events2{i})); 
+                exist_event_ids=~cellfun(@isempty, strfind(event_msgs, '!E TRIAL_EVENT_VAR '));
+                event_ids_one = event_ids_one-exist_event_ids;
+                event_ids_one(event_ids_one==-1) = 0;
+                event_ids_one = (event_ids_one==1);
                 event_msgs(event_ids_one, :) = {['!E TRIAL_EVENT_VAR ' strrep(strrep(events2{i}, ':', ''), ' ', '_')]};
             end            
         end
@@ -256,7 +261,6 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
         if ~isempty(event_ids)
             event_full_data = event_msgs(event_ids);
             event_full_timestamps = event_timestamps(event_ids);
-
             event_data_table = parse_data.parse_events(event_full_data, event_full_timestamps, timestamps, data.trial_data.Trial_Onset_num, data.trial_data.Trial_Offset_num, ~isempty(event_names));
             data.total_var_data_table = [data.total_var_data_table, event_data_table];
         end
