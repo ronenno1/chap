@@ -49,9 +49,9 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
     end
     samples2smooth = ceil(rate/100);
     try
-        smooth_data = smoota(pupil_data, samples2smooth);
+        smooth_data = smooth(pupil_data, samples2smooth, 'moving');
     catch
-        smooth_data = my_smooth(pupil_data, samples2smooth);
+        smooth_data = my_smooth(pupil_data, samples2smooth, 'moving');
     end
     if(debug_mode && debug_mode>start_debug)
         pd_smooth =  smooth_data;
