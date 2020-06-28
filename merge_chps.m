@@ -27,25 +27,28 @@ function merge_chps(input_folder_name, subject_id)
     end
     [~, sort_ids] = sort(times);
     files = files(sort_ids);
+    output_data = files{1};
+    [~, ~, ext] = fileparts(output_data.data.file_name);
 
-    for file_id = 1:length(file_names)-1
-        number_of_samples = length(files{file_id}.data.pupil_size);
-        [~, ~, ext]       = fileparts(files{file_id}.data.file_name);
-        files{file_id}.data.file_name = [subject_id, ext];
-        files{file_id+1}.data.trial_data.Trial_Onset_num  = files{file_id+1}.data.trial_data.Trial_Onset_num+number_of_samples;
-        files{file_id+1}.data.trial_data.Trial_Offset_num = files{file_id+1}.data.trial_data.Trial_Offset_num+number_of_samples;
-        files{file_id+1}.data.trial_data.trial_names      = files{file_id+1}.data.trial_data.trial_names+length(files{file_id}.data.trial_data.trial_names);
-        field_names = fieldnames(files{file_id}.data);
+    output_data.data.file_name = [subject_id, ext];
+
+    for file_id = 2:length(file_names)
+        data_file = files{file_id}.data;
+        number_of_samples = length(output_data.data.pupil_size);
+
+        data_file.trial_data.Trial_Onset_num  = data_file.trial_data.Trial_Onset_num+number_of_samples;
+        data_file.trial_data.Trial_Offset_num = data_file.trial_data.Trial_Offset_num+number_of_samples;
+        data_file.trial_data.trial_names      = data_file.trial_data.trial_names+length(output_data.data.trial_data.trial_names);
+        field_names = fieldnames(data_file);
         for field = 1:length(field_names)
             if strcmp(field_names{field}, 'rate') || strcmp(field_names{field}, 'file_name')
-                files{file_id+1}.(field_names{field}) = files{file_id}.data.(field_names{field});
                 continue;
             end
-            files{file_id+1}.(field_names{field}) = [files{file_id}.data.(field_names{field}); files{file_id+1}.data.(field_names{field})];
+            output_data.data.(field_names{field}) = [output_data.data.(field_names{field}); data_file.(field_names{field})];
         end
     end
 
-    data = files{end};
+    data = output_data.data;
     save([input_folder_name, filesep, subject_id, '.chp'], 'data');
     
     data_file =  [input_folder_name, filesep, subject_id, ext];
