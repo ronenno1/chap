@@ -23,7 +23,7 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
     pupil_data(pupil_data==0)=nan;    
     pupil_mean = nanmean(pupil_data);
     pupil_std = nanstd(pupil_data);
-    
+    opd = pupil_data;
     if(Zoutliers>0)
         maxpupil2remove = Zoutliers*pupil_std+pupil_mean;
         pupil_data(pupil_data>=maxpupil2remove)=nan;
@@ -40,6 +40,7 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
         hold off
         plot(pd,'red', 'LineWidth',3)
         title(num2str(debug_mode))
+        plot(opd,'yellow', 'LineWidth',3)
 
         hold on
     end

@@ -19,6 +19,7 @@ function add_main_buttons(Figure_h)
     gui_lib.uicontrol_button(Figure_h, [22 280 195 40], 'Open existing project', {@read_chap, log});
     gui_lib.uicontrol_button(Figure_h, [22 228 195 40], 'Between groups analysis', {@do_idttest, log});
     gui_lib.uicontrol_button(Figure_h, [22 176 195 40], 'Merge multiple chp files', {@do_merge_chps, log});
+    gui_lib.uicontrol_button(Figure_h, [22 124 195 40], 'Waves analysis', {@do_waves_analysis, log});
 
 %     gui_lib.uicontrol_button(Figure_h, [228 332 195 40], 'Convert EDF to Matlab', {@quickEdf2mat, log});    
     gui_lib.uicontrol_button(Figure_h, [228 332 195 40], 'About', @about);    
@@ -68,6 +69,10 @@ end
 %     print_log(['"' strrep(edf_file_name,  '_', '\_') '" successfully convert! ' num2str(toc(start)) ' seconds'], log);    
 % end
 
+
+function do_waves_analysis(~, ~, ~)
+    waves_analysis.run_waves_analysis()    
+end
 
 
 function do_merge_chps(~, ~, ~)
@@ -356,7 +361,7 @@ function data = show_analyze_window(src, cond_mat_cleaned, cond_events, data)
     data.fail = false;
     for i=1:size(comp_names, 1)
         num_of_valid_trials = valid_trials.(char(comp_names(i)));
-        data_table(i,:) = [outliers.(char(comp_names(i))) num_of_valid_trials int32(struct2array(ploted_data.(char(comp_names(i))).events))];
+        data_table(i,:) = [outliers.(char(comp_names(i))) num_of_valid_trials int32(my_struct2array(ploted_data.(char(comp_names(i))).events))];
         if(num_of_valid_trials<data.min_trials)
             print_log('Error: ', log_a);   
             print_log('not enough trials', log);    
@@ -423,7 +428,7 @@ function do_group(src, fig, log, log_a, res_table)
     data_table    = zeros(size(comp_names,1), num_of_events);
     
     for i=1:size(comp_names, 1)
-        data_table(i,:) = int32(struct2array(total_data.(char(comp_names{i})).avg_events));
+        data_table(i,:) = int32(my_struct2array(total_data.(char(comp_names{i})).avg_events));
     end
     set(res_table, 'Data', data_table);
     set(res_table, 'ColumnName', header');
@@ -598,7 +603,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         num_of_events = size(fieldnames(ploted_data.(char(comp_names(1))).events),1);
         data_table = zeros(size(comp_names,1), num_of_events + 2);
         for j=1:size(comp_names, 1)
-            data_table(j,:) = [ploted_data.(char(comp_names(j))).outliers ploted_data.(char(comp_names(j))).valid_trials int32(struct2array(ploted_data.(char(comp_names(j))).events))];
+            data_table(j,:) = [ploted_data.(char(comp_names(j))).outliers ploted_data.(char(comp_names(j))).valid_trials int32(my_struct2array(ploted_data.(char(comp_names(j))).events))];
         end
         set(res_table, 'Data', data_table);
         set(res_table, 'ColumnName', header_f');
@@ -730,7 +735,7 @@ function data = view_configuration(data)
     gui_lib.uicontrol_title('CONFIGURATION', 75, 95);
 
 
-    tooltip = '<html><b>Z outliers</b><br><i>Select the Z score value of outlier samples</html>';
+    tooltip = '<html><b>Z outliers</b><br><i>Select the Z-score value of outlier samples</html>';
 
     gui_lib.uicontrol_text(hp, 'Z outliers:', [title_pos_x title_pos_y 150 30]);
     ZNumber = gui_lib.uicontrol_edit(hp, [edit_pos_x edit_pos_y 50 25], tooltip, @valid_positive_number);
@@ -754,12 +759,14 @@ function data = view_configuration(data)
 
     data.configuration.interpolation_type = uicontrol(hp,'Style','popupmenu',...
         'String', val_options, 'Position',[title_pos_x title_pos_y-100 190 30], 'TooltipString', tooltip);%samples pre-event
-    
-    tooltip = '<html><b>View trials</b><br><i>View all trials including blinks currection - using for debug</html>';
-    gui_lib.uicontrol_text(hp, 'View trials:', [title_pos_x title_pos_y-135 150 30]);
-        
-    data.configuration.view_trials  = gui_lib.uicontrol_smart_checkbox(hp, [edit_pos_x edit_pos_y-135 50 25], tooltip);
-
+    if configer.view_trials
+        tooltip = '<html><b>View trials</b><br><i>View all trials including blinks currection - using for debug</html>';
+        gui_lib.uicontrol_text(hp, 'View trials:', [title_pos_x title_pos_y-135 150 30]);
+           data.configuration.view_trials  = gui_lib.uicontrol_smart_checkbox(hp, [edit_pos_x edit_pos_y-135 50 25], tooltip);
+ 
+    else
+        data.configuration.view_trials  = gui_lib.uicontrol_smart_checkbox(hp, [0, 0, 0, 0], '');
+    end
     data.configuration.min_trials   = min_trials;
     data.configuration.ZNumber      = ZNumber;
     data.configuration.ZeroshNumber = ZeroshNumber;    
@@ -881,9 +888,9 @@ function data = show_analyze_vars(data)
 
     
  
-    tooltip = '<html><b>Method</b><br><i>Select method: <li> Arbitrary units <li> Z score ';
+    tooltip = '<html><b>Method</b><br><i>Select method: <li> Arbitrary units <li> Z-score ';
     gui_lib.uicontrol_text(hp, 'Method:', [title_pos_x title_pos_y-200 150 30]);
-    val_options = {'arbitrary units'; 'Z score'};
+    val_options = {'arbitrary units'; 'Z-score'};
     Method =  uicontrol(hp,'Style','popupmenu',...
         'String', val_options, 'Position',[edit_pos_x-40 edit_pos_y-200 120 25], 'TooltipString', tooltip);
 
@@ -1094,7 +1101,15 @@ end
 
 function valid_2plus_number(src, ~)
     num = str2num(get(src, 'string'));
+
+    % in case of one trial, change the value to be 1
     if  isempty(num) || num<2
         set(src,'string',2)
     end
+end
+
+
+function a = my_struct2array(s)
+    c = struct2cell(s);
+    a = [c{:}];
 end

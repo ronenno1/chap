@@ -129,7 +129,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     %% find trials
     print_log('Parsing trials', log); 
     
-    trial_ids = find(~cellfun(@isempty, strfind(event_msgs, 'TRIALID')));
+    trial_ids = find(~cellfun(@isempty, strfind(upper(event_msgs), 'TRIALID')));
 
     if(isempty(trial_ids))
         print_log('Error: trials did not found', log);
@@ -242,8 +242,12 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
                 data.full_csv_name = full_csv_name; 
                 
                 event_file = readtable(full_csv_name, 'Delimiter', ',');
-                
-                events2    = event_file.event_name;
+                try
+                    events2    = event_file.event_name;
+                catch
+                    print_log('Error: Wrong event file! ', log);
+                    return;
+                end
             end
         end
         if(~isempty(events2))

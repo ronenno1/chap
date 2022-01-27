@@ -39,7 +39,7 @@ classdef ploter2
 %             from = 'Frame_to_be_displayed_1';
 %             to = 'event_Frame_to_be_displayed_236';
 %             relative = 'percentage';
-%             method = 'Z score';
+%             method = 'Z-score';
             Bins = round(max(bins_ms, 1)/ms);
             if(Bins == Inf || Bins == 0 )
                 Bins=1;
@@ -172,9 +172,12 @@ classdef ploter2
                 avg_cond_mat = nanmean(cuted_data, 2);
                 std_cond_mat = nanstd(cuted_data')';
                 num_of_trials = size(cuted_data, 2);
-                if(num_of_trials <2)
-                    continue;
-                end
+
+                % remove this condition in case of one trial
+%                 if(num_of_trials <2)
+%                     continue;
+%                 end
+                
                 if(end_with_avg-start_with_avg+pre_event_samples>length(cuted_data))
                     continue;
                 end
@@ -183,8 +186,14 @@ classdef ploter2
                 end
 
                 data4analyze = cuted_data(1:end_with_avg-start_with_avg+pre_event_samples,:);
-                avg_cond_mat = avg_cond_mat(1:end_with_avg-start_with_avg+pre_event_samples,:);                    
-                std_cond_mat = std_cond_mat(1:end_with_avg-start_with_avg+pre_event_samples,:);                    
+                avg_cond_mat = avg_cond_mat(1:end_with_avg-start_with_avg+pre_event_samples,:);  
+                
+                if num_of_trials<2
+                    std_cond_mat = zeros(size(data4analyze));                    
+                else
+                    std_cond_mat = std_cond_mat(1:end_with_avg-start_with_avg+pre_event_samples,:);                    
+                end
+                
 
                 
                 avg_cond_mat(find(isnan(avg_cond_mat))) = [];
@@ -369,8 +378,8 @@ classdef ploter2
             if strcmp(Method,'mm')
                 y_unit_label = 'mm';
             end
-            if strcmp(Method,'Z score')
-                y_unit_label = 'Z score';
+            if strcmp(Method,'Z-score')
+                y_unit_label = 'Z-score';
             end
             if strcmp(relative, 'percentage')
                 y_unit_label = '% ';

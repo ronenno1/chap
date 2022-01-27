@@ -41,10 +41,15 @@ function merge_chps(input_folder_name, subject_id)
         data_file.trial_data.trial_names      = data_file.trial_data.trial_names+length(output_data.data.trial_data.trial_names);
         field_names = fieldnames(data_file);
         for field = 1:length(field_names)
-            if strcmp(field_names{field}, 'rate') || strcmp(field_names{field}, 'file_name')
+            if strcmp(field_names{field}, 'rate') || strcmp(field_names{field}, 'file_name') || strcmp(field_names{field}, 'full_csv_name')
                 continue;
             end
-            output_data.data.(field_names{field}) = [output_data.data.(field_names{field}); data_file.(field_names{field})];
+            try
+                output_data.data.(field_names{field}) = [output_data.data.(field_names{field}); data_file.(field_names{field})];
+            catch
+                disp('Error: All files have to include the same variables and events!');
+                return;
+            end
         end
     end
 

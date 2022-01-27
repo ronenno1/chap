@@ -23,7 +23,7 @@ classdef read_data
             if(~output_folder_name)
                 return;
             end
-            
+            ext = lower(ext);
             if strcmp(ext, '.edf')
                 full_data_mat = edf2matlab2(full_name, output_folder_name, log);
             elseif strcmp(ext, '.txt')

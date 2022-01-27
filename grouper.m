@@ -292,9 +292,6 @@ classdef grouper
                     scattering_data = ci;
                 end
 
-%                 h = fill([x_axis';flipud(x_axis')],[d'-scattering_data';flipud(d'+scattering_data')], cmap3(comp_id,:), 'LineStyle', '--', 'EdgeColor', cmap2(comp_id,:));
-%                 set(h,'facealpha',.2)
-
                 h = fill([x_axis';flipud(x_axis')],[d'-scattering_data';flipud(d'+scattering_data')], cmap3(comp_id,:), 'LineStyle', '-', 'EdgeColor', cmap2(comp_id,:), 'Parent', fig);
                 set(h,'facealpha',.5)
             end
@@ -366,8 +363,8 @@ classdef grouper
             if strcmp(Method,'mm')
                 y_unit_label = 'mm';
             end
-            if strcmp(Method,'Z score')
-                y_unit_label = 'Z score';
+            if strcmp(Method,'Z-score')
+                y_unit_label = 'Z-score';
             end
             if strcmp(relative, 'percentage')
                 y_unit_label = '%';

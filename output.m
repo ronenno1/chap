@@ -46,11 +46,6 @@ classdef output
                 set(gca,'YLim',[-inf inf])
                
                 set(temp_fig, 'PaperUnits', 'inches', 'PaperPosition', [0 0 20 15]);
-%             if ~isempty(strfind(lower(class(chs(1))), 'patch'))
-%                     legend(fig_axis, chs(size(comp_names, 1)+1:size(comp_names, 1)*2), char(comp_names), 'Location', 'Best');
-%                 else
-%                     legend(fig_axis, char(comp_names), 'Location', 'Best');
-%                 end
                 try
                     print(temp_fig, '-dpng', '-r300', full_file_name);
                 catch
@@ -127,11 +122,8 @@ classdef output
             elseif strcmp(type, '.png')
                 
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'), 'LineWidth', 8);
-%                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-', 'DisplayName', ''), 'LineWidth', 4);
-
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '-'),  'MarkerSize',.5)
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', '--'), 'LineWidth', 6);
-
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', 'none'),  'LineWidth', 2);
                 set(findobj(temp_fig, 'Type', 'Line', 'Linestyle', 'none'),  'MarkerSize', 10)
                 set(fig_axes,'box','on');            
@@ -236,6 +228,7 @@ classdef output
 
             single_data.var_data_table.trial_mean        = NaN(size(single_data.var_data_table, 1), 1);
             single_data.var_data_table.trial_max         = NaN(size(single_data.var_data_table, 1), 1);
+
             single_data.var_data_table.trial_max_latency = NaN(size(single_data.var_data_table, 1), 1);
             single_data.var_data_table.trial_min         = NaN(size(single_data.var_data_table, 1), 1);
             single_data.var_data_table.trial_min_latency = NaN(size(single_data.var_data_table, 1), 1);

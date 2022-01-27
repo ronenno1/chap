@@ -60,7 +60,8 @@ function output = dat2matlab(full_dat_name, output_folder_name, log, events2, va
     
     tic;
         
-    
+    print_log(['Adding missing samples to ' strrep(file_name, '_', '\_') ext], log);    
+
     [timestamps, data] = parse_data.add_missing_samples(timestamps, data);
 
     

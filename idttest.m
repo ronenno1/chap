@@ -61,13 +61,19 @@ classdef idttest
             plot(axis, stat_data.BFs, 'DisplayName', '');
             above_3 = stat_data.BFs;
             above_3(above_3<3) = NaN;
+            above_3_g = stat_data.BFs;
+            between_3_g = stat_data.BFs;
+            between_3_g(between_3_g>=3 | between_3_g<=1/3) = NaN;
+
+            above_3_g(above_3_g<3 & above_3_g>1/3) = NaN;
+            
             hold on
             plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', '');
             xtickformat('%,.4g');
             title(condition_str);
             xlabel('Time [ms]', 'FontWeight','bold');
             ylabel('BF_{10}', 'FontWeight','bold');
-            xlim([-1000, 9000]);
+            xlim([axis(1), axis(end)]);
             set(gca,'FontWeight','bold');
 
             max_val = max(stat_data.BFs);
@@ -87,6 +93,7 @@ classdef idttest
 
             above_3 = 1./stat_data.BFs;
             above_3(above_3<3) = NaN;
+
             hold on
 
             plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', '');
@@ -95,7 +102,7 @@ classdef idttest
             title(condition_str);
             xlabel('Time [ms]', 'FontWeight','bold');
             ylabel('BF_{01}', 'FontWeight','bold');
-            xlim([-1000, 9000]);
+            xlim([axis(1), axis(end)]);
 
             set(gca,'FontWeight','bold');
 
@@ -164,7 +171,7 @@ classdef idttest
 
             xtickformat('%,.4g');
             title(condition_str);
-            xlim([-1000, 9000]);
+            xlim([x(1), x(end)]);
             set(gca,'FontWeight','bold');
 
             legend('Location', 'Best');
@@ -176,6 +183,53 @@ classdef idttest
 
 
             close(fig);
+
+            fig = figure('Name', 'idttest');
+
+            plot(axis(1:min_axis), log10(between_3_g(1:min_axis)), 'Color', [0, 0, 1], 'LineWidth', 2, 'DisplayName', '');
+            hold on
+            plot(axis(1:min_axis), log10(above_3_g(1:min_axis)),  'Color', [1, 0, 0], 'LineWidth', 2, 'DisplayName', '');
+
+          
+            fig_data = get(fig, 'children');
+            min_val = fig_data.YAxis.Limits(1);
+            max_val = fig_data.YAxis.Limits(2);
+
+            range = max_val-min_val;
+            
+            ylim([min_val-abs(range*.05), max_val+0.05*range] )
+            lables = round(10*(10.^fig_data.YTick))/10;
+            new_lables = arrayfun(@(x) stat.log_round(x), lables);
+            new_lables = unique(new_lables);
+
+            fig_data.YTick = log10(new_lables);
+            fig_data.YTickLabel = new_lables;
+
+            
+            high_threshold = ones(min_axis, 1) * log10(3);
+
+            plot(axis(1:min_axis), high_threshold, '--' , 'color', [0, 0, 0],  'LineWidth', 2);
+
+            low_threshold = ones(min_axis, 1) * log10(1/3);
+
+            plot(axis(1:min_axis), low_threshold, '--' , 'color', [0, 0, 0],  'LineWidth', 2);
+            
+            
+            plot(axis(1:min_axis), ones(min_axis, 1)*log10(1), '--' , 'color', [0.75, 0.75, 0.75],  'LineWidth', 2);
+
+
+            
+            xtickformat('%,.4g');
+            title(condition_str);
+            xlabel('Time [ms]', 'FontWeight','bold');
+            ylabel('BF_{10}', 'FontWeight','bold');
+            xlim([axis(1), axis(end)]);
+
+            set(gca,'FontWeight','bold');
+
+            output.save_figure2(get(fig,'Children'), [output_folder_name, filesep, condition_str '_bfs.png']);
+            output.save_figure2(get(fig,'Children'), [output_folder_name, filesep, condition_str '_bfs.fig']);
+            
             save([output_folder_name, filesep 'stat_data_' condition_str '.mat'], 'stat_data');
         end
         
