@@ -1,4 +1,4 @@
-function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, vars2)
+    function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, vars2)
     if (~exist('log', 'var'))
         log = false;
     end
@@ -20,7 +20,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     if ~exist(mat_path, 'dir')
         mkdir(mat_path);
     end
-    print_log(['Start load and convert EDF file: ' strrep(file_name, '_', '\_') ext], log);
+    print_log(['Initiate loading and converting EDF file: ' strrep(file_name, '_', '\_') ext], log);
     full_edf_name_fixed = strrep(full_edf_name, ' ', '\ ');
     
     if length(full_edf_name)>100
@@ -40,7 +40,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
                 convertor = 'edf2mat/edfmat_ubuntu64';
             end
             system([path convertor, ' "', full_edf_name, '" "', mat_file_path, '"'])
-            print_log(['Load mat file: ' strrep(file_name, '_', '\_') '.mat'], log);
+            print_log(['Loading mat file: ' strrep(file_name, '_', '\_') '.mat'], log);
             clc
         end
         input_data = load(mat_file_path);
@@ -59,14 +59,14 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     end
     clc
     
-    print_log(['Finished loading data: ' num2str(toc) ' seconds'], log);    
+    print_log(['Loading data has been completed: ' num2str(toc) ' seconds'], log);    
     
     %% Get all the indexes of user's messages (scan events's table and note all the ids of user's messages - 28 / 50)
 
     events      = input_data.FEVENT;
     parsedby_id = 0;
     tic;
-    print_log('Start loading messages', log);    
+    print_log('Initiate messages loading', log);    
 
     for i= 1: size(events,2)
         if strcmp(events(i).codestring, 'MESSAGEEVENT')
@@ -75,6 +75,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
         end
     end
 
+    
     %% Get all the user's messages (and the relevant timestems)
     tic;
     event_msgs      = cell(parsedby_id, 1);
@@ -86,11 +87,11 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
         event_msgs{parsedby_id}       = events(i).message;
     end
     
-    print_log(['Finished loading messages: ' num2str(toc) ' seconds'], log);    
+    print_log(['Loading messages has been completed: ' num2str(toc) ' seconds'], log);    
 
     %%  Get gase's information & timestamps
     tic;
-    print_log('Start loading pupil data', log);    
+    print_log('Initiate pupil data loading', log);    
 
     samples     = input_data.FSAMPLE;
     pupil_sizes = samples.pa;
@@ -104,14 +105,14 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     end
     if(pupil_sizes(1)>=0 && pupil_sizes(2)>=0)
         pupil_sizes(pupil_sizes==0) = nan;
-        pupil_size = nanmean(pupil_sizes);
+        pupil_size = mean(pupil_sizes, 'omitnan');
     end
 %     pupil_size = -diff(pupil_x);
     data.pupil_x    = pupil_x';
     data.pupil_y    = pupil_y';
     data.pupil_size = pupil_size';
     data.timestamps = timestamps';
-    print_log(['Finished loading pupil data: ' num2str(toc) ' seconds'], log);
+    print_log(['Loading pupil data has been completed ' num2str(toc) ' seconds'], log);
     %% Get variables, messages & trial ids
     tic;
     
@@ -125,14 +126,15 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     event_timestamps = event_timestamps/(1000/data.rate);
 
     data.timestamps = data.timestamps/(1000/data.rate);
-
+  
     %% find trials
     print_log('Parsing trials', log); 
     
-    trial_ids = find(~cellfun(@isempty, strfind(upper(event_msgs), 'TRIALID')));
+    trial_ids = find(~cellfun(@isempty, strfind(event_msgs, 'TRIALID')));
 
+  
     if(isempty(trial_ids))
-        print_log('Error: trials did not found', log);
+        print_log('Error: Trials were not found', log);
         return;
     end
     trial_data.trial_names     = cellfun(@(x) str2double(char(regexp(char(x),'\d+','match'))), event_msgs(trial_ids));
@@ -243,7 +245,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
                 
                 event_file = readtable(full_csv_name, 'Delimiter', ',');
                 try
-                    events2    = event_file.event_name;
+                    events2 = event_file.event_name;
                 catch
                     print_log('Error: Wrong event file! ', log);
                     return;
@@ -272,7 +274,7 @@ function output = edf2matlab2(full_edf_name, output_folder_name, log, events2, v
     data.vars2   = vars2;
     trial_data.trial_length = trial_data.Trial_Offset_num-trial_data.Trial_Onset_num;
     if length(trial_data.trial_length) ~= size(data.total_var_data_table, 1)
-        print_log('Error: Number of Variables does not consistent with trials', log);
+        print_log('Error: The number of variables does not match the number of trials', log);
         return;
     end
     data.total_var_data_table.event_Trial_Offset = trial_data.trial_length;

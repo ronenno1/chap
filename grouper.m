@@ -204,13 +204,13 @@ classdef grouper
                 
             for comp_id = 1:size(comp_names, 1)
                 comp = char(comp_names(comp_id));
-                total_data.(char(comp)).avg = nanmean(total_data.(char(comp)).data, 1);
-                total_data.(char(comp)).std = nanstd(total_data.(char(comp)).data, 1);
+                total_data.(char(comp)).avg = mean(total_data.(char(comp)).data, 1, 'omitnan');
+                total_data.(char(comp)).std = std(total_data.(char(comp)).data, 1, 'omitnan');
 
                 event_names = fieldnames(total_data.(char(comp)).events);
                 for j=1:size(event_names, 1)
                     evnt = char(event_names(j));
-                    total_data.(char(comp)).avg_events.(evnt) = nanmean(total_data.(char(comp)).events.(evnt));
+                    total_data.(char(comp)).avg_events.(evnt) = mean(total_data.(char(comp)).events.(evnt), 'omitnan');
                 end
                 
                 total_data.(char(comp)).avg = total_data.(char(comp)).avg(1:lengths.(char(comp)));
@@ -270,7 +270,7 @@ classdef grouper
                             ciWidth(ind) = sortedVec(ind + ciIdx) - sortedVec(ind);
                         end
 
-                        [~,idxMin] = nanmin(ciWidth);
+                        [~,idxMin] = min(ciWidth);
                         HDImin(s, :) = sortedVec(idxMin);
                         HDImax(s, :) = sortedVec(idxMin + ciIdx);
                     catch
@@ -299,8 +299,8 @@ classdef grouper
             
             for i = 1:size(comp_names, 1)
                 comp = char(comp_names(i));
-                total_data.(char(comp)).avg = nanmean(total_data.(char(comp)).data, 1);
-                total_data.(char(comp)).std = nanstd(total_data.(char(comp)).data, 1);
+                total_data.(char(comp)).avg = mean(total_data.(char(comp)).data, 1, 'omitnan');
+                total_data.(char(comp)).std = std(total_data.(char(comp)).data, 1, 'omitnan');
                 % remove the last bin
                 total_data.(char(comp)).avg = total_data.(char(comp)).avg(1:end);
                 total_data.(char(comp)).std = total_data.(char(comp)).std(1:end);
@@ -308,7 +308,7 @@ classdef grouper
                 event_names = fieldnames(total_data.(char(comp)).events);
                 for j=1:size(event_names, 1)
                     evnt = char(event_names(j));
-                    total_data.(char(comp)).avg_events.(evnt) = nanmean(total_data.(char(comp)).events.(evnt));
+                    total_data.(char(comp)).avg_events.(evnt) = mean(total_data.(char(comp)).events.(evnt), 'omitnan');
                 end
                 total_data.(char(comp)).avg = total_data.(char(comp)).avg(1:lengths.(char(comp)));
                 total_data.(char(comp)).std = total_data.(char(comp)).std(1:lengths.(char(comp)));

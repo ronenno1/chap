@@ -18,19 +18,19 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
     
     info_csv_name = [path filesep file_name '_info.csv'];
     if ~exist(info_csv_name, 'file')
-        print_log(strcat('Error (3): info file does not found, please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
+        print_log(strcat('Error (3): The info file was not found, please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
         return;
     end
 
     event_csv_name = [path filesep file_name '_events.csv'];
     if ~exist(event_csv_name, 'file')
-        print_log(strcat('Error (3): events file does not found, please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
+        print_log(strcat('Error (3): The events file was not found, please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
         return;
     end
 
 
     
-    print_log(['Start load and convert PLSD file: ' strrep(file_name, '_', '\_') ext], log);
+    print_log(['Initiate loading and converting PLSD file: ' strrep(file_name, '_', '\_') ext], log);
 
     loaded = false;
     try
@@ -128,10 +128,10 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
         
     end        
     if ~loaded
-        print_log('Error: incompetible file (2), please check your file', log);    
+        print_log('Error: Incompatible file (2), please check your file', log);    
         return;
     end
-    print_log('Start loading pupil data', log);  
+    print_log('Initiate pupil data loading', log);  
     timestamps = rate*data.timestamps;
     
     data.rate = rate;
@@ -147,15 +147,15 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
             mes_data_table = readtable(event_csv_name, 'Delimiter', ',');
         end     
     catch
-        print_log('Error (4): incompetible file, please check your file', log);    
+        print_log('Error (4): Incompatible file, please check your file', log);    
         return;
     end
-    print_log('starting loading messages', log);    
+    print_log('Initiate messages loading', log);    
 
     event_msgs        = mes_data_table.message;
     event_timestamps  = rate*(86400*(datenum(mes_data_table.timestamp, 'yyyy-mm-dd HH:MM:SS.FFF')- datenum('01-Jan-1970'))-addition2times);
 
-    print_log(['Finished loading messages: ' num2str(toc) ' seconds'], log);    
+    print_log(['Loading messages has been completed: ' num2str(toc) ' seconds'], log);    
 
     %%  Get gase's information & timestamps
     tic;
@@ -165,7 +165,7 @@ function output = plsd2matlab(full_file_name, output_folder_name, log, events2, 
     
     trial_ids = find(~cellfun(@isempty, strfind(event_msgs,'TRIALID'))); %trial is defined by message with the form TRIALID [num_of_trial]
     if(isempty(trial_ids))
-        print_log('Error: trials did not found', log);
+        print_log('Error: Trials were not found', log);
         return;
     end
     trial_data.trial_names     = cellfun(@(x) str2double(char(regexp(char(x),'\d+','match'))), event_msgs(trial_ids));        

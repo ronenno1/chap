@@ -84,11 +84,23 @@ classdef parse_data
             event_data_table = struct2table(total_event_data);
         end
    
-        function [timestamps, data] = add_missing_samples(timestamps, data)
+        function [timestamps, data] = add_missing_samples(timestamps, data, log)
             diffs = diff(timestamps);
             misses = find(diffs>1/data.rate);
+            % if there are too many missing samples, it is highly recommended to
+            % add 0.00001 to the sampling rate:
+            misses = find(diffs>1/data.rate+0.00001);
             gap_counter = 0;
+            percentages = zeros(1, 10);
+
             for miss = 1: length(misses)
+                percentage = round(100*(miss/length(misses)));
+                
+                if percentage>0 && ~mod(percentage, 10) && percentages(percentage/10)==0 
+                    print_log(['Sampales were added: ' num2str(percentage) '%'], log);    
+                    percentages(percentage/10) = 1;
+                end
+
                 if misses(miss)+2>length(timestamps)
                     continue;
                 end
@@ -99,6 +111,9 @@ classdef parse_data
                 gaps  = min(gaps1, gaps2);
                 if miss<length(misses) && misses(miss+1)==misses(miss)+1
                     gaps = round((timestamps(misses(miss)+1)-timestamps(misses(miss)))*data.rate)-1;
+                end
+                if gaps<0
+                    continue;
                 end
 
                 gap_id = gaps;

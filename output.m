@@ -67,7 +67,10 @@ classdef output
             
         end
         
-        function save_figure2(fig, full_file_name)
+        function save_figure2(fig, full_file_name, ylims)
+             if (~exist('ylims', 'var'))
+                ylims = 0;
+            end
             if (~exist('full_file_name', 'var'))
                 [file_name, path_name]  = uiputfile({'*.png';'*.fig'}, 'Select file to save');
                 if(~file_name)
@@ -97,24 +100,26 @@ classdef output
                 end
             end
             y_values = get(get(fig_axes, 'children'), 'YData');
-
-            max_val = -inf;
-            min_val = inf;
-            for line_id = 1:size(y_values, 1)
-                if length(y_values{line_id}) < 3
-                    continue;
+            if ~ylims
+                max_val = -inf;
+                min_val = inf;
+                for line_id = 1:size(y_values, 1)
+                    if length(y_values{line_id}) < 3
+                        continue;
+                    end
+                    if size(y_values{line_id}, 1)>1
+                        max_val = max([max_val; y_values{line_id}]);
+                        min_val = min([min_val; y_values{line_id}]);
+                    else
+                        max_val = max([max_val, y_values{line_id}]);
+                        min_val = min([min_val, y_values{line_id}]);
+                    end
                 end
-                if size(y_values{line_id}, 1)>1
-                    max_val = max([max_val; y_values{line_id}]);
-                    min_val = min([min_val; y_values{line_id}]);
-                else
-                    max_val = max([max_val, y_values{line_id}]);
-                    min_val = min([min_val, y_values{line_id}]);
-                end
+                range = max_val-min_val;
+                ylim(fig_axes, [min_val-abs(range*.1), max_val+0.1*abs(range)] )
+            else
+                ylim(ylims);
             end
-            range = max_val-min_val;
-            ylim(fig_axes, [min_val-abs(range*.1), max_val+0.1*abs(range)] )
-
             if strcmp(type,'.fig') 
                 set(temp_fig, 'visible', 'on');
                 set(temp_fig, 'position', [0 0 10 10]);
@@ -250,13 +255,13 @@ classdef output
                     
                     min_trial_length = min(size(data_analyzed.(char(comp_names(comp))).cuted_data,1), max_trail);
 
-                    single_data.var_data_table.trial_mean(trial_id) = nanmean(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial));
+                    single_data.var_data_table.trial_mean(trial_id) = mean(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial), 'omitnan');
                     
-                    [max_val, max_latency] = nanmax(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial));
+                    [max_val, max_latency] = max(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial));
                     single_data.var_data_table.trial_max(trial_id) = max_val; 
                     single_data.var_data_table.trial_max_latency(trial_id) = round((1000/rate)*max_latency); 
 
-                    [min_val, min_latency] = nanmin(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial));
+                    [min_val, min_latency] = min(data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial));
                     single_data.var_data_table.trial_min(trial_id)  = min_val;
                     single_data.var_data_table.trial_min_latency(trial_id)  = round((1000/rate)*min_latency);
                     trial_data = data_analyzed.(char(comp_names(comp))).cuted_data(1:min_trial_length, trial);

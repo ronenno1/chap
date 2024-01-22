@@ -17,14 +17,12 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
       
     event_csv_name = [path filesep file_name '_events.csv'];
     if ~exist(event_csv_name, 'file')
-        print_log(strcat('Error (3): events file does not found, please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
+        print_log(strcat('Error (3): The events file was not found. Please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
         return;
     end
 
-    print_log(['Start load and convert ASL file: ' strrep(file_name, '_', '\_') ext], log);
-
+    print_log(['Initiate loading and converting ASL file: ' strrep(file_name, '_', '\_') ext], log);
         
-    print_log(['Start loading and convert csv file: ' strrep(file_name, '_', '\_') ext], log);
     copyfile(full_asl_name,[path filesep file_name '.dat']);
 
     dat_file_name = [path filesep file_name '.dat'];
@@ -42,7 +40,7 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
     data.pupil_x    = raw_data_table.pupil_x;
     data.pupil_y    = raw_data_table.pupil_y;
 
-    print_log('Start loading pupil data', log);    
+    print_log('Initiate pupil data loading', log);    
 
     data.rate = 60;
 
@@ -60,14 +58,14 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
         end
     catch
     
-        print_log('Error (4): incompetible file, please check your file', log);    
+        print_log('Error (4): Incompatible file, please check your file', log);    
         return;
     end
         
     event_msgs        = mes_data_table.message;
     event_timestamps  = mes_data_table.times';
 
-    print_log(['Finished loading messages: ' num2str(toc) ' seconds'], log);    
+    print_log(['Loading messages has been completed: ' num2str(toc) ' seconds'], log);    
 
     %%  Get gase's information & timestamps
     tic;
@@ -77,7 +75,7 @@ function output = asl2matlab(full_asl_name, output_folder_name, log, events2, va
     
     trial_ids = find(~cellfun(@isempty, strfind(event_msgs,'TRIALID'))); %trial is defined by message with the form TRIALID [num_of_trial]
     if(isempty(trial_ids))
-        print_log('Error: trials did not found', log);
+        print_log('Error: Trials were not found', log);
         return;
     end
     trial_data.trial_names     = cellfun(@(x) str2double(char(regexp(char(x),'\d+','match'))), event_msgs(trial_ids));        

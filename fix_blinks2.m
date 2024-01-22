@@ -21,8 +21,8 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
     end
     
     pupil_data(pupil_data==0)=nan;    
-    pupil_mean = nanmean(pupil_data);
-    pupil_std = nanstd(pupil_data);
+    pupil_mean = mean(pupil_data, 'omitnan');
+    pupil_std = std(pupil_data, 'omitnan');
     opd = pupil_data;
     if(Zoutliers>0)
         maxpupil2remove = Zoutliers*pupil_std+pupil_mean;
@@ -100,8 +100,8 @@ function [pupil_data, blinks_data_positions] = fix_blinks2(pupil_data, Zoutliers
     pupil_data2(pupil_data2==0)=nan;
     diff_data2 = diff(pupil_data2);
 
-    diff_mean = mean(diff_data);
-    diff_std  = nanstd(diff_data);
+    diff_mean = mean(diff_data, 'omitnan');
+    diff_std  = std(diff_data, 'omitnan');
     
 %     gradient    = diff_mean+gradient_crit*diff_std;
     blinks_data = -1.*(diff_data <=-gradient) + (diff_data >=gradient);

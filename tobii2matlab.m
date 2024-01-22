@@ -15,10 +15,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
         return;
     end
       
-    print_log(['Start load and convert TOBII file: ' strrep(file_name, '_', '\_') ext], log);
-
-        
-    print_log(['Start loading and convert tbi file: ' strrep(file_name, '_', '\_') ext], log);
+    print_log(['Initiate loading and converting TOBII file: ' strrep(file_name, '_', '\_') ext], log);
   
     dat_file_name = [path filesep file_name '.dat'];
 
@@ -55,7 +52,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
 
     data.pupil_x = data.pupil_size;
     data.pupil_y = data.pupil_size;
-    print_log('Start loading pupil data', log);  
+    print_log('Initiate pupil data loading', log);  
     
     timestamps = data.timestamps;
     data.rate = 0;
@@ -75,7 +72,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     tic;
     event_csv_name = [path filesep file_name '_events.csv'];
     if ~exist(event_csv_name, 'file')
-        print_log(strcat('Error (3): events file does not found, please add: ', strcat(file_name, '_events.csv'), ' to ', path), log);    
+        print_log(strcat('Error (3): The events file was not found, please add: ', strcat(file_name, '_events.csv'), ' to ', path), log);    
         return;
     end
 
@@ -86,7 +83,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
             mes_data_table = readtable(event_csv_name, 'Delimiter', ',');
         end     
     catch
-        print_log('Error (4): incompetible file, please check your file', log);    
+        print_log('Error (4): Incompatible file, please check your file', log);    
         return;
     end
     event_msgs        = mes_data_table.Event;
@@ -94,7 +91,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
 
     trial_ids = find(~cellfun(@isempty, strfind(event_msgs,'TRIALID'))); %trial is defined by message with the form TRIALID [num_of_trial]
     if(isempty(trial_ids))
-        print_log('Error: trials did not found', log);
+        print_log('Error: Trials were not found', log);
         return;
     end
     trial_data.trial_names     = cellfun(@(x) str2double(char(regexp(char(x),'\d+','match'))), event_msgs(trial_ids));        
@@ -106,7 +103,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     trial_data.trial_length    = trial_data.Trial_Offset_num-trial_data.Trial_Onset_num;
     data.trial_data = struct2table(trial_data);
 
-    print_log(['Finished loading messages: ' num2str(toc) ' seconds'], log);    
+    print_log(['Loading messages has been completed: ' num2str(toc) ' seconds'], log);    
 
     %%  Get gase's information & timestamps
     tic;

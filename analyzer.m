@@ -108,7 +108,6 @@ classdef analyzer
                 end
                 [cond_mat_data, cond_events_data, cond_ids, avg_cond_mat, avg_events, outliers, valid_trials] = analyzer.parse_condition(data_mat, comp_name, events_names, id, counter, total_comps, log);
 
-                
                 data.cond_blinks.(comp_name)      = data.blinks_data(cond_ids);
                 data.cond_mat_data.(comp_name)    = cond_mat_data;
                 data.cond_ids.(comp_name)         = cond_ids;
@@ -122,7 +121,7 @@ classdef analyzer
             if (~exist('avg_cond_mat', 'var') || strcmp(log, ''))
                 return;
             end
-            print_log('Finish parsing levels' , log);    
+            print_log('Parsing of all levels has been completed' , log);    
 
         end
         
@@ -133,7 +132,7 @@ classdef analyzer
             trials_data.(comp_name).trials      = trials;
             trials_data.(comp_name).trial_ids   = trial_ids;
             [cond_mat_data, cond_events_data, avg_cond_mat, avg_events, outliers, valid_trials]  = analyzer.get_condition_avgs(cond_mat.(char(comp_name)), trials_data.(char(comp_name)), events_names);
-            print_log(['Levels parsed: ' num2str(round(100*(counter/total_comps))) '%'], log);    
+            print_log(['Levels were parsed: ' num2str(round(100*(counter/total_comps))) '%'], log);    
         end
 
         function [cond_mat_data, cond_events_data, avg_cond_mat, avg_events, outliers, valid_trials] = get_condition_avgs(cond_mat, trials_data, event_names)
@@ -185,7 +184,7 @@ classdef analyzer
             end
             
             avg_events.Trial_Offset   = Trial_Offset/num_of_trials;
-            avg_cond_mat = nanmean(cond_mat_data, 2);
+            avg_cond_mat = mean(cond_mat_data, 2, 'omitnan');
         end
     end
 end

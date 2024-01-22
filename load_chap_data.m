@@ -11,21 +11,21 @@ function output = load_chap_data(compressed_data, log)
   
     %% find trials
     percentages = zeros(1, 10);
-    print_log('Start writing trials', log);    
+    print_log('Initiate trials writing', log);    
 
     data_var.trial_id        = -1*ones(1, size(timestamps, 1));
     
     for i = 1:size(compressed_data.trial_data, 1)
         percentage = round(100*(i/size(compressed_data.trial_data, 1)));
         if percentage>0 && ~mod(percentage, 10) && percentages(percentage/10)==0 
-            print_log(['Trials wrote: ' num2str(percentage) '%'], log);    
+            print_log(['Trials were written': ' num2str(percentage) '%'], log);    
             percentages(percentage/10) = 1;
         end
         data_var.trial_id(compressed_data.trial_data.Trial_Onset_num(i): compressed_data.trial_data.Trial_Offset_num(i)) = i;
     end
     
     %% find variables
-    print_log('Start writing variables', log);    
+    print_log('Initiate variables writing', log);    
     data_table     = compressed_data.total_var_data_table;
     percentages = zeros(1, 10);
 
@@ -44,7 +44,7 @@ function output = load_chap_data(compressed_data, log)
     for trial = 1:size(compressed_data.trial_data, 1)
         percentage = round(100*(trial/size(compressed_data.trial_data, 1)));
         if percentage>0 && ~mod(percentage, 10) && percentages(percentage/10)==0 
-            print_log(['Variables wrote: ' num2str(percentage) '%'], log);    
+            print_log(['Variables were written: ' num2str(percentage) '%'], log);    
             percentages(percentage/10) = 1;
         end
 
@@ -75,6 +75,6 @@ function output = load_chap_data(compressed_data, log)
     output.vars2          = compressed_data.vars2;
     output.file_name      = compressed_data.file_name;
     
-    print_log(['Finished creating table: ' num2str(toc) ' seconds'], log);    
+    print_log(['Table creation has been completed: ' num2str(toc) ' seconds'], log);    
     return;
 end

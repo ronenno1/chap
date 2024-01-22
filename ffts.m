@@ -11,7 +11,7 @@ classdef ffts
         end
         
         function [P1, f] = do_fft(data, Fs)
-            norm_data = data - nanmean(data);
+            norm_data = data - mean(data, 'omitnan');
             norm_data(isnan(norm_data)) = 0;
             for signal=1:size(norm_data, 1)
                 Y(signal, :) = fft(norm_data(signal, :))-1;
@@ -20,7 +20,15 @@ classdef ffts
             P2 = abs(Y/L);
             P1 = P2(:, 1:floor(L/2)+1);
             P1(:, 2:end-1) = 2*P1(:, 2:end-1);
+            %phases
+            P2 = angle(Y/L);
+            P1 = P2(:, 1:floor(L/2)+1);
             f = Fs*(0:(L/2))/L;
+            %all
+            P2 = Y/L;
+            P1 = P2(:, 1:floor(L/2)+1);
+            f = Fs*(0:(L/2))/L;
+
         end
 
         function plot_time(data, t)

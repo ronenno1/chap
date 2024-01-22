@@ -17,11 +17,16 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
       
     event_csv_name = [path filesep file_name '_events.csv'];
     if ~exist(event_csv_name, 'file')
-        print_log(strcat('Error (3): events file does not found, please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
+        print_log(strcat('Error (3): The events file was not found. Please add: ', strrep(strcat(file_name, '_events.csv') ,'_','\_') , ' to ', path), log);    
         return;
     end
 
-    print_log(['Start load and convert TXT file: ' strrep(file_name, '_', '\_') ext], log);
+    print_log(['Initiate loading and converting TXT file: ' strrep(file_name, '_', '\_') ext], log);
+
+    % if ubuntu doesn't supprt python (like in ubuntu 22.04+, fix a problem
+    % with:
+    % cd /full_path_to_matlab_mcrroot/v94/bin/glnxa64
+    % mv libexpat.so.1 libexpat.so.1.NOFIND
 
     loaded = false;
     try
@@ -30,7 +35,11 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
         if ~exist(csv_file_name, 'file')
             [folder, ~, ~] = fileparts(mfilename('fullpath'));
             if isunix
-                system(['python "' folder filesep 'json2csv.py" ', '"', strcat(path, filesep, file_name), '"']);
+                    status = system(['python3 "' folder filesep 'json2csv.py" ', '"', strcat(path, filesep, file_name), '"']);
+                    if status
+                        system(['python "' folder filesep 'json2csv.py" ', '"', strcat(path, filesep, file_name), '"']);
+                    end
+                
             else
                 system(['py "' folder filesep 'json2csv.py" ', '"', strcat(path, filesep, file_name), '"']);
             end
@@ -39,7 +48,7 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
             end
         end
         
-        print_log(['Start loading and convert csv file: ' strrep(file_name, '_', '\_') '.csv'], log);
+        print_log(['Initiate loading and converting csv file: ' strrep(file_name, '_', '\_') '.csv'], log);
         
         if exist('detectImportOptions', 'file')
             raw_data_table = readtable(csv_file_name, detectImportOptions(csv_file_name));
@@ -66,10 +75,10 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     catch
     end        
     if ~loaded
-        print_log('Error: incompetible file (2), please check your file', log);    
+        print_log('Error: Incompatible file (2), please check your file', log);    
         return;
     end
-    print_log('Start loading pupil data', log);  
+    print_log('Initiate pupil data loading', log);  
     try
         timestamps = 86400*(datenum(data.timestamps(:), 'yyyy-mm-dd HH:MM:SS.FFF')- datenum('01-Jan-1970'))';
     catch
@@ -82,7 +91,19 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
         data.rate   = roundn(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), 1);
     end
     
-    [timestamps, data] = parse_data.add_missing_samples(timestamps, data);
+    use_30 = false;
+    if data.rate == 60 && use_30
+        data.pupil_size(2:2:end, :) = []; 
+        data.pupil_y(2:2:end, :)    = []; 
+        data.pupil_x(2:2:end, :)    = []; 
+        data.timestamps(2:2:end, :) = []; 
+        timestamps(:, 2:2:end)      = []; 
+        data.rate                   = 30;
+    end
+    
+    
+
+    [timestamps, data] = parse_data.add_missing_samples(timestamps, data, log);
     
     data.file_name  = full_txt_name;     
     timestamps = timestamps*data.rate;
@@ -97,10 +118,10 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
             mes_data_table = readtable(event_csv_name, 'Delimiter', ',');
         end     
     catch
-        print_log('Error (4): incompetible file, please check your file', log);    
+        print_log('Error (4): Incompatible file, please check your file', log);    
         return;
     end
-    print_log('starting loading messages', log);    
+    print_log('Initiate messages loading', log);    
 
     event_msgs        = mes_data_table.message;
     try
@@ -108,7 +129,7 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     catch
         event_timestamps  = data.rate*86400*(datenum(mes_data_table.timestamp)- datenum('01-Jan-1970'));
     end
-    print_log(['Finished loading messages: ' num2str(toc) ' seconds'], log);    
+    print_log(['Loading messages has been completed: ' num2str(toc) ' seconds'], log);    
 
     %%  Get gase's information & timestamps
     tic;
@@ -118,7 +139,7 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     
     trial_ids = find(~cellfun(@isempty, strfind(event_msgs,'TRIALID'))); %trial is defined by message with the form TRIALID [num_of_trial]
     if(isempty(trial_ids))
-        print_log('Error: trials did not found', log);
+        print_log('Error: Trials were not found', log);
         return;
     end
     trial_data.trial_names     = cellfun(@(x) str2double(char(regexp(char(x),'\d+','match'))), event_msgs(trial_ids));        

@@ -56,19 +56,21 @@ classdef idttest
             end
 
             %% BF10
-            fig = figure('Name', 'idttest');
+            fig      = figure('Name', 'idttest');
+            fig_axes = axes('Parent',fig);
+
             hold off
-            plot(axis, stat_data.BFs, 'DisplayName', '');
+            plot(axis, stat_data.BFs, 'DisplayName', '', 'Parent', fig_axes);
             above_3 = stat_data.BFs;
             above_3(above_3<3) = NaN;
             above_3_g = stat_data.BFs;
             between_3_g = stat_data.BFs;
-            between_3_g(between_3_g>=3 | between_3_g<=1/3) = NaN;
+%             between_3_g(between_3_g>=3 | between_3_g<=1/3) = NaN; % It is not necessary to remove these values since it will be presented in a different color
 
             above_3_g(above_3_g<3 & above_3_g>1/3) = NaN;
             
             hold on
-            plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', '');
+            plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', '', 'Parent', fig_axes);
             xtickformat('%,.4g');
             title(condition_str);
             xlabel('Time [ms]', 'FontWeight','bold');
@@ -82,21 +84,21 @@ classdef idttest
             range = max_val-min_val;
 
             ylim([0, max_val+0.1*range] )
-
+            
             output.save_figure2(get(fig,'Children'), [output_folder_name, filesep, condition_str '_bfs10.png']);
             output.save_figure2(get(fig,'Children'), [output_folder_name, filesep, condition_str '_bfs10.fig']);
 
 
             hold off
             %% BF01
-            plot(axis, 1./stat_data.BFs, 'DisplayName', '');
+            plot(axis, 1./stat_data.BFs, 'DisplayName', '', 'Parent', fig_axes);
 
             above_3 = 1./stat_data.BFs;
             above_3(above_3<3) = NaN;
 
             hold on
 
-            plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', '');
+            plot(axis, above_3,  'Color', [1, 0, 0], 'DisplayName', '', 'Parent', fig_axes);
 
             xtickformat('%,.4g');
             title(condition_str);
@@ -118,26 +120,26 @@ classdef idttest
 
             hold off
             %% All data
-            avg1 = nanmean(full_data1);
-            avg2 = nanmean(full_data2);
+            avg1 = mean(full_data1, 'omitnan');
+            avg2 = mean(full_data2, 'omitnan');
 
             x = axis(1:min_axis)';
             d = avg1(1:min_axis)';
-            scattering_data1 = nanstd(full_data1)./(size(full_data1,1).^0.5);
+            scattering_data1 = std(full_data1, 'omitnan')./(size(full_data1,1).^0.5);
             scattering_data1 = scattering_data1(1:min_axis)';
             h = fill([x;flipud(x)],[d-scattering_data1;flipud(d+scattering_data1)], [1, 0, 0], 'LineStyle', '-', 'EdgeColor', [1, 0, 0], 'HandleVisibility', 'off');
             set(h,'facealpha',.2)
 
             hold on
             d = avg2(1:min_axis)';
-            scattering_data2 = nanstd(full_data2)./(size(full_data2,1).^0.5);
+            scattering_data2 = std(full_data2, 'omitnan')./(size(full_data2,1).^0.5);
             scattering_data2 = scattering_data2(1:min_axis)';
             h = fill([x;flipud(x)],[d-scattering_data2;flipud(d+scattering_data2)], [0, 1, 0], 'LineStyle', '-', 'EdgeColor', [0, 1, 0], 'HandleVisibility','off');
             set(h,'facealpha',.2)
 
-            a = plot(axis(1:min_axis), avg1(1:min_axis),  'Color', [1, 0, 0], 'DisplayName', first_name);
+            a = plot(axis(1:min_axis), avg1(1:min_axis),  'Color', [1, 0, 0], 'DisplayName', first_name, 'Parent', fig_axes);
 
-            b = plot(axis(1:min_axis), avg2(1:min_axis),  'Color', [0, 1, 0], 'DisplayName', second_name);
+            b = plot(axis(1:min_axis), avg2(1:min_axis),  'Color', [0, 1, 0], 'DisplayName', second_name, 'Parent', fig_axes);
 
             %% stat
 
@@ -154,14 +156,14 @@ classdef idttest
             BF10(BF10<3) = NaN;
             BF10(~isnan(BF10)) = line_pos;
 
-            plot(axis(1:min_axis), BF10(1:min_axis), 'Color', [.75, .75, .75], 'LineWidth', 2, 'DisplayName', '');
+            plot(axis(1:min_axis), BF10(1:min_axis), 'Color', [.75, .75, .75], 'LineWidth', 2, 'DisplayName', '', 'Parent', fig_axes);
 
 
             BF01 = 1./stat_data.BFs;
             BF01(BF01<3) = NaN;
             BF01(~isnan(BF01)) = line_pos;
 
-            plot(axis(1:min_axis), BF01(1:min_axis), 'Color', [0, 0, 0], 'LineWidth', 2, 'DisplayName', '');
+            plot(axis(1:min_axis), BF01(1:min_axis), 'Color', [0, 0, 0], 'LineWidth', 2, 'DisplayName', '', 'Parent', fig_axes);
 
             % legend([a, b], {'Task', 'Ctrl'}, 'Location', 'Best');
 
@@ -185,10 +187,11 @@ classdef idttest
             close(fig);
 
             fig = figure('Name', 'idttest');
+            fig_axes = axes('Parent',fig);
 
-            plot(axis(1:min_axis), log10(between_3_g(1:min_axis)), 'Color', [0, 0, 1], 'LineWidth', 2, 'DisplayName', '');
+            plot(axis(1:min_axis), log10(between_3_g(1:min_axis)), 'Color', [0, 0, 1], 'LineWidth', 2, 'DisplayName', '', 'Parent', fig_axes);
             hold on
-            plot(axis(1:min_axis), log10(above_3_g(1:min_axis)),  'Color', [1, 0, 0], 'LineWidth', 2, 'DisplayName', '');
+            plot(axis(1:min_axis), log10(above_3_g(1:min_axis)),  'Color', [1, 0, 0], 'LineWidth', 2, 'DisplayName', '', 'Parent', fig_axes);
 
           
             fig_data = get(fig, 'children');
@@ -208,14 +211,14 @@ classdef idttest
             
             high_threshold = ones(min_axis, 1) * log10(3);
 
-            plot(axis(1:min_axis), high_threshold, '--' , 'color', [0, 0, 0],  'LineWidth', 2);
+            plot(axis(1:min_axis), high_threshold, '--' , 'color', [0, 0, 0],  'LineWidth', 2, 'Parent', fig_axes);
 
             low_threshold = ones(min_axis, 1) * log10(1/3);
 
-            plot(axis(1:min_axis), low_threshold, '--' , 'color', [0, 0, 0],  'LineWidth', 2);
+            plot(axis(1:min_axis), low_threshold, '--' , 'color', [0, 0, 0],  'LineWidth', 2, 'Parent', fig_axes);
             
             
-            plot(axis(1:min_axis), ones(min_axis, 1)*log10(1), '--' , 'color', [0.75, 0.75, 0.75],  'LineWidth', 2);
+            plot(axis(1:min_axis), ones(min_axis, 1)*log10(1), '--' , 'color', [0.75, 0.75, 0.75],  'LineWidth', 2, 'Parent', fig_axes);
 
 
             
@@ -279,57 +282,10 @@ classdef idttest
             else
                 total = group_all_data.(full_condition_names{required_condition}).data(:, 1:min_length);
             end
-%             total = group_all_data.(full_condition_names{1}).data(:, 1:min_length)-group_all_data.(full_condition_names{2}).data(:, 1:min_length);
 
             data = total./length(required_condition);
             axis = group_all_data.x_axis;    
         end
-        
-        
-        % function [t, bf, N, sd, pes, p_value] = ttest_and_bf(data1, data2, independent)
-%     [t, sd, N, v] = my_ttest(data1, data2, independent);
-%     if t == Inf || isnan(t)
-%         t       = NaN;
-%         bf      = NaN;
-%         pes     = NaN;
-%         p_value = NaN;
-%         return;
-%     end
-%     r   = 0.707;
-%     a   = (1+(t^2)/v)^-((v+1)/2);
-%     fun = @(g) ((1+N*g*(r^2)).^(-1/2)) .* ((1+(t.^2)./((1+N.*g*(r^2)).*v)).^-((v+1)./2)) .* ((2.*pi).^(-1/2)) .* (g.^(-3/2)) .* exp(-1./(2.*g));
-%     b   = integral(fun, 0, inf);
-%     
-%     bf      = b/a;
-%     pes     = t^2/(t^2 + v);
-%     p_value = 1-fcdf(t^2, 1, v);
-% end
-
-% function [t, sd, N, v] = my_ttest(data1, data2 , independent)
-% 
-%    if ~independent
-%        data = data1- data2; 
-%        d  = nanmean(data);
-%        sd = nanstd(data);
-%        N = sum(~isnan(data), 1);
-%        se = sd/(N^0.5);
-%        t = d/se;
-%        v = N-1;
-%         return;
-%    end
-%    sd = -1;
-%    d1 = nanmean(data1);
-%    d2 = nanmean(data2);
-%    ss = sum((d1-data1).^2) + sum((d2-data2).^2);
-%    n1 = sum(~isnan(data1), 1);
-%    n2 = sum(~isnan(data2), 1);
-%    N  = n1*n2/(n1+n2);
-%    v  = n1 + n2 - 2;
-%    s2 = ss/v;
-%    t  = (d1-d2)/(sqrt((s2/n1) + (s2/n2)));
-% end
-
-
 
     end
 end

@@ -104,7 +104,7 @@ classdef ploter2
                 if~isfield(cond_mat_data, cond_name)
                     continue;
                 end
-                if ~isnan(nanmean(nanmean(cond_mat_data.(cond_name)))) 
+                if ~isnan(mean(mean(cond_mat_data.(cond_name), 'omitnan'), 'omitnan')) 
                     valid_comp_id = valid_comp_id +1;
                     valid_comps{valid_comp_id, :} = cond_name;
                 end
@@ -134,7 +134,7 @@ classdef ploter2
                     if(start_from<=0)
                         continue;
                     end
-                    baseline_data = nanmean(trial_full_data(max(1, start_from-baseline_samples+1):start_from));
+                    baseline_data = mean(trial_full_data(max(1, start_from-baseline_samples+1):start_from), 'omitnan');
                     if(start_from && start_from-pre_event_samples<=0)
                         continue;
                     end
@@ -169,8 +169,8 @@ classdef ploter2
                 cuted_data(pre_event_samples+1) = cuted_data(pre_event_samples+1) + 0.001;
                 cuted_data(cuted_data==0)=nan;
                 cuted_data(pre_event_samples+1) = cuted_data(pre_event_samples+1) - 0.001;
-                avg_cond_mat = nanmean(cuted_data, 2);
-                std_cond_mat = nanstd(cuted_data')';
+                avg_cond_mat = mean(cuted_data, 2, 'omitnan');
+                std_cond_mat = std(cuted_data', 'omitnan')';
                 num_of_trials = size(cuted_data, 2);
 
                 % remove this condition in case of one trial
@@ -243,7 +243,7 @@ classdef ploter2
                             ciWidth(ind) = sortedVec(ind + ciIdx) - sortedVec(ind);
                         end
 
-                        [~,idxMin] = nanmin(ciWidth);
+                        [~,idxMin] = min(ciWidth);
                         HDImin(s, :) = sortedVec(idxMin);
                         HDImax(s, :) = sortedVec(idxMin + ciIdx);
                     catch
@@ -342,11 +342,16 @@ classdef ploter2
                     continue;
                 end
                 events    = cond_events_data.(cond_name);
+                all_events    = events*ms;
+
                 outlier_trials = find(isnan(min(ploted_data.(char(cond_name)).cuted_data)));
                 events(:, outlier_trials) = [];
                 evant_avg = mean(events, 2);
-                
+                cond_events = events;
+                cond_events_ms = ms*cond_events;
                 for e = events_id_to_show  
+                    ploted_data.(cond_name).all_events(e, :) = all_events(e, :);
+
                     event_time = evant_avg(e);
                     if(relative)
                         event_time = event_time-evant_avg(first_event);

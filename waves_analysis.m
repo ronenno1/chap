@@ -156,8 +156,8 @@ classdef waves_analysis
                         local_fs(trial, :) = f;
                     end
                     
-                    file_ps(file, :) = nanmean(local_ps)';
-                    file_fs(file, :) = nanmean(local_fs)';
+                    file_ps(file, :) = mean(local_ps, 'omitnan')';
+                    file_fs(file, :) = mean(local_fs, 'omitnan')';
                 end
                 ps{condition} = file_ps;
                 fs{condition} = file_fs;

@@ -46,7 +46,7 @@ classdef read_data
                 return;
             end
             data = read_data.parse_data(full_data_mat, log);
-            print_log([strrep(file_name, '_', '\_') ' successfully load! ' num2str(toc(start)) ' seconds'], log);    
+            print_log([strrep(file_name, '_', '\_') ' Loaded successfully! ' num2str(toc(start)) ' seconds'], log);    
         end
 
         function data = parse_data(full_data_mat, log)
@@ -75,7 +75,8 @@ classdef read_data
             vars = vars(~ismember(vars, buildin_var));
             conds_data = [];
             index      = 0;
-            print_log('Start loading condition''s levels', log);    
+            print_log('Initiate condition''s levels loading', log);    
+            
             for var=vars
                 index    = index + 1;
                 var_name = char(var);
@@ -93,9 +94,9 @@ classdef read_data
                 temp_arr(1:size(conds,1),end) = conds;
                 conds_data = temp_arr;
                 percentage = round(100*(index/size(vars,2)));
-                print_log(['Levels loaded: ' num2str(percentage) '%'], log);    
+                print_log(['Levels were loaded: ' num2str(percentage) '%'], log);    
             end
-            print_log(['Finished loading levels of variables: ' num2str(toc) ' seconds'], log);    
+            print_log(['Loading of all variable levels has been completed: ' num2str(toc) ' seconds'], log);    
         end
     end
 end

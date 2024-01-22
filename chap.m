@@ -13,18 +13,20 @@ end
 function add_main_buttons(Figure_h)
     log = text(10, 420, '', 'HorizontalAlignment', 'left', 'Color', [1 1 1], 'FontWeight', 'bold');
     
-    text(22, 390, 'For questions contact: ronenhe@post.bgu.ac.il | noga.cohen@edu.haifa.ac.il', 'HorizontalAlignment', 'left', 'Color', [1 1 1], 'FontSize', 8, 'FontWeight', 'bold');
+    text(22, 390, 'For questions contact: Ronen.Hershman@uibk.ac.at | noga.cohen@edu.haifa.ac.il', 'HorizontalAlignment', 'left', 'Color', [1 1 1], 'FontSize', 8, 'FontWeight', 'bold');
 
     gui_lib.uicontrol_button(Figure_h, [22 332 195 40], 'New project', {@read_raw_file, log});
     gui_lib.uicontrol_button(Figure_h, [22 280 195 40], 'Open existing project', {@read_chap, log});
     gui_lib.uicontrol_button(Figure_h, [22 228 195 40], 'Between groups analysis', {@do_idttest, log});
     gui_lib.uicontrol_button(Figure_h, [22 176 195 40], 'Merge multiple chp files', {@do_merge_chps, log});
     gui_lib.uicontrol_button(Figure_h, [22 124 195 40], 'Waves analysis', {@do_waves_analysis, log});
+    
+    gui_lib.uicontrol_button(Figure_h, [228 332 195 40], 'Blinks analysis', {@do_blinks_analysis, log});
 
 %     gui_lib.uicontrol_button(Figure_h, [228 332 195 40], 'Convert EDF to Matlab', {@quickEdf2mat, log});    
-    gui_lib.uicontrol_button(Figure_h, [228 332 195 40], 'About', @about);    
+    gui_lib.uicontrol_button(Figure_h, [128 65 90 30], 'About', @about);    
 
-    gui_lib.uicontrol_button(Figure_h, [22 65 125 30], 'Exit', @exit);    
+    gui_lib.uicontrol_button(Figure_h, [22 65 90 30], 'Exit', @exit);    
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,6 +72,13 @@ end
 % end
 
 
+function do_blinks_analysis(src, ~, log)
+
+
+    blinks_analysis.run_blinks_analysis()    
+end
+
+
 function do_waves_analysis(~, ~, ~)
     waves_analysis.run_waves_analysis()    
 end
@@ -98,7 +107,7 @@ function read_chap(src, evnt, log) % read edf file and convert it to mat file
     data      = read_data.parse_data(chap_data, log);
     
     guidata(src, data);
-    print_log([strrep(chap_file_name, '_', '\_') ' successfully load! ' num2str(toc(start)) ' seconds'], log);    
+    print_log([strrep(chap_file_name, '_', '\_') ' was loaded successfully! ' num2str(toc(start)) ' seconds'], log);    
     process_window(src, evnt, log);
 end
 
@@ -113,7 +122,7 @@ end
 function process_window (src, ~, log)
     data = guidata(src);
     if isempty(data)
-        print_log('data not found', log);    
+        print_log('Data was not found', log);    
         return
     end
     conds_data = data.conds_data;
@@ -128,7 +137,7 @@ function process_window (src, ~, log)
     handler = view_user_vars(figure, conds_data, vars);
     
     if(isempty(handler))
-        print_log('variables not found', log);    
+        print_log('variables were not found', log);    
         close(findobj('type','figure','name','CHAP - Data Pre-Processing'))
         return;
     end
@@ -147,7 +156,7 @@ function start_analyze(src, ~, data, handler, log)
     
     data = analyze_data(data, data.configuration.min_trials_val, data.configuration.ZOutliers_val, data.configuration.ZeroshNumber_val, [], log);
     if isempty(data) || ~isfield(data, 'cond_mat_cleaned')
-        print_log('Error: please select variables', log);    
+        print_log('Error: Please select variables', log);    
         return
     end
     
@@ -161,7 +170,7 @@ function do_analyze(data, fig, src, log, log_a)
 
     data.configuration = get_analyze_vals(data.configuration);
     analyzed_data      = reload_graph(data, data.configuration, fig);
-    error_msg = 'Wrong range (too many samples before the first event)';
+    error_msg = 'A wrong range: (too many samples before the first event)';
     if (isfield(analyzed_data, 'wrong_range'))
         print_log('Error: ', log_a);   
         print_log(error_msg, log);    
@@ -178,8 +187,8 @@ function data = analyze_data(data, min_trials, z_outliers, zeros_outliers, comp_
     [data_mat, blinks_data] = fix_all_blinks(data, z_outliers, zeros_outliers, log);
     data_mat.pupil(data_mat.pupil==0) = nan;    
     data.blinks_data = blinks_data;
-    data.data_mean  = nanmean(data_mat.pupil);
-    data.data_std   = nanstd(data_mat.pupil);
+    data.data_mean  = mean(data_mat.pupil, 'omitnan');
+    data.data_std   = std(data_mat.pupil, 'omitnan');
     data.min_trials = min_trials;
 
     var_handler  = data.var_handler; % data about handlers - what user choose
@@ -192,7 +201,7 @@ function data = analyze_data(data, min_trials, z_outliers, zeros_outliers, comp_
     end
     cond_names  = fieldnames(conds);
     comp_nums   = analyzer.make_comps(conds); % return index variables for all the posible comparations
-    print_log('Start parsing levels', log);  
+    print_log('Initiate levels parsing', log);  
     data = analyzer.analyze_all(data, data_mat, cond_names, comp_nums, conds, event_names, comp_names, log);
 end
 
@@ -216,11 +225,11 @@ function [data_mat, blinks_data] = fix_all_blinks(data, z_outliers, zeros_outlie
     gradient_crit = 4;
     nan_data = data_mat.pupil_size(:,eye);
     nan_data(nan_data==0)=nan; 
-%     total_mean = nanmean(nan_data);
-%     total_std = nanstd(nan_data);
+%     total_mean = mean(nan_data, 'omitnan');
+%     total_std = std(nan_data, 'omitnan');
     diff_data = diff(nan_data);
-    diff_mean = nanmean(diff_data);
-    diff_std  = nanstd(diff_data);
+    diff_mean = mean(diff_data, 'omitnan');
+    diff_std  = std(diff_data, 'omitnan');
     
     gradient    = diff_mean+gradient_crit*diff_std;
         
@@ -232,7 +241,7 @@ function [data_mat, blinks_data] = fix_all_blinks(data, z_outliers, zeros_outlie
     [trials, trial_ids] = unique(data_mat.trial_id);
     
     percentages = zeros(1, 10);
-    print_log('Start blinks fixing', log);
+    print_log('Initiate blinks fixing', log);
     blinks_data = cell(size(trials));
 
     for trial=1:size(trials, 1)
@@ -240,7 +249,7 @@ function [data_mat, blinks_data] = fix_all_blinks(data, z_outliers, zeros_outlie
         % logger
         percentage = round(100*(trial/size(trials,1)));
         if percentage>0 && ~mod(percentage, 10) && percentages(percentage/10)==0 
-            print_log(['Blinks fixed: ' num2str(percentage) '%'], log);    
+            print_log(['Blinks were fixed: ' num2str(percentage) '%'], log);    
             percentages(percentage/10) = 1;
         end
         % logger end
@@ -364,7 +373,7 @@ function data = show_analyze_window(src, cond_mat_cleaned, cond_events, data)
         data_table(i,:) = [outliers.(char(comp_names(i))) num_of_valid_trials int32(my_struct2array(ploted_data.(char(comp_names(i))).events))];
         if(num_of_valid_trials<data.min_trials)
             print_log('Error: ', log_a);   
-            print_log('not enough trials', log);    
+            print_log('There are no enough trials', log);    
             data.fail = true;
         end
     end
@@ -391,7 +400,7 @@ function do_group(src, fig, log, log_a, res_table)
     end
     if(isempty(files))
         print_log('Error:', log_a);    
-        print_log('files not found', log);    
+        print_log('Files were not found', log);    
         return;
     end
     configuration = data.configuration;
@@ -406,7 +415,7 @@ function do_group(src, fig, log, log_a, res_table)
     end
     if size(files, 1)<2
         print_log('Error:', log_a);    
-        print_log('You need at least 2 files for group analysis', log);    
+        print_log('At least 2 files are required for group analysis', log);    
         return;
     end
 
@@ -417,7 +426,7 @@ function do_group(src, fig, log, log_a, res_table)
         return;
     end
 
-    print_log('Combine all the data...', log);    
+    print_log('Combining all data...', log);    
     [total_data, comp_names_fixed] = grouper.do_plot(total_data, configuration, data.rate, fig);
     
     header  = fieldnames(total_data.(char(comp_names(1))).events)';
@@ -478,22 +487,22 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
     %% load data from previous analysis (in case it will be required to use it) 
     if ~overwrite
         if exist(strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'), 'file')
-            old_behave_table = readtable(strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'));
+            old_behave_table = readtable(strcat(paths.behave_output_folder_name, filesep, 'time-course_data.csv'), 'Delimiter', ',');
         end
         if exist(strcat(paths.behave_output_folder_name, filesep, 'outliers.csv'), 'file')
-            old_fail_behave_table = readtable(strcat(paths.behave_output_folder_name, filesep, 'outliers.csv'));
+            old_fail_behave_table = readtable(strcat(paths.behave_output_folder_name, filesep, 'outliers.csv'), 'Delimiter', ',');
         end
         
         if exist(strcat(paths.csv_output_folder_name, filesep, 'trials_data.csv'), 'file')
-            old_var_data_table = readtable(strcat(paths.csv_output_folder_name, filesep, 'trials_data.csv'));
+            old_var_data_table = readtable(strcat(paths.csv_output_folder_name, filesep, 'trials_data.csv'), 'Delimiter', ',');
         end
         
         if exist(strcat(paths.csv_output_folder_name, filesep, 'outliers.csv'), 'file')
-            old_outliers = readtable(strcat(paths.csv_output_folder_name, filesep, 'outliers.csv'));
+            old_outliers = readtable(strcat(paths.csv_output_folder_name, filesep, 'outliers.csv'), 'Delimiter', ',');
         end
         
         if exist(strcat(paths.csv_output_folder_name, filesep, 'valid_trials.csv'), 'file')
-            old_valid_trials = readtable(strcat(paths.csv_output_folder_name, filesep, 'valid_trials.csv'));
+            old_valid_trials = readtable(strcat(paths.csv_output_folder_name, filesep, 'valid_trials.csv'), 'Delimiter', ',');
         end
     end
     
@@ -510,7 +519,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
     updated = false;
     for i = 1:num_of_files
         print_log([num2str(i) '/' num2str(num_of_files) ':'], log_a);
-        print_log(['Loading: ' char(files(i)) ], log);
+        print_log(['Loading: ' strrep(char(files(i)),  '_', '\_') ], log);
         [~, file_name, ~] = fileparts(char(files(i)));
         
         skip_me = ~overwrite && (exist([paths.mat_output_folder_name filesep file_name '.mat'], 'file') || exist([paths.mat_output_folder_name_err filesep file_name '.mat'], 'file'));
@@ -539,22 +548,22 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         end
         single_data             = analyze_data(single_data, configuration.min_trials_val, configuration.ZOutliers_val, configuration.ZeroshNumber_val, comp_names, log);
         if isempty(single_data)
-            print_log(['Error: wrong file: ' char(files(i)) ': '], log);    
+            print_log(['Error: A wrong file: ', strrep(char(files(i)),  '_', '\_') ': '], log);    
             return;
         end
         if(single_data.rate~=data.rate)
-            print_log(['Error: wrong smapling rate: ' char(files(i)) ': '], log);    
+            print_log(['Error: A wrong smapling rate: ', strrep(char(files(i)),  '_', '\_'), ': '], log);    
             continue;
         end
         skip = false;
         if(~isfield(single_data, 'cond_mat_data'))
-           print_log(['Error: no data: ' char(files(i)) ': '], log);    
+           print_log(['Error: No data: ', strrep(char(files(i)),  '_', '\_') ': '], log);    
            continue;
         end
 
         for comp = 1:size(comp_names, 1)
             if(~isfield(single_data.cond_mat_data, char(comp_names(comp))))
-               print_log(['Error: no data for ' char(comp_names(comp))  ': ' char(files(i)) ': '], log);    
+               print_log(['Error: No data for ', strrep(char(comp_names(comp)),  '_', '\_'),  ': ' char(files(i)) ': '], log);    
                 skip = true;
              end
         end
@@ -564,7 +573,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         cond_ids            = single_data.cond_ids;     
         [ploted_data, ~]    = ploter2.draw_graph(single_data.cond_mat_data, single_data.cond_events_data, single_data.cond_blinks, comp_names, single_data.rate, fig, single_data.data_mean, single_data.data_std, data.configuration, char(files(i)));
        	if(isfield(ploted_data, 'wrong_range'))
-           print_log(['Error: wrong_range: ' char(files(i)) ': '], log);    
+           print_log(['Error: A wrong range: ', strrep(char(files(i)),  '_', '\_'), ': '], log);    
             continue;
         end
         drawnow
@@ -620,7 +629,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
             output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name_err filesep file_name '.png']);
             output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name_err filesep file_name '.fig']);
             print_log('Error:', log_a);
-            print_log('not enough trials', log);    
+            print_log('There are no enough trials', log);    
             save([paths.mat_output_folder_name_err filesep file_name], 'ploted_data');
         else
             output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name filesep file_name '.png']);
@@ -691,17 +700,17 @@ function data = process_file(full_name, output_folder_name, log, events2, vars2)
             file = load(chap_file_name, '-mat');
             full_data_mat = file.data;    
 
-        elseif strcmp(ext, '.edf')
+        elseif strcmp(lower(ext), '.edf')
             full_data_mat = edf2matlab2(full_name, output_folder_name, log, events2, vars2);
-        elseif strcmp(ext, '.txt')
+        elseif strcmp(lower(ext), '.txt')
             full_data_mat  = etTxt2matlab(full_name, output_folder_name, log, events2, vars2);
-        elseif strcmp(ext, '.asl')
+        elseif strcmp(lower(ext), '.asl')
             full_data_mat  = asl2matlab(full_name, output_folder_name, log, events2, vars2);
-        elseif strcmp(ext, '.tbi')
+        elseif strcmp(lower(ext), '.tbi')
             full_data_mat  = tobii2matlab(full_name, output_folder_name, log, events2, vars2);
-        elseif strcmp(ext, '.plsd')
+        elseif strcmp(lower(ext), '.plsd')
             full_data_mat  = plsd2matlab(full_name, output_folder_name, log, events2, vars2);
-        elseif strcmp(ext, '.dat') 
+        elseif strcmp(lower(ext), '.dat') 
             full_data_mat = dat2matlab(full_name, output_folder_name, log, events2, vars2);
         end
         if(isempty(full_data_mat))

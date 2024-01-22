@@ -434,8 +434,8 @@ classdef stat
         
         function [t, sd, N, v] = my_ttest(data1, data2)
            data = data1- data2; 
-           d  = nanmean(data);
-           sd = nanstd(data);
+           d  = mean(data, 'omitnan');
+           sd = std(data, 'omitnan');
            N = sum(~isnan(data), 1);
            se = sd/(N^0.5);
            t = d/se;
@@ -444,8 +444,8 @@ classdef stat
         
         function [t, sd, N, v] = my_independent_ttest(data1, data2)
            sd = -1;
-           d1 = nanmean(data1);
-           d2 = nanmean(data2);
+           d1 = mean(data1, 'omitnan');
+           d2 = mean(data2, 'omitnan');
            ss = sum((d1-data1).^2) + sum((d2-data2).^2);
            n1 = sum(~isnan(data1), 1);
            n2 = sum(~isnan(data2), 1);
@@ -490,14 +490,14 @@ classdef stat
         function [sse, ssa, sst, sss] = calc_ss(avgs_table_mat)
             num_of_subjects   = size(avgs_table_mat, 1);
             num_of_conditions = size(avgs_table_mat, 2);
-            means_conditions = nanmean(avgs_table_mat);
-            grand_total      = nanmean(means_conditions);
+            means_conditions = mean(avgs_table_mat, 'omitnan');
+            grand_total      = mean(means_conditions, 'omitnan');
             extended_means_table = repmat(grand_total, 1, num_of_conditions);
             diff_conds           = means_conditions-extended_means_table;
             diff_squere          = diff_conds.*diff_conds;
             
             ssa = sum(sum(diff_squere))*size(avgs_table_mat, 1);
-            means_subjects = nanmean(avgs_table_mat, 2);
+            means_subjects = mean(avgs_table_mat, 2, 'omitnan');
             extended_means_table = repmat(grand_total, num_of_subjects, 1);
 
             diff_subs = means_subjects-extended_means_table;
@@ -585,22 +585,22 @@ classdef stat
             
             for comp = 1:size(comp_names, 1)
                 full_data = total_data.(char(comp_names(comp))).data;
-                avgs.(char(comp_names(comp))) = nanmean(full_data(:, from_ana:to_ana), 2);
+                avgs.(char(comp_names(comp))) = mean(full_data(:, from_ana:to_ana), 2, 'omitnan');
                 if strcmp(measure,'peak') || strcmp(measure,'peak latency')
-                    [val, pos]= nanmax(full_data(:, from_ana:to_ana)');
+                    [val, pos]= max(full_data(:, from_ana:to_ana)');
 
                     if strcmp(measure,'peak')
                         avgs.(char(comp_names(comp))) = val';
                     else
-                        avgs.(char(comp_names(comp))) = configuration.x_axis(from_ana+pos)';
+                        avgs.(char(comp_names(comp))) = configuration.x_axis(from_ana+pos-1)';
                     end
                 elseif strcmp(measure,'dip') || strcmp(measure,'dip latency')
-                    [val, pos]= nanmin(full_data(:, from_ana:to_ana)');
+                    [val, pos]= min(full_data(:, from_ana:to_ana)');
 
                     if strcmp(measure,'dip')
                         avgs.(char(comp_names(comp))) = val';
                     else
-                        avgs.(char(comp_names(comp))) = configuration.x_axis(from_ana+pos)';
+                        avgs.(char(comp_names(comp))) = configuration.x_axis(from_ana+pos-1)';
                     end
                 end
             end
@@ -619,8 +619,8 @@ classdef stat
 
             
             % descriptive
-            means_conditions = nanmean(avgs_table_mat, 1);
-            stds_conditions  = nanstd(avgs_table_mat);
+            means_conditions = mean(avgs_table_mat, 1, 'omitnan');
+            stds_conditions  = std(avgs_table_mat, 'omitnan');
             stes_conditions  = stds_conditions/sqrt(num_of_subjects);
             ts = tinv(0.975, num_of_subjects-1)*stes_conditions;
             CI_lower = means_conditions-ts;
@@ -769,8 +769,6 @@ classdef stat
                         stat_data.contrasts.pValues.(char(['contrast_' num2str(contrast)]))(:, sample)  = pvalue;
                         stat_data.contrasts.BFs.(['contrast_' num2str(contrast)])(:, sample)      = bf;
 
-                        mean_diff = nanmean(data1)-nanmean(data2); 
-                        mean_std = nanmean(nanstd(data1)^2-nanstd(data2)^2); 
                         stat_data.contrasts.pes.(['contrast_' num2str(contrast)])(:, sample)      = pes;
                     end
                     pValues = stat_data.contrasts.pValues.(['contrast_' num2str(contrast)]);
