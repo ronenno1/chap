@@ -18,7 +18,7 @@ function output = load_chap_data(compressed_data, log)
     for i = 1:size(compressed_data.trial_data, 1)
         percentage = round(100*(i/size(compressed_data.trial_data, 1)));
         if percentage>0 && ~mod(percentage, 10) && percentages(percentage/10)==0 
-            print_log(['Trials were written': ' num2str(percentage) '%'], log);    
+            print_log(['Trials were written: ' num2str(percentage) '%'], log);    
             percentages(percentage/10) = 1;
         end
         data_var.trial_id(compressed_data.trial_data.Trial_Onset_num(i): compressed_data.trial_data.Trial_Offset_num(i)) = i;
