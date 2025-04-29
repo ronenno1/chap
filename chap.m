@@ -6,13 +6,16 @@ function chap()
     if(isempty(find(~cellfun(@isempty, strfind(toolbox_names,'Curve Fitting Toolbox')),1)))
         disp('It seems that you do not have the Curve Fitting Toolbox. It is highly recommended to install it.');
     end
-    Figure_h = gui_lib.create_figure('CHAP - Main', 'images/chap_1.jpg', [0 0 550 440]);%create the initial figure
+    Figure_h = gui_lib.create_figure(['CHAP (', configer.version ') - Main'], 'images/chap_1.jpg', [0 0 550 440]);%create the initial figure
+%     gui_lib.uicontrol_text(Figure_h, ['v', configer.version], [0, 420 150 30]);
+%     text(22, 390, ['v', configer.version], 'HorizontalAlignment', 'left', 'Color', [1 1 1], 'FontSize', 8, 'FontWeight', 'bold');
+
     add_main_buttons(Figure_h)  %create for buttons and present them in the figure
 end
 
 function add_main_buttons(Figure_h)
     log = text(10, 420, '', 'HorizontalAlignment', 'left', 'Color', [1 1 1], 'FontWeight', 'bold');
-    
+
     text(22, 390, 'For questions contact: Ronen.Hershman@uibk.ac.at | noga.cohen@edu.haifa.ac.il', 'HorizontalAlignment', 'left', 'Color', [1 1 1], 'FontSize', 8, 'FontWeight', 'bold');
 
     gui_lib.uicontrol_button(Figure_h, [22 332 195 40], 'New project', {@read_raw_file, log});

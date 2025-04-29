@@ -1,14 +1,14 @@
 function CHAP_installation()
 clear mex
 
-version = 'v1.8'; 
+% version = 'v1.8'; 
 
 fprintf('Check for latest version of CHAP...\n');
 
 targetdirectory=fileparts(mfilename('fullpath'));
 cd (targetdirectory);
 try
-    is_out_of_date =  urlread(['https://cnl.bgu.ac.il/chap/?v=', version]);
+    is_out_of_date =  urlread(['https://cnl.bgu.ac.il/chap/?v=', configer.version]);
     if is_out_of_date
         fprintf([is_out_of_date, '\n']);
         answer=input('Do you want to continue the current installation (yes or no)? ','s');
@@ -18,7 +18,7 @@ try
         end
     end
 catch
-    fprintf('Cannot check for latest version. \n');
+    fprintf('Cannot check for the latest version. \n');
 end
 fprintf('This is the latest version of CHAP...\n');
 
