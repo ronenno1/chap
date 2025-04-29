@@ -46,7 +46,7 @@ classdef read_data
                 return;
             end
             data = read_data.parse_data(full_data_mat, log);
-            print_log([strrep(file_name, '_', '\_') ' Loaded successfully! ' num2str(toc(start)) ' seconds'], log);    
+            print_log([strrep(file_name, '_', '\_') ' was loaded successfully! ' num2str(round(toc(start))) ' seconds. Sampling rate: ' num2str(data.rate) 'Hz'], log);    
         end
 
         function data = parse_data(full_data_mat, log)

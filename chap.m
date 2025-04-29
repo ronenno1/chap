@@ -107,7 +107,7 @@ function read_chap(src, evnt, log) % read edf file and convert it to mat file
     data      = read_data.parse_data(chap_data, log);
     
     guidata(src, data);
-    print_log([strrep(chap_file_name, '_', '\_') ' was loaded successfully! ' num2str(toc(start)) ' seconds'], log);    
+    print_log([strrep(chap_file_name, '_', '\_') ' was loaded successfully! ' num2str(round(toc(start))) ' seconds. Sampling rate: ' num2str(data.rate) 'Hz'], log);
     process_window(src, evnt, log);
 end
 
@@ -552,7 +552,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
             return;
         end
         if(single_data.rate~=data.rate)
-            print_log(['Error: A wrong smapling rate: ', strrep(char(files(i)),  '_', '\_'), ': '], log);    
+            print_log(['Error: A wrong sampling rate: ', strrep(char(files(i)),  '_', '\_'), ': '], log);
             continue;
         end
         skip = false;
@@ -582,6 +582,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
         comp_names_fixed = cellfun(@(x) x(3:end), comp_names, 'UniformOutput', false);
         comp_names_fixed = strrep(strrep(comp_names_fixed, '_x_', ' & '),'_',' ');
         printed_data = ploted_data;
+
         %% save the data
         comp_names = fieldnames(ploted_data);
 
@@ -635,7 +636,7 @@ function process_files(paths, files, data, fig, log, log_a, res_table, overwrite
             output.save_figure(fig, comp_names_fixed, [paths.png_output_folder_name filesep file_name '.png']);
             output.save_figure(fig, comp_names_fixed, [paths.fig_output_folder_name filesep file_name '.fig']);
             single_data.printed_data = printed_data;
-            save([paths.mat_output_folder_name filesep file_name], 'ploted_data');
+            save([paths.mat_output_folder_name filesep file_name, '.mat'], 'ploted_data');
             output.save_csv_append(printed_data, [paths.csv_output_folder_name filesep 'time-course_data.csv'], file_name);
             single_var_data_table = output.save_csv_append4(single_data, cond_ids, ploted_data.rate);
             if ~isempty(var_data_table)

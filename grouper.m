@@ -48,6 +48,26 @@ classdef grouper
             bytes_arr = cell2mat(bytes);
             files = files(bytes_arr>10000);
             files = {files.name}';
+
+            if exist ([output_folder_name, filesep, 'groups.csv'], 'file')
+                groups = readtable([output_folder_name, filesep, 'groups.csv']);
+                group_field_names = groups.Properties.VariableNames ;
+
+                selection = listdlg('PromptString', 'Select a group (or use no filter):', ...
+                                    'SelectionMode', 'single', ...  % Ensures only one selection
+                                    'ListString', group_field_names);
+                if ~isempty(selection)
+                    use_only = groups.(char(group_field_names{selection}));
+                    try
+                        use_only(cellfun(@isempty, use_only)) = [];
+                        files = intersect(files, use_only);
+                        missing_files = setdiff(use_only, files, 'stable');
+                        print_log(['Error: The following files are missing : ', strjoin(missing_files, ', ')]);    
+                    catch
+                        print_log(['Error: no files under ', group_field_names{selection}  ]);    
+                    end
+                end
+            end
             chap_output_folder_name = [output_folder_name filesep 'chap'];
             if ~exist(chap_output_folder_name, 'dir')
                 mkdir(chap_output_folder_name);

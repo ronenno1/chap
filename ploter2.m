@@ -291,6 +291,20 @@ classdef ploter2
                 ploted_data.(cond_name).cuted_data = [];
                 return;
             end    
+            %origin
+            do_diff = 0;
+            if do_diff
+                for comp = 1:size(comp_names, 1)/2
+                    cond_name1 = char(comp_names(comp));
+                    cond_name2 = char(comp_names(comp+2));
+                    min_dur = min(length(ploted_data.(cond_name1).pupil), length(ploted_data.(cond_name2).pupil));
+                    diff_pupil = ploted_data.(cond_name2).pupil(1:min_dur)-ploted_data.(cond_name1).pupil(1:min_dur);
+                    ploted_data.(cond_name1).pupil = diff_pupil;
+                    ploted_data.(cond_name1).x_axis = ploted_data.(cond_name1).x_axis(1:min_dur);
+                    ploted_data.(cond_name2).x_axis = ploted_data.(cond_name1).x_axis(1:min_dur);
+                    ploted_data.(cond_name2).pupil = diff_pupil*0;
+                end
+            end
 
             for comp = 1:size(comp_names, 1)
                 cond_name = char(comp_names(comp));
@@ -343,14 +357,17 @@ classdef ploter2
                 end
                 events    = cond_events_data.(cond_name);
                 all_events    = events*ms;
-
                 outlier_trials = find(isnan(min(ploted_data.(char(cond_name)).cuted_data)));
                 events(:, outlier_trials) = [];
+                ploted_data.(char(cond_name)).outlier_trials = outlier_trials;
+
                 evant_avg = mean(events, 2);
                 cond_events = events;
                 cond_events_ms = ms*cond_events;
                 for e = events_id_to_show  
-                    ploted_data.(cond_name).all_events(e, :) = all_events(e, :);
+                    ploted_data.(cond_name).all_events(e, :) = events(e, :);
+                    ploted_data.(cond_name).all_events_ms(e, :) = events(e, :)*ms;
+
 
                     event_time = evant_avg(e);
                     if(relative)
@@ -358,6 +375,7 @@ classdef ploter2
                     end
                     y = get(fig, 'ylim');
                     event_time_ms = ms*event_time;
+
                     ploted_data.(cond_name).events.(char(event_names(e))) = event_time_ms;
                     color2plot = [0, 0, 0];
                     if event_time_ms~=0

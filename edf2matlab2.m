@@ -120,6 +120,19 @@
     mode_id     = find(~cellfun(@isempty, strfind(event_msgs, '!MODE')), 1);
     mode_data   = strsplit(event_msgs{mode_id});
     data.rate   = str2double(char((mode_data(4)))); 
+    
+    force_sampling_rate = 0;
+    if force_sampling_rate>0 && data.rate>force_sampling_rate
+        ratio = data.rate/force_sampling_rate;
+        data.pupil_size = data.pupil_size(ratio:ratio:end, :);
+        data.pupil_y    = data.pupil_y(ratio:ratio:end, :); 
+        data.pupil_x    = data.pupil_x(ratio:ratio:end, :); 
+        data.timestamps = data.timestamps(ratio:ratio:end, :); 
+        timestamps      = timestamps(:, 1:ratio:end) ; 
+        timestamps      = timestamps(:, 1:length(data.timestamps)) ; 
+        data.rate       = force_sampling_rate;
+    end
+    
     data.file_name  = full_edf_name; 
     
     timestamps = timestamps/(1000/data.rate);

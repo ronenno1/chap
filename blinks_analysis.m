@@ -25,7 +25,7 @@ classdef blinks_analysis
             
             
             tooltip = '<html><i>Save data';
-            gui_lib.uicontrol_button(figure, [162 40 155 30], 'Save data', {@(~,~)blinks_analysis.save_stat(figure, data.paths.project_output_folder_name)}, tooltip); 
+            gui_lib.uicontrol_button(figure, [162 40 155 30], 'Save data', {@(~,~)blinks_analysis.save_stat(figure, folder)}, tooltip); 
 
             
             data = blinks_analysis.show_statistical_vars(data, figure);
@@ -157,6 +157,8 @@ classdef blinks_analysis
                     data_file = load([folder, filesep, files{file}]);
 
                     cond_data = data_file.ploted_data.(condition2analyze{condition}).blinks;
+                    outliers = data_file.ploted_data.(condition2analyze{condition}).outlier_trials;
+                    cond_data(outliers) = [];
                     cond_blinks = zeros(length(cond_data), max_duration);
 
                     x_axis = data_file.ploted_data.(condition2analyze{condition}).x_axis;
@@ -169,9 +171,10 @@ classdef blinks_analysis
                             cond_blinks(trial, 1+trial_blinks(blink_id): last_sample) = 1;
                             blink_id = blink_id + 2;
                         end
+
                         first_sample_ms = round(data_file.ploted_data.(condition2analyze{condition}).all_events(:, trial));
                         first_sample_ms = first_sample_ms(1);
-                        first_sample = round((first_sample_ms+(x_axis(1)))/(1000/data_file.ploted_data.rate));
+                        first_sample = round((first_sample_ms-(x_axis(1)))/(1000/data_file.ploted_data.rate));
                         cond_blinks(trial, :) = [cond_blinks(trial, first_sample:end), zeros(1, first_sample-1)];
                     end
                     mean_cond(file, :) = mean(cond_blinks);
@@ -180,7 +183,13 @@ classdef blinks_analysis
                 blinks{condition, 2} = mean_cond;
             end
             print_log(['Data has been parsed successfully! ', num2str(toc) ' seconds'], log);    
-
+%             diff = 0;
+%             if diff
+%                for cond = 1:size(blinks, 1)/2
+%                    blinks{cond, 2} = blinks{cond, 2}- blinks{cond+2, 2};
+%                    blinks{cond+2, 2} = blinks{cond, 2}*0;
+%                end
+%            end
         end
 
         

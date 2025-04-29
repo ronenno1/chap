@@ -59,7 +59,7 @@ function output = tobii2matlab(full_tobii_name, output_folder_name, log, events2
     first_index = 2;
     while data.rate==0
         first_index = first_index+1;
-        data.rate   = roundn(1000/(timestamps(first_index) - timestamps(first_index-1)), 1);
+        data.rate   = round(1000/(timestamps(first_index) - timestamps(first_index-1)), -1);
     end
  
     timestamps = timestamps/(1000/data.rate);

@@ -62,7 +62,7 @@ function output = etTxt2csv(full_txt_name)
     first_index = 1;
     while data.rate==0
         first_index = first_index+1;
-        data.rate   = roundn(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), 1);
+        data.rate   = round(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), -1);
     end
 
     data.file_name  = full_txt_name;     

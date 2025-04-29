@@ -88,17 +88,19 @@ function output = etTxt2matlab(full_txt_name, output_folder_name, log, events2, 
     first_index = 2;
     while data.rate==0
         first_index = first_index+1;
-        data.rate   = roundn(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), 1);
+        data.rate   = round(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), -1);
     end
     
-    use_30 = false;
-    if data.rate == 60 && use_30
-        data.pupil_size(2:2:end, :) = []; 
-        data.pupil_y(2:2:end, :)    = []; 
-        data.pupil_x(2:2:end, :)    = []; 
-        data.timestamps(2:2:end, :) = []; 
-        timestamps(:, 2:2:end)      = []; 
-        data.rate                   = 30;
+
+    force_sampling_rate = 0;
+    if force_sampling_rate>0 && data.rate>force_sampling_rate
+        ratio = data.rate/force_sampling_rate;
+        data.pupil_size = data.pupil_size(ratio:ratio:end, :);
+        data.pupil_y    = data.pupil_y(ratio:ratio:end, :); 
+        data.pupil_x    = data.pupil_x(ratio:ratio:end, :); 
+        data.timestamps = data.timestamps(ratio:ratio:end, :); 
+        timestamps      = timestamps(:, 1:ratio:end) ; 
+        data.rate       = force_sampling_rate;
     end
     
     
@@ -217,4 +219,5 @@ end
 function start_time = get_trial_data_onset(timestamp, timestamps)
     start_time      = find(timestamp>timestamps, 1, 'last');
 end
+
 

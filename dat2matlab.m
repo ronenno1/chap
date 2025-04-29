@@ -51,7 +51,7 @@ function output = dat2matlab(full_dat_name, output_folder_name, log, events2, va
     first_index = 3;
     while data.rate==0
         first_index = first_index+1;
-        data.rate   = roundn(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), 1);
+        data.rate   = round(1000/(1000*(timestamps(first_index) - timestamps(first_index-1))), -1);
     end
 
     data.file_name  = full_dat_name;     
@@ -91,8 +91,11 @@ function output = dat2matlab(full_dat_name, output_folder_name, log, events2, va
     print_log(['Loading messages complete: ' num2str(toc) ' seconds'], log);    
 
     event_msgs        = mes_data_table.message;
-    event_timestamps  = data.rate*86400*(datenum(mes_data_table.timestamp, 'yyyy-mm-dd HH:MM:SS.FFF')- datenum('01-Jan-1970'));
-
+    try
+        event_timestamps  = data.rate*86400*(datenum(mes_data_table.timestamp, 'yyyy-mm-dd HH:MM:SS.FFF')- datenum('01-Jan-1970'));
+    catch
+        event_timestamps  = data.rate*86400*(datenum(mes_data_table.timestamp)- datenum('01-Jan-1970'));
+    end
     print_log('Parsing trials', log);
     
     trial_ids = find(~cellfun(@isempty, strfind(event_msgs,'TRIALID'))); %trial is defined by message with the form TRIALID [num_of_trial]
